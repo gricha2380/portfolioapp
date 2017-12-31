@@ -1,0 +1,22 @@
+{
+  "name": "portfolioapp",
+  "version": "1.0.0",
+  "description": "standalone edition of asset porfolio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gricha2380/portfolioapp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gricha2380/portfolioapp/issues"
+  },
+  "homepage": "https://github.com/gricha2380/portfolioapp#readme",
+  "dependencies": {
+    "firebase-tools": "^3.16.0"
+  }
+}
