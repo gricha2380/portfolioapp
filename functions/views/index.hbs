@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <title>All Houses</title>
+</head>
+<body>
+    <nav>
+        <a>All Houses</a>
+        <a href="/new">Add New</a>
+    </nav>
+    <h1 class="center">List of Houses</h1>
+    <ul id="houseList">
+        {{#each house}}
+        <li>
+            <div class="house">
+                <svg width="96px" height="90px" viewBox="2 5 96 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs></defs>
+                <path d="M2.6,44.36 L6.4,49 L12.69,43.85 L18.57,94.85 L54.27,94.85 L54.27,65.71 L71,65.71 L71,94.81 L81.4,94.81 L87.3,43.81 L93.56,49 L97.4,44.39 L50.4,5.2 L2.6,44.36 Z M46.6,82.46 L29,82.46 L29,65.71 L46.65,65.71 L46.6,82.46 Z" id="Shape" stroke="none" fill="{{color}}" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <b>Name: {{name}}</b> <br>Address: {{address}} <br>Color: {{color}}<br>Rooms: {{rooms}}
+        </li>
+        {{/each}}
+    </ul>
+</body>
+</html>
