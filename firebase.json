@@ -9,6 +9,8 @@
     "rewrites" : [{
       "source" : "**",
       "function" : "app"
-    }]
+    }],
+    "cleanUrls": true,
+    "trailingSlash": false
   }
 }

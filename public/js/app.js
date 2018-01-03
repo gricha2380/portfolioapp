@@ -1,8 +1,8 @@
 'use strict';
 
 var app = {};
-// var __API_URL__ = 'https://houseapidemo.firebaseapp.com/'; // deployed URL
-var __API_URL__ = 'http://localhost:5000'; // local URL
+var __API_URL__ = 'https://houseapidemo.firebaseapp.com/'; // deployed URL
+// var __API_URL__ = 'http://localhost:5000'; // local URL
 
 (function(module) {
     let newHouse = document.querySelector('#newForm');

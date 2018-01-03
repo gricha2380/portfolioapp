@@ -74,16 +74,24 @@ app.post('/new', (request, response) => {
 
 app.get('/new', (request, response) => {
     console.log("serving new house HTML page")
-    response.sendFile('add.html', {root: '../public'});
+    response.sendFile('new.html', {root: '../public'});
+    // response.sendFile('public/add.html', {root: '../'}); //example: giving path with no root
+
+});
+
+app.get('/', (request, response) => {
+    response.redirect('/all');
 });
 
 app.get('/index', (request, response) => {
-    resp.sendFile('index.html', {root: '../public'});
+    // response.sendFile('index.html', {root: '../public'});
+    // response.sendFile('./public/index.html', {root: '.'}); //example: giving path with no root
+    response.redirect('/all');
 });
 
 app.get('/hello', (request, response) => {
-    console.log("a hello request came in")
-    response.json({message: "Welcome to my API!"})
+    console.log("a hello request came in") // this will show in node CLI
+    response.json({message: "Welcome to my API!"}) // this will show in the browser
     // response.send(`welcome to my API`)
 });
 
