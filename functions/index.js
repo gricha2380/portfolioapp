@@ -1,34 +1,42 @@
-// test locally with: firebase serve --only functions,hosting
+'use strict';
 
+/********************* TESTING TOOLS *********************/
+// Database: firebase serve --only functions,hosting
+// make sure route rewrites are listed in firebase.json
+
+/* REQUIRING DEPENDENCIES */
 const functions = require('firebase-functions'); //for firebase storage
 const firebase = require('firebase-admin'); //for firebase database
 const express = require('express'); // load express from node_modules
 const engines = require('consolidate'); // allows popular templating libaries to work with Express
-
-const nf = require('nasdaq-finance'); // stock API
-
+const cors = require('cors'); // avoid cross browser scripting errors
+const bodyParser = require('body-parser'); // go inside message body
+const traderjs = require('traderjs');
+// const nf = require('nasdaq-finance'); // stock API
+// instructions: import nf from 'nasdaq-finance'; const nf = new NasdaqFinance()
 // const stock = new NasdaqFinance();
-const stock = nf.NasdaqFinance();
+// const stock = nf.NasdaqFinance();
+// const stock = nf.default; // on the right track?
 
-const app = express(); // instantiate express to use its functionality
+/* INSTANTIATING APP FUNCTIONS */
+// const stock = nf.default;
+const app = express();
 
+/********************* TEMPLATING *********************/
 app.engine('hbs', engines.handlebars); // use consolidate to attach handlebars templating
 app.set('views', './views'); // set views folder to our directory
 app.set('view engine', 'hbs'); // use our engine
 
-const bodyParser = require('body-parser'); // go inside message body
-
+/********************* DATABASE CONFIG *********************/
 const PORT = process.env.PORT || 3000; // set a port. Look to environment variable if avaialble
-
 const firebaseApp = firebase.initializeApp(
     functions.config().firebase // use credentials from configured project
 );
 
-function getHouses() {
-    const ref = firebaseApp.database().ref('houses'); //firebase database
-    console.log('inside assets');
-    return ref.once('value').then(snap => snap.val());
-}
+/********************* ROUTE HELPERS *********************/
+app.use(cors()); // if cross origin becomes an issue
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 function getAssets() {
     const ref = firebaseApp.database().ref('users/0/assets'); //firebase database
@@ -36,12 +44,32 @@ function getAssets() {
     return ref.once('value').then(snap => snap.val());
 }
 
+function findStockData(asset) {
+    console.log('inside stock asset', asset);
+    console.log('this is asset symbol', asset.symbol);
+    stock.getInfo(asset.symbol)
+    .then((response) => {    
+        console.log('inside asset response build...')
+        // capture 24h change, 24h gain, current price
+        // append data to existing object & return 
+    })
+    .catch(console.error)
+    // return asset;
+}
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+function findCryptoData(asset) {
+    console.log('inside crypto function', asset);
+    stock.getInfo(asset.symbol)
+    .then((response) => {    
+        console.log('inside asset response build...')
+        // capture 24h change, 24h gain, current price
+        // append data to existing object & return 
+    })
+    .catch(console.error)
+    // return asset;
+}
 
-
-// ROUTES
+/********************* ROUTES *********************/
 
 // ROUTE 1: fetch all assets from firebase datastore called assets
     // db holds: symbol, name, purchase price, quantity, brokerage, asset type, id
@@ -88,63 +116,59 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // FUTURE: Allow multiple users
 
-// all via JSON
+// ROUTE 1: fetch all assets
 app.get('/all', (request, response) => {
     console.log("showing all assets route")
     getAssets().then(asset => {
         for (let i = 0;i<asset.length;i++) {
             console.log(asset[i].type);
-            if (asset[i].type=='stock') findStockData(asset); // console.log(asset[i].name +' is a stock');//
-            else if (asset[i].type=='crypto') findCryptoData(asset); //console.log(asset[i].name + ' is crypto');
+            if (asset[i].type=='stock') findStockData(asset[i]); // console.log(asset[i].name +' is a stock');//
+            else if (asset[i].type=='crypto') findCryptoData(asset[i]); //console.log(asset[i].name + ' is crypto');
             response.json({assets : asset}) // send basic json response
        }
-        response.send('all done');
+        // response.render('index', { asset }); // render index page and send back data in asset var
     });
 });
+// test bench for route 1...
+app.get('/test', (request, response) => {
+    var configuration = {
+        symbol: 'NASD:GOOG',
+        interval: 86400,
+        period: '2d',
+        fields: ['d','o','c','l','h','v']
+    };
+    traderjs
+        .config(configuration)
+        .transformer('json')
+        .temporal(function(data) {
+            console.log(data)
+            response.send(data)
+        })
+    // response.send(stock.getInfo('TSLA'));
+    
+});
 
-// for all asset types capture 24h change, 24h gain, current price
- // append data to existing object & return 
-function findStockData(asset) {
-    stock.getInfo(asset.symbol)
-    .then((response) => {
-        
-        asset.name = response.name,
-        asset.price = response.price,
-        asset.priceChange = response.priceChange,
-        asset.priceChangePercent = response.priceChangePercent
-        console.log('new asset value',asset);
-        return (asset);
-    })
-    .catch(console.error)
-    // return asset;
-}
-
-function findCryptoData(asset) {
-    console.log('inside crypto function', asset);
-    return asset;
-}
-
-// all via HTML
+// render to HTML template
 // app.get('/all', (request, response) => {
 //     console.log("showing all assets")
 //     getAssets().then(asset => {
 //         console.log('returning a asset');
-//         response.render('index', { asset }); // render index page and send back data in house var
+//         response.render('index', { asset }); // render index page and send back data in asset var
 //     });
 // });
 
-// caching example. Useful for portfolio app, but House app
+// caching example. Useful for portfolio app
 // app.get('/all', (request, response) => {
-//     console.log("showing all houses")
+//     console.log("showing all assets")
 //     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
-//     getHouses().then(house => {
-//         response.json({houses : house})
+//     getAssets().then(asset => {
+//         response.json({assets : asset})
 //     });
 // });
 
 app.post('/new', (request, response) => {
-    console.log("Making a new house")
-    const db = firebaseApp.database().ref('houses'); //firebase database
+    console.log("Making a new asset")
+    const db = firebaseApp.database().ref('users/0/assets'); //firebase database
     console.log(request.body);
     let {name, address, color, rooms, garage} = request.body;
     let item = {
@@ -155,14 +179,13 @@ app.post('/new', (request, response) => {
         "garage": garage
     }
     db.push(item); // submit items
-    response.send(`${name} house created`)
+    response.send(`${name} asset created`)
 });
 
 app.get('/new', (request, response) => {
-    console.log("serving new house HTML page")
+    console.log("serving new asset HTML page")
     response.sendFile('new.html', {root: '../public'});
     // response.sendFile('public/add.html', {root: '../'}); //example: giving path with no root
-
 });
 
 app.get('/', (request, response) => {
@@ -175,36 +198,11 @@ app.get('/index', (request, response) => {
     response.redirect('/all');
 });
 
-app.get('/hello', (request, response) => {
-    console.log("a hello request came in") // this will show in node CLI
-    response.json({message: "Welcome to my API!"}) // this will show in the browser
-    // response.send(`welcome to my API`)
-});
-
-app.get('/timestamp', (request, response) => {
-    response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
-    console.log("a request came in")
-    // response.json({message: "Welcome to my API"})
-    response.send(`${Date.now()}`)
-});
-
 app.get('*', (request, response) => {
     console.log('unknown route request');
     response.send('Sorry, unknown route.');
 });
-
-app.post('*', (request, response) => {
-    console.log('unknown post route request');
-    response.send('Sorry, unknown post route.');
-});
 //app.get('*', (req, res) => res.redirect(CLIENT_URL)); // listen for all routes, send to homepage
 
-// Start the app so it listens for changes via Express
-// app.listen(PORT, () => console.log(`Listening on ${PORT}`));
-
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-
-// Use with firebase serve command instead of app.listen
-// make sure route rewrites are listed in firebase.json
+/********************* LISTEN *********************/
 exports.app = functions.https.onRequest(app);
