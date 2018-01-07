@@ -11,12 +11,9 @@ const express = require('express'); // load express from node_modules
 const engines = require('consolidate'); // allows popular templating libaries to work with Express
 const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
-// const traderjs = require('traderjs'); // dont need. dont want.
 const nf = require('nasdaq-finance'); // stock API
-// instructions: import nf from 'nasdaq-finance'; const nf = new NasdaqFinance()
+const coinTicker = require('coin-ticker'); // crypto API
 const stock = new nf.default();
-// const stock = nf.NasdaqFinance();
-// const stock = nf.default; // on the right track?
 
 /* INSTANTIATING APP FUNCTIONS */
 // const stock = nf.default;
@@ -63,19 +60,19 @@ function findStockData(asset) {
 
 function findCryptoData(asset) {
     console.log('inside crypto function', asset);
-    //stock.getInfo(asset.symbol)
-    //.then((response) => {    
+    coinTicker(asset.exchange, asset.symbol+'_USD')
+    .then((response) => {    
         console.log('inside asset response build...')
         // capture 24h change, 24h gain, current price
         // append data to existing object & return 
-        asset.price = 333.33,
-        asset.priceChange = 42.42,
-        asset.priceChangePercent = 42.50
-        console.log('new crypto asset', asset)
-        console.log('returning new crypto')
+        asset.price = response.last;
+        asset.priceChange = 42.42;
+        asset.priceChangePercent = 42.50;
+        console.log('new crypto asset', asset);
+        console.log('returning new crypto');
         return asset;
-    //})
-    // .catch(console.error)
+    })
+    .catch(console.error)
     // return asset;
 }
 
@@ -143,7 +140,7 @@ app.get('/all', (request, response) => {
                     a.price = res.price;
                     a.priceChange = res.priceChange;
                     a.priceChangePercent = res.priceChangePercent;
-                    console.log('new stock asset here', asset);
+                    console.log('new stock asset here', a);
                     // response.send(asset);
                 }).catch(console.error))
             }
@@ -151,17 +148,14 @@ app.get('/all', (request, response) => {
                 console.log('current crypto content', a)
                 //stock.getInfo(a.symbol)
                 //.then((res) => {
-                    a.exchange = 'coinbase';
-                    a.price = '33.42';
+                    a.exchange = a.exchange;
+                    a.price = a.ask;
                     a.priceChange = '42';
                     a.priceChangePercent = '33';
-                    console.log('new cryto asset here', asset);
+                    console.log('new cryto asset here', a);
                     // response.send(asset);
                 //}).catch(console.error)
             }
-         
-        
-        
         })
            // Wait for all promises to resolve
            Promise.all(promises).then(function(results) {
