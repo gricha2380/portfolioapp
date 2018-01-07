@@ -11,10 +11,10 @@ const express = require('express'); // load express from node_modules
 const engines = require('consolidate'); // allows popular templating libaries to work with Express
 const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
-const traderjs = require('traderjs');
-// const nf = require('nasdaq-finance'); // stock API
+// const traderjs = require('traderjs'); // dont need. dont want.
+const nf = require('nasdaq-finance'); // stock API
 // instructions: import nf from 'nasdaq-finance'; const nf = new NasdaqFinance()
-// const stock = new NasdaqFinance();
+const stock = new nf.default();
 // const stock = nf.NasdaqFinance();
 // const stock = nf.default; // on the right track?
 
@@ -48,24 +48,34 @@ function findStockData(asset) {
     console.log('inside stock asset', asset);
     console.log('this is asset symbol', asset.symbol);
     stock.getInfo(asset.symbol)
-    .then((response) => {    
-        console.log('inside asset response build...')
-        // capture 24h change, 24h gain, current price
-        // append data to existing object & return 
+    .then((response) => {
+        console.log('asset name: ',response.name)
+        asset.exchange = response.exchange;
+        asset.price = response.price;
+        asset.priceChange = response.priceChange;
+        asset.priceChangePercent = response.priceChangePercent;
+        console.log('new stock asset', asset);
+        console.log('returning new stock');
+        return asset;
     })
     .catch(console.error)
-    // return asset;
 }
 
 function findCryptoData(asset) {
     console.log('inside crypto function', asset);
-    stock.getInfo(asset.symbol)
-    .then((response) => {    
+    //stock.getInfo(asset.symbol)
+    //.then((response) => {    
         console.log('inside asset response build...')
         // capture 24h change, 24h gain, current price
         // append data to existing object & return 
-    })
-    .catch(console.error)
+        asset.price = 333.33,
+        asset.priceChange = 42.42,
+        asset.priceChangePercent = 42.50
+        console.log('new crypto asset', asset)
+        console.log('returning new crypto')
+        return asset;
+    //})
+    // .catch(console.error)
     // return asset;
 }
 
@@ -119,31 +129,59 @@ function findCryptoData(asset) {
 // ROUTE 1: fetch all assets
 app.get('/all', (request, response) => {
     console.log("showing all assets route")
-    getAssets().then(asset => {
-        for (let i = 0;i<asset.length;i++) {
-            console.log(asset[i].type);
-            if (asset[i].type=='stock') findStockData(asset[i]); // console.log(asset[i].name +' is a stock');//
-            else if (asset[i].type=='crypto') findCryptoData(asset[i]); //console.log(asset[i].name + ' is crypto');
-            response.json({assets : asset}) // send basic json response
-       }
-        // response.render('index', { asset }); // render index page and send back data in asset var
-    });
+    var promises = [];
+
+    promises.push(getAssets().then(asset => {
+        
+        console.log('one or many?', asset)
+        asset.forEach((a,i) => {
+            if (a.type=='stock') {
+                console.log('current stock content ', a)
+                promises.push(stock.getInfo(a.symbol)
+                .then((res) => {
+                    a.exchange = res.exchange;
+                    a.price = res.price;
+                    a.priceChange = res.priceChange;
+                    a.priceChangePercent = res.priceChangePercent;
+                    console.log('new stock asset here', asset);
+                    // response.send(asset);
+                }).catch(console.error))
+            }
+            if (a.type=='crypto') {
+                console.log('current crypto content', a)
+                //stock.getInfo(a.symbol)
+                //.then((res) => {
+                    a.exchange = 'coinbase';
+                    a.price = '33.42';
+                    a.priceChange = '42';
+                    a.priceChangePercent = '33';
+                    console.log('new cryto asset here', asset);
+                    // response.send(asset);
+                //}).catch(console.error)
+            }
+         
+        
+        
+        })
+           // Wait for all promises to resolve
+           Promise.all(promises).then(function(results) {
+            response.send(asset);
+        }.bind(this));
+    }).catch(console.error));
 });
 // test bench for route 1...
 app.get('/test', (request, response) => {
-    var configuration = {
-        symbol: 'NASD:GOOG',
-        interval: 86400,
-        period: '2d',
-        fields: ['d','o','c','l','h','v']
-    };
-    traderjs
-        .config(configuration)
-        .transformer('json')
-        .temporal(function(data) {
-            console.log(data)
-            response.send(data)
+    stock.getInfo('AAPL')
+    .then((res) => {
+        console.log('apple price: ',res)
+        response.json({
+            'exchange': res.exchange,
+            'price': res.price,
+            'priceChange' : res.priceChange,
+            'priceChangePercent' : res.priceChangePercent
         })
+    })
+    .catch(console.error)
     // response.send(stock.getInfo('TSLA'));
     
 });
