@@ -129,24 +129,45 @@ function findCryptoData(asset) {
 // ROUTE 1: fetch all assets
 app.get('/all', (request, response) => {
     console.log("showing all assets route")
-    getAssets().then(asset => {
-        let newStats;
-        for (let i = 0;i<asset.length;i++) {
-            console.log('starting engines')
-            console.log(asset[i].type);
-            // if (asset[i].type=='stock') {newStats = findStockData(asset[i]);console.log('newStats value ',newStats)} // console.log(asset[i].name +' is a stock');
-            if (asset[i].type=='stock') {sendReply(()=> response.send(findStockData(asset[i])))} //findStockData(asset[i])
-            //if (asset[i].type=='stock') findStockData(asset[i]); // console.log(asset[i].name +' is a stock');//
-            // else if (asset[i].type=='crypto') {newStats = findCryptoData(asset[i]);console.log('newStats value ',newStats)} 
-            else if (asset[i].type=='crypto') {response.send('something crypto new')} //findCryptoData(asset[i])
-            //console.log(asset[i].name + ' is crypto');
-            //response.json({assets : asset}) // send basic json response
-            console.log('almost ready for a response...')
-            // response.send('hello':'random','assetInfo': newStats.price)
-            // response.send(newStats.price)
-       }
-        // response.render('index', { asset }); // render index page and send back data in asset var
-    });
+    var promises = [];
+
+    promises.push(getAssets().then(asset => {
+        
+        console.log('one or many?', asset)
+        asset.forEach((a,i) => {
+            if (a.type=='stock') {
+                console.log('current stock content ', a)
+                promises.push(stock.getInfo(a.symbol)
+                .then((res) => {
+                    a.exchange = res.exchange;
+                    a.price = res.price;
+                    a.priceChange = res.priceChange;
+                    a.priceChangePercent = res.priceChangePercent;
+                    console.log('new stock asset here', asset);
+                    // response.send(asset);
+                }).catch(console.error))
+            }
+            if (a.type=='crypto') {
+                console.log('current crypto content', a)
+                //stock.getInfo(a.symbol)
+                //.then((res) => {
+                    a.exchange = 'coinbase';
+                    a.price = '33.42';
+                    a.priceChange = '42';
+                    a.priceChangePercent = '33';
+                    console.log('new cryto asset here', asset);
+                    // response.send(asset);
+                //}).catch(console.error)
+            }
+         
+        
+        
+        })
+           // Wait for all promises to resolve
+           Promise.all(promises).then(function(results) {
+            response.send(asset);
+        }.bind(this));
+    }).catch(console.error));
 });
 // test bench for route 1...
 app.get('/test', (request, response) => {
