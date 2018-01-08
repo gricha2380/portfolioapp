@@ -13,8 +13,30 @@
         <a href="/new">Add New</a>
     </nav>
     <h1 class="center">List of Assets</h1>
+    <table>
+        <thead>
+            <th>Symbol</th>
+            <th>Price</th>
+            <th>Price Paid</th>
+            <th>Quantity</th>
+            <th>Cost Basis</th>
+        </thead>
+        {{#each asset}}
+        <tr>
+            <td>{{symbol}}</td>
+            <td>{{price}}</td>
+            <td>{{purchasePrice}}</td>
+            <td>{{quantity}}</td>
+            <td>this is a calculation
+                <script>Number(4*4)
+                    {{quantity}} * {{purchasePrice}}
+                </script>
+            </td>
+        </tr>
+        {{/each}}
+    </table>
     <ul id="houseList">
-        {{#each house}}
+        {{#each asset}}
         <li>
             <div class="house">
                 <svg width="96px" height="90px" viewBox="2 5 96 90" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs></defs>

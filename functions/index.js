@@ -126,8 +126,8 @@ app.get('/all', (request, response) => {
         })
            // Wait for all promises to resolve. This fixed the big issue
            Promise.all(promises).then(function(results) {
-            response.send(asset);
-            // response.render('index', { asset }); // render index page and send back data in asset var
+            // response.send(asset);
+            response.render('index', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
