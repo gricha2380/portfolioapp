@@ -41,43 +41,7 @@ function getAssets() {
     return ref.once('value').then(snap => snap.val());
 }
 
-function findStockData(asset) {
-    console.log('inside stock asset', asset);
-    console.log('this is asset symbol', asset.symbol);
-    stock.getInfo(asset.symbol)
-    .then((response) => {
-        console.log('asset name: ',response.name)
-        asset.exchange = response.exchange;
-        asset.price = response.price;
-        asset.priceChange = response.priceChange;
-        asset.priceChangePercent = response.priceChangePercent;
-        console.log('new stock asset', asset);
-        console.log('returning new stock');
-        return asset;
-    })
-    .catch(console.error)
-}
-
-function findCryptoData(asset) {
-    console.log('inside crypto function', asset);
-    coinTicker(asset.exchange, asset.symbol+'_USD')
-    .then((response) => {    
-        console.log('inside asset response build...')
-        // capture 24h change, 24h gain, current price
-        // append data to existing object & return 
-        asset.price = response.last;
-        asset.priceChange = 42.42;
-        asset.priceChangePercent = 42.50;
-        console.log('new crypto asset', asset);
-        console.log('returning new crypto');
-        return asset;
-    })
-    .catch(console.error)
-    // return asset;
-}
-
 /********************* ROUTES *********************/
-
 // ROUTE 1: fetch all assets from firebase datastore called assets
     // db holds: symbol, name, purchase price, quantity, brokerage, asset type, id
     // save all into local object
@@ -146,38 +110,26 @@ app.get('/all', (request, response) => {
             }
             if (a.type=='crypto') {
                 console.log('current crypto content', a)
-                //stock.getInfo(a.symbol)
-                //.then((res) => {
-                    a.exchange = a.exchange;
-                    a.price = a.ask;
-                    a.priceChange = '42';
-                    a.priceChangePercent = '33';
-                    console.log('new cryto asset here', a);
-                    // response.send(asset);
-                //}).catch(console.error)
+               //promises.push(coinTicker('gdax','BTC_USD')
+                promises.push(coinTicker(a.exchange, a.symbol+'_USD')
+                .then((res) => {    
+                    console.log('inside asset response build...', res)
+                    // capture 24h change, 24h gain, current price
+                    // append data to existing object & return 
+                    a.price = res.last;
+                    a.priceChange = 42.42;
+                    a.priceChangePercent = 42.50;
+                    console.log('new crypto asset', asset);
+                    console.log('returning new crypto');
+                }).catch(console.error))
             }
         })
-           // Wait for all promises to resolve
+           // Wait for all promises to resolve. This fixed the big issue
            Promise.all(promises).then(function(results) {
             response.send(asset);
+            // response.render('index', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
-});
-// test bench for route 1...
-app.get('/test', (request, response) => {
-    stock.getInfo('AAPL')
-    .then((res) => {
-        console.log('apple price: ',res)
-        response.json({
-            'exchange': res.exchange,
-            'price': res.price,
-            'priceChange' : res.priceChange,
-            'priceChangePercent' : res.priceChangePercent
-        })
-    })
-    .catch(console.error)
-    // response.send(stock.getInfo('TSLA'));
-    
 });
 
 // render to HTML template
