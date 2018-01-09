@@ -13,26 +13,46 @@
         <a href="/new">Add New</a>
     </nav>
     <h1 class="center">List of Assets</h1>
-    <table>
+    <table id="assetList">
         <thead>
             <th>Symbol</th>
             <th>Price</th>
             <th>Price Paid</th>
             <th>Quantity</th>
             <th>Cost Basis</th>
+            <th>Market Value</th>
+            <th>Total Growth</th>
+            <th>Total Gain</th>
+            <th>Today %</th>
+            <th>Gain 24h</th>
         </thead>
+        <script type="text/javascript">
+            let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
+            let row = document.querySelector('#assetList');
+        </script>
         {{#each asset}}
-        <tr>
-            <td>{{symbol}}</td>
-            <td>{{price}}</td>
-            <td>{{purchasePrice}}</td>
-            <td>{{quantity}}</td>
-            <td>this is a calculation
-                <script>Number(4*4)
-                    {{quantity}} * {{purchasePrice}}
-                </script>
-            </td>
-        </tr>
+            <script type="text/javascript">
+                costBasis = `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`;
+                marketValue = `${parseFloat({{{quantity}}} * {{{price}}})}`;
+                totalGrowth = `${(marketValue/costBasis)*100}`;
+                totalGain = `${marketValue - costBasis}`;
+                todayPercent = `${parseFloat({{{priceChangePercent}}})}`;
+                todayGain = {{{priceChange}}};
+
+                row.innerHTML += `<tr>
+                    <td>{{{symbol}}}</td>
+                    <td>${{{price}}}</td>
+                    <td>${{{purchasePrice}}}</td>
+                    <td>{{{quantity}}}</td>
+                    <td>$${parseFloat(costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>$${parseFloat(marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat(totalGrowth).toFixed(2)-1}%</td>
+                    <td>$${parseFloat(totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat(todayPercent)}%</td>
+                    <td>$${parseFloat(todayGain)}</td>
+                </tr>`;
+                
+            </script>
         {{/each}}
     </table>
     <ul id="houseList">
