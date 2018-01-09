@@ -11,12 +11,9 @@ const express = require('express'); // load express from node_modules
 const engines = require('consolidate'); // allows popular templating libaries to work with Express
 const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
-// const traderjs = require('traderjs'); // dont need. dont want.
 const nf = require('nasdaq-finance'); // stock API
-// instructions: import nf from 'nasdaq-finance'; const nf = new NasdaqFinance()
+const coinTicker = require('coin-ticker'); // crypto API
 const stock = new nf.default();
-// const stock = nf.NasdaqFinance();
-// const stock = nf.default; // on the right track?
 
 /* INSTANTIATING APP FUNCTIONS */
 // const stock = nf.default;
@@ -44,43 +41,7 @@ function getAssets() {
     return ref.once('value').then(snap => snap.val());
 }
 
-function findStockData(asset) {
-    console.log('inside stock asset', asset);
-    console.log('this is asset symbol', asset.symbol);
-    stock.getInfo(asset.symbol)
-    .then((response) => {
-        console.log('asset name: ',response.name)
-        asset.exchange = response.exchange;
-        asset.price = response.price;
-        asset.priceChange = response.priceChange;
-        asset.priceChangePercent = response.priceChangePercent;
-        console.log('new stock asset', asset);
-        console.log('returning new stock');
-        return asset;
-    })
-    .catch(console.error)
-}
-
-function findCryptoData(asset) {
-    console.log('inside crypto function', asset);
-    //stock.getInfo(asset.symbol)
-    //.then((response) => {    
-        console.log('inside asset response build...')
-        // capture 24h change, 24h gain, current price
-        // append data to existing object & return 
-        asset.price = 333.33,
-        asset.priceChange = 42.42,
-        asset.priceChangePercent = 42.50
-        console.log('new crypto asset', asset)
-        console.log('returning new crypto')
-        return asset;
-    //})
-    // .catch(console.error)
-    // return asset;
-}
-
 /********************* ROUTES *********************/
-
 // ROUTE 1: fetch all assets from firebase datastore called assets
     // db holds: symbol, name, purchase price, quantity, brokerage, asset type, id
     // save all into local object
@@ -143,47 +104,32 @@ app.get('/all', (request, response) => {
                     a.price = res.price;
                     a.priceChange = res.priceChange;
                     a.priceChangePercent = res.priceChangePercent;
-                    console.log('new stock asset here', asset);
+                    console.log('new stock asset here', a);
                     // response.send(asset);
                 }).catch(console.error))
             }
             if (a.type=='crypto') {
                 console.log('current crypto content', a)
-                //stock.getInfo(a.symbol)
-                //.then((res) => {
-                    a.exchange = 'coinbase';
-                    a.price = '33.42';
-                    a.priceChange = '42';
-                    a.priceChangePercent = '33';
-                    console.log('new cryto asset here', asset);
-                    // response.send(asset);
-                //}).catch(console.error)
+               //promises.push(coinTicker('gdax','BTC_USD')
+                promises.push(coinTicker(a.exchange, a.symbol+'_USD')
+                .then((res) => {    
+                    console.log('inside asset response build...', res)
+                    // capture 24h change, 24h gain, current price
+                    // append data to existing object & return 
+                    a.price = res.last;
+                    a.priceChange = 42.42;
+                    a.priceChangePercent = 42.50;
+                    console.log('new crypto asset', asset);
+                    console.log('returning new crypto');
+                }).catch(console.error))
             }
-         
-        
-        
         })
-           // Wait for all promises to resolve
+           // Wait for all promises to resolve. This fixed the big issue
            Promise.all(promises).then(function(results) {
-            response.send(asset);
+            // response.send(asset);
+            response.render('index', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
-});
-// test bench for route 1...
-app.get('/test', (request, response) => {
-    stock.getInfo('AAPL')
-    .then((res) => {
-        console.log('apple price: ',res)
-        response.json({
-            'exchange': res.exchange,
-            'price': res.price,
-            'priceChange' : res.priceChange,
-            'priceChangePercent' : res.priceChangePercent
-        })
-    })
-    .catch(console.error)
-    // response.send(stock.getInfo('TSLA'));
-    
 });
 
 // render to HTML template
