@@ -117,8 +117,8 @@ app.get('/all', (request, response) => {
                     // capture 24h change, 24h gain, current price
                     // append data to existing object & return 
                     a.price = res.last;
-                    a.priceChange = 42.42;
-                    a.priceChangePercent = 42.50;
+                    a.priceChange = 0; //TODO
+                    a.priceChangePercent = 0; //TODO
                     console.log('new crypto asset', asset);
                     console.log('returning new crypto');
                 }).catch(console.error))
