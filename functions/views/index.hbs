@@ -63,35 +63,6 @@
         <a>All Assets</a>
         <a href="/new">Add New</a>
     </nav>
-    <script type="text/javascript">
-        function modal(asset){
-            // programatically build div
-            let modalBox = document.createElement('div');
-            modalBox.classList.add('modal');
-            modalBox.innerHTML = 
-                `<label>Name<input value="hello" id="nameField"></label>
-                `;
-            modalBox.innerHTML += 
-            `<div class="cancel">Cancel</div><div class="save">Save</div>`;
-            // if asset param exists, fill field value with data
-            // if new asset, on save, add 1 to id & send data to firebase as new object. 
-            // action makes post request to API. Also passes key pulled from env
-            if (asset) {
-                console.log('there is an asset id', asset.id);
-            }
-            //name
-            // symbol
-            // type
-            // quantity
-            // pricepaid
-            // broker
-            document.querySelector("body").append(modalBox);
-        }
-        document.querySelector('.addNew').addEventListener('click', (event) => {
-            modal();
-        })
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

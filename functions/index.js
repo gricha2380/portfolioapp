@@ -41,6 +41,12 @@ function getAssets() {
     return ref.once('value').then(snap => snap.val());
 }
 
+function saveSnapshot() {
+    const ref = firebaseApp.database().ref('users/0/snapshots'); //firebase database
+    console.log('inside snapshots');
+    return ref.once('value').then(snap => snap.val());
+}
+
 /********************* ROUTES *********************/
 // ROUTE 1: fetch all assets from firebase datastore called assets
     // db holds: symbol, name, purchase price, quantity, brokerage, asset type, id
@@ -132,15 +138,6 @@ app.get('/all', (request, response) => {
     }).catch(console.error));
 });
 
-// render to HTML template
-// app.get('/all', (request, response) => {
-//     console.log("showing all assets")
-//     getAssets().then(asset => {
-//         console.log('returning a asset');
-//         response.render('index', { asset }); // render index page and send back data in asset var
-//     });
-// });
-
 // caching example. Useful for portfolio app
 // app.get('/all', (request, response) => {
 //     console.log("showing all assets")
@@ -154,32 +151,48 @@ app.post('/new', (request, response) => {
     console.log("Making a new asset")
     const db = firebaseApp.database().ref('users/0/assets'); //firebase database
     console.log(request.body);
-    let {name, address, color, rooms, garage} = request.body;
+    let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
     let item = {
         "name": name,
-        "address": address,
-        "color": color,
-        "rooms": rooms,
-        "garage": garage
+        "symbol": symbol,
+        "type": type,
+        "purchasePrice": purchasePrice,
+        "quantity": quantity,
+        "exchange" : exchange
     }
     db.push(item); // submit items
+    console.log('new asset created',name);
     response.send(`${name} asset created`)
 });
 
 app.get('/new', (request, response) => {
     console.log("serving new asset HTML page")
-    response.sendFile('new.html', {root: '../public'});
+    //response.sendFile('new.html', {root: '../public'});
     // response.sendFile('public/add.html', {root: '../'}); //example: giving path with no root
+    response.send('what route is that?')
 });
 
 app.get('/', (request, response) => {
-    response.redirect('/all');
+    // response.redirect('/all');
+    response.send('what route is that?')
 });
 
 app.get('/index', (request, response) => {
     // response.sendFile('index.html', {root: '../public'});
     // response.sendFile('./public/index.html', {root: '.'}); //example: giving path with no root
-    response.redirect('/all');
+    // response.redirect('/all');
+    response.send('index request?')
+});
+
+app.get('/save', (request, response) => {
+    // check cridentials
+    // compute the following: date, port. value, ,port gains, port growth, crypto value, crypto gains, ctypto growth, crypto %, stock value, stock gains, stock growth, stock %
+    // save to firebase
+    var promises = [];
+    promises.push(getAssets().then(asset => {
+        response.send('snapshot saved');
+    }).catch(console.error));
+    
 });
 
 app.get('*', (request, response) => {
