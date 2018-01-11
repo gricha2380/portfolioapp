@@ -28,36 +28,41 @@
         <script type="text/javascript">
             let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
             let row = document.querySelector('#assetList');
+            let assets = {};
+            let id = 0;
         </script>
         {{#each asset}}
             <script type="text/javascript">
-                costBasis = `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`;
-                marketValue = `${parseFloat({{{quantity}}} * {{{price}}})}`;
-                totalGrowth = `${(marketValue/costBasis)*100}`;
-                totalGain = `${marketValue - costBasis}`;
-                todayPercent = `${parseFloat({{{priceChangePercent}}})}`;
-                todayGain = {{{priceChange}}};
+                assets.id = {
+                    costBasis : `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`,
+                    marketValue : `${parseFloat({{{quantity}}} * {{{price}}})}`,
+                    todayPercent : `${parseFloat({{{priceChangePercent}}})}`,
+                    todayGain : {{{priceChange}}}
+                };
+                assets.id.totalGrowth = `${(assets.id.marketValue/assets.id.costBasis)*100}`;
+                assets.id.totalGain = `${assets.id.marketValue - assets.id.costBasis}`;
 
                 row.innerHTML += `<tr>
                     <td><a>{{{symbol}}}</a></td>
                     <td>${{{price}}}</td>
                     <td>${{{purchasePrice}}}</td>
                     <td>{{{quantity}}}</td>
-                    <td>$${parseFloat(costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>$${parseFloat(marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>${parseFloat(totalGrowth).toFixed(2)-1}%</td>
-                    <td>$${parseFloat(totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>${parseFloat(todayPercent)}%</td>
-                    <td>$${parseFloat(todayGain)}</td>
+                    <td>$${parseFloat(assets.id.costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>$${parseFloat(assets.id.marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat(assets.id.totalGrowth).toFixed(2)-1}%</td>
+                    <td>$${parseFloat(assets.id.totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat(assets.id.todayPercent)}%</td>
+                    <td>$${parseFloat(assets.id.todayGain)}</td>
                 </tr>`;
-                
+                id++;
             </script>
         {{/each}}
     </table>
-    <div class="addNew"><a>Add New</a></div>
+    <div class="addNew"><a>Add New test</a></div>
     <nav>
         <a>All Assets</a>
         <a href="/new">Add New</a>
     </nav>
+    <script src="js/app.js"></script>
 </body>
 </html>

@@ -13,3 +13,16 @@ body {background: aliceblue;}
 .house svg {
     filter: drop-shadow( -1px -1px 1px rgba(0,0,0,.5));
 }
+
+#assetList th, #assetList td{
+    padding: 0 1rem;
+}
+
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background: black;
+    color: white;
+    padding: 1rem;
+}
