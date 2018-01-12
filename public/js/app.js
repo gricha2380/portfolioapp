@@ -71,7 +71,7 @@ let q = 'document.querySelector'; // what's a jquery?
     
     function insertRecord(asset) {
         let xhttp = new XMLHttpRequest();
-        xhttp.open('POST', `${__API_URL__}/new`, true);
+        xhttp.open('POST', `${__API_URL__}/add`, true);
         // xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xhttp.send(asset)
         //.then(console.log('inserting new asset'))

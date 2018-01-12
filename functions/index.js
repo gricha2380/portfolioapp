@@ -47,6 +47,18 @@ function saveSnapshot() {
     return ref.once('value').then(snap => snap.val());
 }
 
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('/');
+}
+
 /********************* ROUTES *********************/
 // ROUTE 1: fetch all assets from firebase datastore called assets
     // db holds: symbol, name, purchase price, quantity, brokerage, asset type, id
@@ -96,7 +108,7 @@ function saveSnapshot() {
 // ROUTE 1: fetch all assets
 app.get('/all', (request, response) => {
     console.log("showing all assets route")
-    var promises = [];
+    let promises = [];
 
     promises.push(getAssets().then(asset => {
         
@@ -147,22 +159,23 @@ app.get('/all', (request, response) => {
 //     });
 // });
 
-app.post('/new', (request, response) => {
+app.post('/add', (request, response) => {
     console.log("Making a new asset")
     const db = firebaseApp.database().ref('users/0/assets'); //firebase database
-    console.log(request.body);
-    let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
+    // console.log('request...',request);
+    console.log('request body here',request.body);
+    //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
     let item = {
-        "name": name,
-        "symbol": symbol,
-        "type": type,
-        "purchasePrice": purchasePrice,
-        "quantity": quantity,
-        "exchange" : exchange
+        "name": request.body.name,
+        "symbol": request.body.symbol,
+        "type": request.body.type,
+        "purchasePrice": request.body.purchasePrice,
+        "quantity": request.body.quantity,
+        "exchange" : request.body.exchange
     }
     db.push(item); // submit items
-    console.log('new asset created',name);
-    response.send(`${name} asset created`)
+    console.log('new asset created',request.body.name);
+    response.send(`${request.body.name} asset created`)
 });
 
 app.get('/new', (request, response) => {
@@ -188,11 +201,83 @@ app.get('/save', (request, response) => {
     // check cridentials
     // compute the following: date, port. value, ,port gains, port growth, crypto value, crypto gains, ctypto growth, crypto %, stock value, stock gains, stock growth, stock %
     // save to firebase
-    var promises = [];
-    promises.push(getAssets().then(asset => {
-        response.send('snapshot saved');
-    }).catch(console.error));
+    const db = firebaseApp.database().ref('users/0/assets'); //firebase database
+    let item = {
+        "date": formatDate()
+        // "portfolioValue": "portfolioValue() to sum current value",
+        // "portfolioGains":"function to sum current dollar change",
+        // "portfolioGrowth":"functinon to sum current percent change",
+        // "cryptoValue": "function to sum va"
+    }
     
+    let portfolioValue = (e) => {
+        let promises = [];
+
+        promises.push(getAssets().then(asset => {
+            // how can I use map, rduce & filter to arrive at the necessary values?
+            console.log('pulling all assets', asset)
+            asset.map(a => {
+                if (a.type=='stock') {
+                    console.log('current stock content ', a)
+                    promises.push(stock.getInfo(a.symbol)
+                    .then((res) => {
+                        a.price = res.price;
+                        a.priceChange = res.priceChange;
+                        a.priceChangePercent = res.priceChangePercent;
+                        console.log('new stock asset here', a);
+                        // response.send(asset);
+                    }).catch(console.error))
+                }
+                if (a.type=='crypto') {
+                    console.log('current crypto content', a)
+                //promises.push(coinTicker('gdax','BTC_USD')
+                    promises.push(coinTicker(a.exchange, a.symbol+'_USD')
+                    .then((res) => {    
+                        console.log('inside asset response build...', res)
+                        // capture 24h change, 24h gain, current price
+                        // append data to existing object & return 
+                        a.price = res.last;
+                        a.priceChange = 0; //TODO
+                        a.priceChangePercent = 0; //TODO
+                        console.log('new crypto asset', asset);
+                        console.log('returning new crypto');
+                    }).catch(console.error))
+                }
+            }).reduce((a,c) => {
+                item.portfolioValue = a + (c.quantity * c.price);
+                item.portfolioGrowth = (a + c.priceChangePercent) / asset.length;
+                item.portfolioGains = (a + c.portfolioGains) / asset.length;
+                if (c.type=='stock') {
+                    item.stockValue = a + (c.quantity * c.price);
+                    item.stockGrowth = (a + c.priceChangePercent) / asset.length;
+                    item.stockGains = (a + c.portfolioGains) / asset.length;
+                } else if (c.type=='crypto') {
+                    item.cryptoValue = a + (c.quantity * c.price);
+                    item.cryptoGrowth = (a + c.priceChangePercent) / asset.length;
+                    item.cryptoGains = (a + c.portfolioGains) / asset.length;
+                }
+            })
+            // numArray.reduce((accumulator, current)) => accumulator + current)
+            // Wait for all promises to resolve. This fixed the big issue
+            Promise.all(promises).then(function(results) {
+                response.send(asset);
+            }.bind(this));
+        }).catch(console.error));
+
+        push (item.portfolioValue = portfolio.value);
+        push (item.portfolioGains = portfolio.gains);
+        push (item.portfolioGrowth = portfolio.growth);
+        push (item.cryptoValue = portfolio.crypto.value);
+        push (item.cryptoValue = portfolio.crypto.gains);
+        push (item.cryptoValue = portfolio.crypto.growth);
+        push (item.stocksValue = portfolio.stocks.value);
+        push (item.stocksValue = portfolio.stocks.gains);
+        push (item.stocksValue = portfolio.stocks.growth);
+    } //end portfolio value
+    portfolioValue();
+    console.log('new item value', item)
+    db.push(item); // submit items
+    console.log('snapshot saved');
 });
 
 app.get('*', (request, response) => {
