@@ -47,8 +47,8 @@ function saveSnapshot() {
     return ref.once('value').then(snap => snap.val());
 }
 
-function formatDate(date) {
-    var d = new Date(date),
+function formatDate() {
+    var d = new Date(),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
@@ -56,7 +56,7 @@ function formatDate(date) {
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
 
-    return [year, month, day].join('/');
+    return [month, day, year].join('/');
 }
 
 /********************* ROUTES *********************/
@@ -209,21 +209,29 @@ app.get('/save', (request, response) => {
         // "portfolioGrowth":"functinon to sum current percent change",
         // "cryptoValue": "function to sum va"
     }
-    
-    let portfolioValue = (e) => {
-        let promises = [];
 
-        promises.push(getAssets().then(asset => {
-            // how can I use map, rduce & filter to arrive at the necessary values?
-            console.log('pulling all assets', asset)
-            asset.map(a => {
-                if (a.type=='stock') {
+    // let portfolioValue = (e) => {
+    let promises = [];
+
+    promises.push(getAssets().then(asset => {
+        // how can I use map, rduce & filter to arrive at the necessary values?
+        console.log('all assets in save', asset)
+
+        // somehow I'm converting asset from an array into something else
+        for (let a in asset) {
+            console.log('this is outer', asset.a)
+            // for (let a in outer) {
+                console.log('this is inner', a)
+            // asset.forEach((a, i) => {
+            //asset.map((a) => {
+                if (asset.a.type=='stock') {
                     console.log('current stock content ', a)
                     promises.push(stock.getInfo(a.symbol)
                     .then((res) => {
-                        a.price = res.price;
-                        a.priceChange = res.priceChange;
-                        a.priceChangePercent = res.priceChangePercent;
+                        console.log('this is res', res)
+                        asset.a.price = res.price;
+                        asset.a.priceChange = res.priceChange;
+                        asset.a.priceChangePercent = res.priceChangePercent;
                         console.log('new stock asset here', a);
                         // response.send(asset);
                     }).catch(console.error))
@@ -243,41 +251,47 @@ app.get('/save', (request, response) => {
                         console.log('returning new crypto');
                     }).catch(console.error))
                 }
-            }).reduce((a,c) => {
-                item.portfolioValue = a + (c.quantity * c.price);
-                item.portfolioGrowth = (a + c.priceChangePercent) / asset.length;
-                item.portfolioGains = (a + c.portfolioGains) / asset.length;
-                if (c.type=='stock') {
-                    item.stockValue = a + (c.quantity * c.price);
-                    item.stockGrowth = (a + c.priceChangePercent) / asset.length;
-                    item.stockGains = (a + c.portfolioGains) / asset.length;
-                } else if (c.type=='crypto') {
-                    item.cryptoValue = a + (c.quantity * c.price);
-                    item.cryptoGrowth = (a + c.priceChangePercent) / asset.length;
-                    item.cryptoGains = (a + c.portfolioGains) / asset.length;
-                }
-            })
-            // numArray.reduce((accumulator, current)) => accumulator + current)
-            // Wait for all promises to resolve. This fixed the big issue
-            Promise.all(promises).then(function(results) {
-                response.send(asset);
-            }.bind(this));
-        }).catch(console.error));
+            // }
+        }
+        console.log('this is the asset', asset)
+        asset.reduce((a,c) => {
+            item.portfolioValue = a + (c.quantity * c.price);
+            item.portfolioGrowth = (a + c.priceChangePercent) / asset.length;
+            item.portfolioGains = (a + c.portfolioGains) / asset.length;
+            if (c.type=='stock') {
+                item.stockValue = a + (c.quantity * c.price);
+                item.stockGrowth = (a + c.priceChangePercent) / asset.length;
+                item.stockGains = (a + c.portfolioGains) / asset.length;
+            } else if (c.type=='crypto') {
+                item.cryptoValue = a + (c.quantity * c.price);
+                item.cryptoGrowth = (a + c.priceChangePercent) / asset.length;
+                item.cryptoGains = (a + c.portfolioGains) / asset.length;
+            }
+        })
 
-        push (item.portfolioValue = portfolio.value);
-        push (item.portfolioGains = portfolio.gains);
-        push (item.portfolioGrowth = portfolio.growth);
-        push (item.cryptoValue = portfolio.crypto.value);
-        push (item.cryptoValue = portfolio.crypto.gains);
-        push (item.cryptoValue = portfolio.crypto.growth);
-        push (item.stocksValue = portfolio.stocks.value);
-        push (item.stocksValue = portfolio.stocks.gains);
-        push (item.stocksValue = portfolio.stocks.growth);
-    } //end portfolio value
-    portfolioValue();
-    console.log('new item value', item)
-    db.push(item); // submit items
-    console.log('snapshot saved');
+        item.push(portfolioValue = portfolio.value);
+        item.push(portfolioGains = portfolio.gains);
+        item.push(portfolioGrowth = portfolio.growth);
+        item.push(cryptoValue = portfolio.crypto.value);
+        item.push(cryptoValue = portfolio.crypto.gains);
+        item.push(cryptoValue = portfolio.crypto.growth);
+        item.push(stocksValue = portfolio.stocks.value);
+        item.push(stocksValue = portfolio.stocks.gains);
+        item.push(stocksValue = portfolio.stocks.growth);
+        
+        console.log('new item value', item)
+        db.push(item); // submit items
+        console.log('snapshot saved');
+        // numArray.reduce((accumulator, current)) => accumulator + current)
+        // Wait for all promises to resolve. This fixed the big issue
+        Promise.all(promises).then(function(results) {
+            response.send(asset);
+        }.bind(this));
+    }).catch(console.error));
+
+    // } //end portfolio value
+    // portfolioValue();
+
 });
 
 app.get('*', (request, response) => {
