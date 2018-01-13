@@ -60,50 +60,6 @@ function formatDate() {
 }
 
 /********************* ROUTES *********************/
-// ROUTE 1: fetch all assets from firebase datastore called assets
-    // db holds: symbol, name, purchase price, quantity, brokerage, asset type, id
-    // save all into local object
-    // call function to find current market data
-    // when data is returned send updated data object as response to client
-
-// FUNCTION 1: get current market data (input: asset objects)
-    // Check asset type. If stock, (maybe put into stock array) fetch data from https://www.npmjs.com/package/nasdaq-finance
-    // If crypto, pass the name (not symbol) to coinmarketcap https://api.coinmarketcap.com/v1/ticker/ethereum
-    // for all asset types capture 24h change, 24h gain, current price
-    // append data to existing object & return 
-
-// ROUTE 2: save snapshot
-    // calculate the following:
-        // Portfolio Value, Portfolio Gains, Portfolio Growth, 
-        // Crypto Value, Crypto Gains, Crypto Growth, Crypto %, 
-        // Stock Value, Stock Gains, Stock Growth, Stock %
-    // once a day, save snapshot into datastore called historic, along with day time stamp
-    // send response to client containing the whole list of values
-
-// ROUTE 3: add asset
-    // post route, take in: name, symbol, asset type, purchase price, quantity, brokerage 
-    // add id to object. id = current_obj.length +1
-    // save object to db. Send response with okay or error
-
-// ROUTE 4: edit asset populate
-    // query db for record information with return results for asset matching id
-    // respond with record name, symbol, asset type, purchase price, quantity, brokerage
-
-// Route 5: edit asset save
-    // request contains name, symbol, asset type, purchase price, quantity, brokerage, id
-    // save & override relevant db record with matching asset id
-    // respond with okay or error
-
-// Route 6: Text value
-    // request contains username, value
-    // calculate portfolio value for given user
-    // repsonse contains value, name, date
-
-// CLIENT SIDE WORK
-//  compute total growth, total gain, portfolio %, market value, cost basis, 
-// create charts
-
-// FUTURE: Allow multiple users
 
 // ROUTE 1: fetch all assets
 app.get('/all', (request, response) => {
@@ -112,32 +68,32 @@ app.get('/all', (request, response) => {
 
     promises.push(getAssets().then(asset => {
         
-        console.log('one or many?', asset)
+        // console.log('one or many?', asset)
         asset.forEach((a,i) => {
             if (a.type=='stock') {
-                console.log('current stock content ', a)
+                // console.log('current stock content ', a)
                 promises.push(stock.getInfo(a.symbol)
                 .then((res) => {
                     a.exchange = res.exchange;
                     a.price = res.price;
                     a.priceChange = res.priceChange;
                     a.priceChangePercent = res.priceChangePercent;
-                    console.log('new stock asset here', a);
+                    // console.log('new stock asset here', a);
                     // response.send(asset);
                 }).catch(console.error))
             }
             if (a.type=='crypto') {
-                console.log('current crypto content', a)
+                // console.log('current crypto content', a)
                //promises.push(coinTicker('gdax','BTC_USD')
                 promises.push(coinTicker(a.exchange, a.symbol+'_USD')
                 .then((res) => {    
-                    console.log('inside asset response build...', res)
+                    // console.log('inside asset response build...', res)
                     // capture 24h change, 24h gain, current price
                     // append data to existing object & return 
                     a.price = res.last;
                     a.priceChange = 0; //TODO
                     a.priceChangePercent = 0; //TODO
-                    console.log('new crypto asset', asset);
+                    // console.log('new crypto asset', asset);
                     console.log('returning new crypto');
                 }).catch(console.error))
             }
@@ -159,11 +115,102 @@ app.get('/all', (request, response) => {
 //     });
 // });
 
+// ROUTE 2: save snapshot
+app.get('/save', (request, response) => {
+    // TODO: check cridentials
+    // compute the following: date, port. value, ,port gains, port growth, crypto value, crypto gains, crypto growth, crypto %, stock value, stock gains, stock growth, stock %
+    // save to firebase
+    const db = firebaseApp.database().ref('users/0/snapshots'); //firebase database
+
+    let totalValue = {
+        date: formatDate(),
+        unix: Date.now(),
+        portfolioValue: 0,
+        portfolioGrowth: 0,
+        portfolioGains: 0,
+        stockValue: 0,
+        stockGrowth: 0,
+        stockGains: 0,
+        stockCount: 0,
+        cryptoValue: 0,
+        cryptoGrowth: 0,
+        cryptoGains: 0,
+        cryptoCount: 0
+    };
+    let promises = [];
+
+    promises.push(getAssets().then(asset => {
+        // how can I use map, rduce & filter to arrive at the necessary values?
+        // console.log('all assets in save', asset)
+
+        for (let a in asset) {
+            // console.log('this is outer', a)
+            // console.log('this is outer', asset[a])
+            if (asset[a].type=='stock') {
+                // console.log('current stock content ', asset[a])
+                promises.push(stock.getInfo(asset[a].symbol)
+                .then((res) => {
+                    // console.log('this is res', res)
+                    asset[a].price = res.price;
+                    asset[a].priceChange = res.priceChange;
+                    asset[a].priceChangePercent = res.priceChangePercent;
+                    // console.log('new stock asset here', asset[a]);
+                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    totalValue.stockValue += (asset[a].quantity * asset[a].price);
+                    totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    totalValue.stockCount++;
+                    
+                    // response.send(asset[a]);
+                }).catch(console.error))
+            }
+            if (asset[a].type=='crypto') {
+                // console.log('current crypto content', a)
+                promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
+                .then((res) => {    
+                    // console.log('inside crypto asset response build...', res)
+                    // capture 24h change, 24h gain, current price
+                    // append data to existing object & return 
+                    asset[a].price = res.last;
+                    asset[a].priceChange = 0; //TODO
+                    asset[a].priceChangePercent = 0; //TODO
+                    // console.log('current crypto value quantity', asset[a].quantity);
+                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
+                    totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    totalValue.cryptoCount++;
+                    // response.sendFile(asset[a]);
+                }).catch(console.error))
+            }
+          //  response.send(asset)
+        }
+        //console.log('this is the asset', asset,'this is totalValue', totalValue)        
+
+        
+        // Wait for all promises to resolve. This fixed the big issue
+        Promise.all(promises).then(function(results) {
+            totalValue.portfolioGrowth = (totalValue.portfolioGrowth / (totalValue.cryptoCount + totalValue.stockCount)) * 100;
+            totalValue.stockGrowth = (totalValue.stockGrowth / totalValue.stockCount) * 100;
+            totalValue.cryptoGrowth = (totalValue.cryptoGrowth / totalValue.cryptoCount) * 100;
+            db.push(totalValue); // submit items
+            console.log('snapshot saved');
+            response.send(totalValue);
+        }.bind(this));
+    }).catch(console.error));
+
+});
+
+// ROUTE 3: add asset
 app.post('/add', (request, response) => {
     console.log("Making a new asset")
     const db = firebaseApp.database().ref('users/0/assets'); //firebase database
     // console.log('request...',request);
-    console.log('request body here',request.body);
+    // console.log('request body here',request.body);
     //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
     let item = {
         "name": request.body.name,
@@ -181,7 +228,6 @@ app.post('/add', (request, response) => {
 app.get('/new', (request, response) => {
     console.log("serving new asset HTML page")
     //response.sendFile('new.html', {root: '../public'});
-    // response.sendFile('public/add.html', {root: '../'}); //example: giving path with no root
     response.send('what route is that?')
 });
 
@@ -192,106 +238,7 @@ app.get('/', (request, response) => {
 
 app.get('/index', (request, response) => {
     // response.sendFile('index.html', {root: '../public'});
-    // response.sendFile('./public/index.html', {root: '.'}); //example: giving path with no root
-    // response.redirect('/all');
-    response.send('index request?')
-});
-
-app.get('/save', (request, response) => {
-    // check cridentials
-    // compute the following: date, port. value, ,port gains, port growth, crypto value, crypto gains, ctypto growth, crypto %, stock value, stock gains, stock growth, stock %
-    // save to firebase
-    const db = firebaseApp.database().ref('users/0/assets'); //firebase database
-    let item = {
-        "date": formatDate()
-        // "portfolioValue": "portfolioValue() to sum current value",
-        // "portfolioGains":"function to sum current dollar change",
-        // "portfolioGrowth":"functinon to sum current percent change",
-        // "cryptoValue": "function to sum va"
-    }
-
-    // let portfolioValue = (e) => {
-    let promises = [];
-
-    promises.push(getAssets().then(asset => {
-        // how can I use map, rduce & filter to arrive at the necessary values?
-        console.log('all assets in save', asset)
-
-        // somehow I'm converting asset from an array into something else
-        for (let a in asset) {
-            console.log('this is outer', asset.a)
-            // for (let a in outer) {
-                console.log('this is inner', a)
-            // asset.forEach((a, i) => {
-            //asset.map((a) => {
-                if (asset.a.type=='stock') {
-                    console.log('current stock content ', a)
-                    promises.push(stock.getInfo(a.symbol)
-                    .then((res) => {
-                        console.log('this is res', res)
-                        asset.a.price = res.price;
-                        asset.a.priceChange = res.priceChange;
-                        asset.a.priceChangePercent = res.priceChangePercent;
-                        console.log('new stock asset here', a);
-                        // response.send(asset);
-                    }).catch(console.error))
-                }
-                if (a.type=='crypto') {
-                    console.log('current crypto content', a)
-                //promises.push(coinTicker('gdax','BTC_USD')
-                    promises.push(coinTicker(a.exchange, a.symbol+'_USD')
-                    .then((res) => {    
-                        console.log('inside asset response build...', res)
-                        // capture 24h change, 24h gain, current price
-                        // append data to existing object & return 
-                        a.price = res.last;
-                        a.priceChange = 0; //TODO
-                        a.priceChangePercent = 0; //TODO
-                        console.log('new crypto asset', asset);
-                        console.log('returning new crypto');
-                    }).catch(console.error))
-                }
-            // }
-        }
-        console.log('this is the asset', asset)
-        asset.reduce((a,c) => {
-            item.portfolioValue = a + (c.quantity * c.price);
-            item.portfolioGrowth = (a + c.priceChangePercent) / asset.length;
-            item.portfolioGains = (a + c.portfolioGains) / asset.length;
-            if (c.type=='stock') {
-                item.stockValue = a + (c.quantity * c.price);
-                item.stockGrowth = (a + c.priceChangePercent) / asset.length;
-                item.stockGains = (a + c.portfolioGains) / asset.length;
-            } else if (c.type=='crypto') {
-                item.cryptoValue = a + (c.quantity * c.price);
-                item.cryptoGrowth = (a + c.priceChangePercent) / asset.length;
-                item.cryptoGains = (a + c.portfolioGains) / asset.length;
-            }
-        })
-
-        item.push(portfolioValue = portfolio.value);
-        item.push(portfolioGains = portfolio.gains);
-        item.push(portfolioGrowth = portfolio.growth);
-        item.push(cryptoValue = portfolio.crypto.value);
-        item.push(cryptoValue = portfolio.crypto.gains);
-        item.push(cryptoValue = portfolio.crypto.growth);
-        item.push(stocksValue = portfolio.stocks.value);
-        item.push(stocksValue = portfolio.stocks.gains);
-        item.push(stocksValue = portfolio.stocks.growth);
-        
-        console.log('new item value', item)
-        db.push(item); // submit items
-        console.log('snapshot saved');
-        // numArray.reduce((accumulator, current)) => accumulator + current)
-        // Wait for all promises to resolve. This fixed the big issue
-        Promise.all(promises).then(function(results) {
-            response.send(asset);
-        }.bind(this));
-    }).catch(console.error));
-
-    // } //end portfolio value
-    // portfolioValue();
-
+    response.redirect('/all');
 });
 
 app.get('*', (request, response) => {
