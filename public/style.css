@@ -26,3 +26,8 @@ body {background: aliceblue;}
     color: white;
     padding: 1rem;
 }
+
+.edit {
+    float: right;
+    opacity: .3;
+}

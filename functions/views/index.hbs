@@ -43,7 +43,7 @@
                 assets.id.totalGain = `${assets.id.marketValue - assets.id.costBasis}`;
 
                 row.innerHTML += `<tr>
-                    <td><a>{{{symbol}}}</a></td>
+                    <td class='{{{id}}}'><a>{{{symbol}}}</a><span class='edit'>e</span></td>
                     <td>${{{price}}}</td>
                     <td>${{{purchasePrice}}}</td>
                     <td>{{{quantity}}}</td>
@@ -58,10 +58,12 @@
             </script>
         {{/each}}
     </table>
-    <div class="addNew"><a>Add New test</a></div>
+    <div class="addNew"><a>Add New</a></div>
     <nav>
-        <a>All Assets</a>
-        <a href="/new">Add New</a>
+        <a href="/overview">Overview</a>
+        <a href="/portfolio">Portfolio</a>
+        <a href="/stats">Stats</a>
+        <a href="/historical">Historical</a>
     </nav>
     <script src="js/app.js"></script>
 </body>

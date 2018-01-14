@@ -13,10 +13,9 @@ const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
 const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
-const stock = new nf.default();
 
 /* INSTANTIATING APP FUNCTIONS */
-// const stock = nf.default;
+const stock = new nf.default();
 const app = express();
 
 /********************* TEMPLATING *********************/
@@ -52,16 +51,14 @@ function formatDate() {
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
-
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
-
     return [month, day, year].join('/');
 }
 
 /********************* ROUTES *********************/
 
-// ROUTE 1: fetch all assets
+/* ROUTE 1: fetch all assets */
 app.get('/all', (request, response) => {
     console.log("showing all assets route")
     let promises = [];
@@ -69,36 +66,37 @@ app.get('/all', (request, response) => {
     promises.push(getAssets().then(asset => {
         
         // console.log('one or many?', asset)
-        asset.forEach((a,i) => {
-            if (a.type=='stock') {
+        // asset.forEach((a,i) => {
+        for (let a in asset) {
+            if (asset[a].type=='stock') {
                 // console.log('current stock content ', a)
-                promises.push(stock.getInfo(a.symbol)
+                promises.push(stock.getInfo(asset[a].symbol)
                 .then((res) => {
-                    a.exchange = res.exchange;
-                    a.price = res.price;
-                    a.priceChange = res.priceChange;
-                    a.priceChangePercent = res.priceChangePercent;
+                    asset[a].exchange = res.exchange;
+                    asset[a].price = res.price;
+                    asset[a].priceChange = res.priceChange;
+                    asset[a].priceChangePercent = res.priceChangePercent;
                     // console.log('new stock asset here', a);
                     // response.send(asset);
                 }).catch(console.error))
             }
-            if (a.type=='crypto') {
+            if (asset[a].type=='crypto') {
                 // console.log('current crypto content', a)
                //promises.push(coinTicker('gdax','BTC_USD')
-                promises.push(coinTicker(a.exchange, a.symbol+'_USD')
+                promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
                 .then((res) => {    
+                    /* append data to existing object & return  */
                     // console.log('inside asset response build...', res)
                     // capture 24h change, 24h gain, current price
-                    // append data to existing object & return 
-                    a.price = res.last;
-                    a.priceChange = 0; //TODO
-                    a.priceChangePercent = 0; //TODO
+                    asset[a].price = res.last;
+                    asset[a].priceChange = 0; //TODO
+                    asset[a].priceChangePercent = 0; //TODO
                     // console.log('new crypto asset', asset);
                     console.log('returning new crypto');
                 }).catch(console.error))
             }
-        })
-           // Wait for all promises to resolve. This fixed the big issue
+        }
+           /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
             response.render('index', { asset }); // render index page and send back data in asset var
@@ -106,7 +104,7 @@ app.get('/all', (request, response) => {
     }).catch(console.error));
 });
 
-// caching example. Useful for portfolio app
+/* caching example. Useful for portfolio app */
 // app.get('/all', (request, response) => {
 //     console.log("showing all assets")
 //     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
@@ -115,9 +113,9 @@ app.get('/all', (request, response) => {
 //     });
 // });
 
-// ROUTE 2: save snapshot
+/* ROUTE 2: save snapshot */
 app.get('/save', (request, response) => {
-    // TODO: check cridentials
+    /* TODO: check cridentials */
     // compute the following: date, port. value, ,port gains, port growth, crypto value, crypto gains, crypto growth, crypto %, stock value, stock gains, stock growth, stock %
     // save to firebase
     const db = firebaseApp.database().ref('users/0/snapshots'); //firebase database
@@ -140,7 +138,7 @@ app.get('/save', (request, response) => {
     let promises = [];
 
     promises.push(getAssets().then(asset => {
-        // how can I use map, rduce & filter to arrive at the necessary values?
+        /* how can I use map, rduce & filter to arrive at the necessary values? */
         // console.log('all assets in save', asset)
 
         for (let a in asset) {
@@ -172,7 +170,7 @@ app.get('/save', (request, response) => {
                 .then((res) => {    
                     // console.log('inside crypto asset response build...', res)
                     // capture 24h change, 24h gain, current price
-                    // append data to existing object & return 
+                    /* append data to existing object & return */
                     asset[a].price = res.last;
                     asset[a].priceChange = 0; //TODO
                     asset[a].priceChangePercent = 0; //TODO
@@ -192,7 +190,7 @@ app.get('/save', (request, response) => {
         //console.log('this is the asset', asset,'this is totalValue', totalValue)        
 
         
-        // Wait for all promises to resolve. This fixed the big issue
+        /* Wait for all promises to resolve. This fixed the big issue */
         Promise.all(promises).then(function(results) {
             totalValue.portfolioGrowth = (totalValue.portfolioGrowth / (totalValue.cryptoCount + totalValue.stockCount)) * 100;
             totalValue.stockGrowth = (totalValue.stockGrowth / totalValue.stockCount) * 100;
@@ -205,30 +203,30 @@ app.get('/save', (request, response) => {
 
 });
 
-// ROUTE 3: add asset
+/* ROUTE 3: add asset */
 app.post('/add', (request, response) => {
-    console.log("Making a new asset")
-    const db = firebaseApp.database().ref('users/0/assets'); //firebase database
-    // console.log('request...',request);
-    // console.log('request body here',request.body);
-    //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
-    let item = {
-        "name": request.body.name,
-        "symbol": request.body.symbol,
-        "type": request.body.type,
-        "purchasePrice": request.body.purchasePrice,
-        "quantity": request.body.quantity,
-        "exchange" : request.body.exchange
+    console.log('this is the request body', request.body)
+    let rb = request.body;
+    if (!rb.name || !rb.symbol || !rb.type || !rb.purchasePrice || !rb.quantity || !rb.exchange) {
+        response.status(400).send(JSON.stringify(request.body));
+    } else {
+        console.log("Making a new asset", request)
+        const db = firebaseApp.database().ref('users/0/assets'); //firebase database
+        // console.log('request...',request);
+        // console.log('request body here',request.body);
+        //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
+        let item = {
+            "name": request.body.name,
+            "symbol": request.body.symbol,
+            "type": request.body.type,
+            "purchasePrice": request.body.purchasePrice,
+            "quantity": request.body.quantity,
+            "exchange" : request.body.exchange
+        }
+        db.push(item); // submit items
+        console.log('new asset created',request.body.name);
+        response.send(`${request.body.name} asset created`)
     }
-    db.push(item); // submit items
-    console.log('new asset created',request.body.name);
-    response.send(`${request.body.name} asset created`)
-});
-
-app.get('/new', (request, response) => {
-    console.log("serving new asset HTML page")
-    //response.sendFile('new.html', {root: '../public'});
-    response.send('what route is that?')
 });
 
 app.get('/', (request, response) => {

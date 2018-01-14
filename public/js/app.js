@@ -3,7 +3,6 @@
 var app = {};
 // var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
 var __API_URL__ = 'http://localhost:5000'; // local URL
-let q = 'document.querySelector'; // what's a jquery?
 
 (function(module) {
     // generate modal
@@ -38,10 +37,18 @@ let q = 'document.querySelector'; // what's a jquery?
         document.querySelector("body").append(modalBox);
         modalListeners();
     }
+
+    document.querySelector('#assetList').addEventListener('click', (event) => {
+        if (event.target.matches('.edit')) {
+            console.log('hello edit',event);
+            modal();
+        }
+    })
+
     document.querySelector('.addNew').addEventListener('click', (event) => {
         modal();
     })
-
+    
     function modalListeners() {
         let newAsset = document.querySelector('#newForm');
         if (newAsset) {
@@ -49,12 +56,13 @@ let q = 'document.querySelector'; // what's a jquery?
                 event.preventDefault();
 
                 let asset = {
-                    name: document.querySelector('#name').value,
-                    symbol: document.querySelector('#symbol').value,
-                    type: document.querySelector('#type').value,
-                    quantity: document.querySelector('#quantity').value,
-                    purcahsePrice: document.querySelector('#purchasePrice').value,
-                    exchange: document.querySelector('#exchange').value
+                    "name": document.querySelector('#name').value,
+                    "symbol": document.querySelector('#symbol').value,
+                    "type": document.querySelector('#type').value,
+                    "quantity": document.querySelector('#quantity').value,
+                    "purchasePrice": document.querySelector('#purchasePrice').value,
+                    "exchange": document.querySelector('#exchange').value,
+                    "id": document.querySelectorAll('#assetList.tr').length
                 };
 
                 if (event.target.matches('div.save')) {
@@ -63,17 +71,21 @@ let q = 'document.querySelector'; // what's a jquery?
                     insertRecord(asset);
                     clearForm();
                 }
-                console.log('submit button was clicked');
+                if (event.target.matches('div.cancel')) {
+                    console.log('modal removed')
+                    newAsset.remove();
+                } 
             });
         }
     }
-
     
     function insertRecord(asset) {
+        console.log(`this is the url: ${__API_URL__}/add`);
+        console.log(`this is the object ${JSON.stringify(asset)}`);
         let xhttp = new XMLHttpRequest();
         xhttp.open('POST', `${__API_URL__}/add`, true);
-        // xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhttp.send(asset)
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+        xhttp.send(JSON.stringify(asset));
         //.then(console.log('inserting new asset'))
         //.then(() => console.log('asset created!'))
         console.log('asset created... needs a then')
@@ -101,5 +113,5 @@ let q = 'document.querySelector'; // what's a jquery?
         //console.log('delay before hiding');
           document.querySelector('#feedback').innerHTML = '';
         }, 3000);
-      }
+    }
 })(app);
