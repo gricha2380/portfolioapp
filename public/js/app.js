@@ -19,29 +19,35 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
             <label>Quantity<input value="" id="quantity"></label>
             <label>Price Paid<input value="" id="purchasePrice"></label>
             <label>Exchange<input value="" id="exchange"></label>
+            <input id="currentID">
             `;
         modalBox.innerHTML += 
         `<div class="cancel">Cancel</div><div class="save" id="save">Save</div>`;
         // if asset param exists, fill field value with data
         // if new asset, on save, add 1 to id & send data to firebase as new object. 
         // action makes post request to API. Also passes key pulled from env
+        document.querySelector("body").append(modalBox);
         if (asset) {
-            console.log('there is an asset id', asset.id);
+            console.log('there is an asset id', asset);
+            console.log(asset)
+            // console.log('there is an asset id', asset.target.parentElement.className);
             document.querySelector('#name').value = asset.name;
             document.querySelector('#symbol').value = asset.symbol;
             document.querySelector('#type').value = asset.type;
             document.querySelector('#quantity').value = asset.quantity;
-            document.querySelector('#purchasePrice').value = asset.pricePaid;
+            document.querySelector('#purchasePrice').value = asset.purchasePrice;
             document.querySelector('#exchange').value = asset.exchange;
+            document.querySelector('#currentID').value = asset.id;
         }
-        document.querySelector("body").append(modalBox);
         modalListeners();
     }
 
     document.querySelector('#assetList').addEventListener('click', (event) => {
         if (event.target.matches('.edit')) {
             console.log('hello edit',event);
-            modal();
+            let eventID = event.target.parentElement.className;
+            loadRecord(eventID);
+            // modal(event);
         }
     })
 
@@ -62,13 +68,14 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
                     "quantity": document.querySelector('#quantity').value,
                     "purchasePrice": document.querySelector('#purchasePrice').value,
                     "exchange": document.querySelector('#exchange').value,
+                    "currentID": document.querySelector('#currentID').value,
                     "id": document.querySelectorAll('#assetList.tr').length
                 };
 
                 if (event.target.matches('div.save')) {
                     console.log('you cllicked save');
                     console.log(asset);
-                    insertRecord(asset);
+                    asset.currentID ? updateRecord(asset) : insertRecord(asset);
                     clearForm();
                 }
                 if (event.target.matches('div.cancel')) {
@@ -81,7 +88,6 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
     
     function insertRecord(asset) {
         console.log(`this is the url: ${__API_URL__}/add`);
-        console.log(`this is the object ${JSON.stringify(asset)}`);
         let xhttp = new XMLHttpRequest();
         xhttp.open('POST', `${__API_URL__}/add`, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -89,11 +95,42 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         //.then(console.log('inserting new asset'))
         //.then(() => console.log('asset created!'))
         console.log('asset created... needs a then')
-
-        // $.post(`${__API_URL__}/new`, asset)
-        //     .then(console.log('inserting new asset'))
-        //     .then(() => console.log('asset created!'))
+        document.querySelector('#newForm').remove();
     }
+
+    function updateRecord(asset) {
+        console.log(`this is the url: ${__API_URL__}/edit/${asset.currentID}`);
+        let xhttp = new XMLHttpRequest();
+        xhttp.open('POST', `${__API_URL__}/edit/${asset.currentID}`, true);
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+        xhttp.send(JSON.stringify(asset));
+        //.then(console.log('inserting new asset'))
+        //.then(() => console.log('asset created!'))
+        console.log('asset updated');
+        document.querySelector('#newForm').remove();
+    }
+
+    function loadRecord(id) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.open('GET', `${__API_URL__}/find/${id}`, true);
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log('load record complete, now populting fields')
+              populateEditFields(JSON.parse(this.responseText));
+            }
+        }
+        xhttp.send();
+        console.log('asset created... needs a then')
+    }
+
+    function populateEditFields(data){
+        console.log(data);
+        for (let i in data.asset) {
+            modal(data.asset[i]);
+        }
+    }
+
     function clearForm(){
         document.querySelector('#name').value = '';
         document.querySelector('#symbol').value = '';
@@ -102,6 +139,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         document.querySelector('#purchasePrice').value = '';
         document.querySelector('#exchange').value = '';
     }
+
     function errorCallback(err) {
         console.error(err);
         module.errorView.initErrorPage(err);

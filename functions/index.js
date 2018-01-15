@@ -40,6 +40,12 @@ function getAssets() {
     return ref.once('value').then(snap => snap.val());
 }
 
+function getOneAsset(id) {
+    const ref = firebaseApp.database().ref('users/0/assets'); //firebase database
+    console.log('inside getOneAssset', id);
+    return ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val());      
+}
+
 function saveSnapshot() {
     const ref = firebaseApp.database().ref('users/0/snapshots'); //firebase database
     console.log('inside snapshots');
@@ -215,6 +221,46 @@ app.post('/add', (request, response) => {
         // console.log('request...',request);
         // console.log('request body here',request.body);
         //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
+        let item = {
+            "name": request.body.name,
+            "symbol": request.body.symbol,
+            "type": request.body.type,
+            "purchasePrice": request.body.purchasePrice,
+            "quantity": request.body.quantity,
+            "exchange" : request.body.exchange
+        }
+        db.push(item); // submit items
+        console.log('new asset created',request.body.name);
+        response.send(`${request.body.name} asset created`)
+    }
+});
+
+/* ROUTE 4: edit asset populate */
+app.get('/find/:id', (request, response) => {
+    console.log("lookingforid", request.params.id);
+    let promises = [];
+    // promises.push(getAssets().then(asset => {
+    promises.push(getOneAsset(request.params.id).then(asset => {
+        
+           /* Wait for all promises to resolve. This fixed the big issue */
+           Promise.all(promises).then(function(results) {
+            // response.send(asset);
+            response.send({asset}); // render index page and send back data in asset var
+        }.bind(this));
+    }).catch(console.error));
+});
+
+/* ROUTE 5: edit asset save */
+app.post('/edit/:id', (request, response) => {
+    console.log('this is the request body', request.body)
+    let rb = request.body;
+    if (!rb.name || !rb.symbol || !rb.type || !rb.purchasePrice || !rb.quantity || !rb.exchange) {
+        response.status(400).send(JSON.stringify(request.body));
+    } else {
+        console.log("Making a new asset", request)
+        const db = firebaseApp.database().ref('users/0/assets'); //firebase database
+        // console.log('request...',request);
+        // console.log('request body here',request.body);
         let item = {
             "name": request.body.name,
             "symbol": request.body.symbol,
