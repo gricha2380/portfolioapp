@@ -1,5 +1,32 @@
 /* style for index.hbs */
-body {background: aliceblue;}
+h1 {margin: 0;}
+body {
+    background: aliceblue;
+    margin:0;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+.headerBar {
+    background: black;
+    color: white;
+    padding: .5rem;
+    /* margin-bottom: 1rem; */
+}
+.refresh {
+    background-image: url(../img/refresh.svg);
+    height: 30px;
+    width: 30px;
+    background-size: contain;
+    margin: .5rem;
+    position: absolute;
+    right: 1rem;
+    top: .25rem;
+}
+.container {
+    /* padding: 1rem; */
+    flex: 1;
+}
 #houseList li{
     display: inline-block;
     margin: 1rem 2rem;
@@ -13,21 +40,100 @@ body {background: aliceblue;}
 .house svg {
     filter: drop-shadow( -1px -1px 1px rgba(0,0,0,.5));
 }
+#assetList {
+    width: 100%;
+    background: white;
+}
 
 #assetList th, #assetList td{
-    padding: 0 1rem;
+    padding: .5rem 1rem;
+}
+.addNew {
+    text-align: center;
+    background: white;
+    padding: 1rem;
+    color: rgba(0, 0, 0, .5);
+    font-size: 1.2rem;
 }
 
 .modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    background: black;
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.50);
     color: white;
-    padding: 1rem;
+    z-index: 1;
+}
+
+.modal .inner {
+    position: absolute;
+    top: calc(50% - 100px);
+    left: calc(50% - 250px);
+    
+    padding: 2rem 2rem 0;
+    max-width: 500px;
+    background: black;  
+    z-index: 2; 
+}
+.modal .inner label {
+    width: 45%;
+    display: inline-block;
+    padding-bottom: 1rem;
+    text-align: right;
+}
+.button {
+
+}
+.button:hover{
+    cursor: pointer;
+}
+.modal .inner input {
+    margin-left: 1rem;
+}
+
+.modal .inner .buttonHolder .secondary{
+    margin-left: -2rem;
+    background: #B4C8D2;
+    width: 50%;
+    display: inline-block;
+    text-align: center;
+    padding: .25rem 1rem;
+}
+
+.modal .inner .buttonHolder .primary{
+    margin-right: -2rem;
+    background: #92AEBC;
+    width: 50%;
+    display: inline-block;
+    text-align: center;
+    padding: .25rem 1rem;
 }
 
 .edit {
     float: right;
-    opacity: .3;
+    opacity: .2;
+    background-image: url(../img/edit.svg);
+    height: 20px;
+    width: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#currentID {
+    display: none;
+}
+
+nav {
+    background: black;
+    text-align: center;
+    padding: 1rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    width: 24%;
+    display: inline-block;
 }

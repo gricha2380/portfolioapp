@@ -227,9 +227,11 @@ app.post('/add', (request, response) => {
             "type": request.body.type,
             "purchasePrice": request.body.purchasePrice,
             "quantity": request.body.quantity,
-            "exchange" : request.body.exchange
+            "exchange" : request.body.exchange,
+            "id" : request.body.id
         }
-        db.push(item); // submit items
+        // db.push(item); // submit items
+        db.child(request.body.id).set(item);
         console.log('new asset created',request.body.name);
         response.send(`${request.body.name} asset created`)
     }
@@ -257,21 +259,22 @@ app.post('/edit/:id', (request, response) => {
     if (!rb.name || !rb.symbol || !rb.type || !rb.purchasePrice || !rb.quantity || !rb.exchange) {
         response.status(400).send(JSON.stringify(request.body));
     } else {
-        console.log("Making a new asset", request)
-        const db = firebaseApp.database().ref('users/0/assets'); //firebase database
+        console.log("updating asset", request.body)
+        const db = firebaseApp.database().ref(`users/0/assets/${rb.currentID}`); //firebase database
         // console.log('request...',request);
         // console.log('request body here',request.body);
         let item = {
-            "name": request.body.name,
-            "symbol": request.body.symbol,
-            "type": request.body.type,
-            "purchasePrice": request.body.purchasePrice,
-            "quantity": request.body.quantity,
-            "exchange" : request.body.exchange
+            "name": rb.name,
+            "symbol": rb.symbol,
+            "type": rb.type,
+            "purchasePrice": rb.purchasePrice,
+            "quantity": rb.quantity,
+            "exchange" : rb.exchange
         }
-        db.push(item); // submit items
-        console.log('new asset created',request.body.name);
-        response.send(`${request.body.name} asset created`)
+        // db.push(item); // submit items
+        db.update(item);
+        console.log('asset updated',rb.name);
+        response.send(`${rb.name} asset updated`)
     }
 });
 
