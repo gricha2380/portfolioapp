@@ -1,8 +1,8 @@
 'use strict';
 
 var app = {};
-// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
-var __API_URL__ = 'http://localhost:5000'; // local URL
+var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
+// var __API_URL__ = 'http://localhost:5000'; // local URL
 
 (function(module) {
     // generate modal
@@ -46,11 +46,12 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
 
     document.querySelector('#assetList').addEventListener('click', (event) => {
         if (event.target.matches('.edit')) {
+            showLoader();
             console.log('edit was clicked',event);
             let eventID = event.target.parentElement.className;
             console.log('eventID',eventID);
             loadRecord(eventID);
-            // modal(event);
+            hideLoader();
         }
     })
 
@@ -157,6 +158,18 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
             }
         }
         // modal(data.asset);
+    }
+
+    function showLoader() {
+        console.log('showing loader')
+        let spinner = document.createElement('div');
+        spinner.setAttribute("id", "loader");
+        spinner.setAttribute("class", "show");
+        document.querySelector("body").append(spinner);
+    }
+
+    function hideLoader() {
+        document.querySelector('#loader').remove();
     }
 
     function clearForm(){

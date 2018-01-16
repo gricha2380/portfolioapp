@@ -1,11 +1,15 @@
 /* style for index.hbs */
-h1 {margin: 0;}
+h1 {
+    margin: 0;
+    font-weight: normal;
+}
 body {
     background: aliceblue;
     margin:0;
     display: flex;
     min-height: 100vh;
     flex-direction: column;
+    font-family: sans-serif;
 }
 .headerBar {
     background: black;
@@ -27,26 +31,28 @@ body {
     /* padding: 1rem; */
     flex: 1;
 }
-#houseList li{
-    display: inline-block;
-    margin: 1rem 2rem;
-    text-align: center;
-}
 
 .center {
     text-align: center;
 }
 
-.house svg {
-    filter: drop-shadow( -1px -1px 1px rgba(0,0,0,.5));
-}
 #assetList {
     width: 100%;
     background: white;
+    border-spacing: 0;
+    font-family: serif;
 }
 
 #assetList th, #assetList td{
     padding: .5rem 1rem;
+    border-right: 1px solid #f1f1f1;
+    border-bottom: 1px solid #f1f1f1;
+}
+#assetList tr:nth-of-type(even) {
+    background: #f3f3f3;
+}
+thead {
+    text-align: left;
 }
 .addNew {
     text-align: center;
@@ -99,7 +105,7 @@ body {
     width: 50%;
     display: inline-block;
     text-align: center;
-    padding: .25rem 1rem;
+    padding: .5rem 1rem;
 }
 
 .modal .inner .buttonHolder .primary{
@@ -108,7 +114,7 @@ body {
     width: 50%;
     display: inline-block;
     text-align: center;
-    padding: .25rem 1rem;
+    padding: .5rem 1rem;
 }
 
 .edit {
@@ -136,4 +142,20 @@ nav a {
     text-decoration: none;
     width: 24%;
     display: inline-block;
+}
+
+nav a.active {
+    color: #92aebc;
+}
+
+#loader {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: rgba(176, 176, 183, 0.47);
+    background-image: url(../img/loader.gif);
 }
