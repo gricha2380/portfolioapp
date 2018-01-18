@@ -65,7 +65,7 @@ function formatDate() {
 /********************* ROUTES *********************/
 
 /* ROUTE 1: fetch all assets */
-app.get('/all', (request, response) => {
+app.get('/portfolio', (request, response) => {
     console.log("showing all assets route")
     let promises = [];
 
@@ -105,7 +105,7 @@ app.get('/all', (request, response) => {
            /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
-            response.render('index', { asset }); // render index page and send back data in asset var
+            response.render('portfolio', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
@@ -278,14 +278,80 @@ app.post('/edit/:id', (request, response) => {
     }
 });
 
+/* ROUTE 6: Overview stats */
+// crypto vs stock %
+// total portfolio value, total growth, total gains
+// crypto portfolio value, crypto growth, crypto gains
+// stock portfolio value, stock growth, stock gains
+app.get('/overview', (request, response) => {
+    console.log("showing all assets route")
+    let totalValue = {
+        portfolioValue: 0,
+        portfolioGrowth: 0,
+        portfolioGains: 0,
+        stockValue: 0,
+        stockGrowth: 0,
+        stockGains: 0,
+        cryptoValue: 0,
+        cryptoGrowth: 0,
+        cryptoGains: 0
+    };
+
+    let promises = [];
+
+    promises.push(getAssets().then(asset => {
+        
+        for (let a in asset) {
+            if (asset[a].type=='stock') {
+                // console.log('current stock content ', a)
+                promises.push(stock.getInfo(asset[a].symbol)
+                .then((res) => {
+                    asset[a].price = res.price;
+                    // console.log('new stock asset here', a);
+                    // console.log('new stock asset here', asset[a]);
+                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    totalValue.stockValue += (asset[a].quantity * asset[a].price);
+                    totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                }).catch(console.error))
+            }
+            if (asset[a].type=='crypto') {
+                // console.log('current crypto content', a)
+               //promises.push(coinTicker('gdax','BTC_USD')
+                promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
+                .then((res) => {    
+                    /* append data to existing object & return  */
+                    // console.log('inside asset response build...', res)
+                    // capture 24h change, 24h gain, current price
+                    asset[a].price = res.last;
+                    // console.log('new crypto asset', asset);
+                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
+                    totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                    totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    console.log('returning new crypto');
+                }).catch(console.error))
+            }
+        }
+           /* Wait for all promises to resolve. This fixed the big issue */
+           Promise.all(promises).then(function(results) {
+            // response.send(asset);
+            response.render('index', { totalValue }); // render index page and send back data in asset var
+        }.bind(this));
+    }).catch(console.error));
+});
+
 app.get('/', (request, response) => {
-    // response.redirect('/all');
-    response.send('what route is that?')
+    response.redirect('/overview');
 });
 
 app.get('/index', (request, response) => {
     // response.sendFile('index.html', {root: '../public'});
-    response.redirect('/all');
+    response.redirect('/overview');
 });
 
 app.get('*', (request, response) => {

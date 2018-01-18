@@ -1,8 +1,8 @@
 'use strict';
 
 var app = {};
-var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
-// var __API_URL__ = 'http://localhost:5000'; // local URL
+// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
+var __API_URL__ = 'http://localhost:5000'; // local URL
 
 (function(module) {
     // generate modal
@@ -30,8 +30,8 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
         // action makes post request to API. Also passes key pulled from env
         document.querySelector("body").append(modalBox);
         if (asset) {
-            console.log('there is an asset id', asset);
-            console.log(asset)
+            // console.log('there is an asset id', asset);
+            // console.log(asset)
             // console.log('there is an asset id', asset.target.parentElement.className);
             document.querySelector('#name').value = asset.name;
             document.querySelector('#symbol').value = asset.symbol;
@@ -47,11 +47,10 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
     document.querySelector('#assetList').addEventListener('click', (event) => {
         if (event.target.matches('.edit')) {
             showLoader();
-            console.log('edit was clicked',event);
+            // console.log('edit was clicked',event);
             let eventID = event.target.parentElement.className;
-            console.log('eventID',eventID);
+            // console.log('eventID',eventID);
             loadRecord(eventID);
-            hideLoader();
         }
     })
 
@@ -70,12 +69,12 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
         xhttp.setRequestHeader('Content-Type', 'application/json');
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                console.log('load all records complete, now refreshing page', this.responseText)
+                // console.log('load all records complete, now refreshing page', this.responseText)
                 document.querySelector('html').innerHTML = this.responseText;
             }
         }
         xhttp.send();
-        console.log('asset created... needs a then')
+        // console.log('asset created... needs a then')
     }
 
     function modalListeners() {
@@ -96,13 +95,13 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
                 };
 
                 if (event.target.matches('div.save')) {
-                    console.log('you cllicked save');
-                    console.log(asset);
+                    // console.log('you cllicked save');
+                    // console.log(asset);
                     asset.currentID ? updateRecord(asset) : insertRecord(asset);
                     // clearForm();
                 }
                 if (event.target.matches('div.cancel')) {
-                    console.log('modal removed')
+                    // console.log('modal removed')
                     newAsset.remove();
                 } 
             });
@@ -110,27 +109,27 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
     }
     
     function insertRecord(asset) {
-        console.log(`this is the url: ${__API_URL__}/add`);
+        // console.log(`this is the url: ${__API_URL__}/add`);
         let xhttp = new XMLHttpRequest();
         xhttp.open('POST', `${__API_URL__}/add`, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
         xhttp.send(JSON.stringify(asset));
         //.then(console.log('inserting new asset'))
         //.then(() => console.log('asset created!'))
-        console.log('asset created... needs a then')
+        // console.log('asset created... needs a then')
         document.querySelector('#newForm').remove();
         // refresh();
     }
 
     function updateRecord(asset) {
-        console.log(`this is the url: ${__API_URL__}/edit/${asset.currentID}`);
+        // console.log(`this is the url: ${__API_URL__}/edit/${asset.currentID}`);
         let xhttp = new XMLHttpRequest();
         xhttp.open('POST', `${__API_URL__}/edit/${asset.currentID}`, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
         xhttp.send(JSON.stringify(asset));
         //.then(console.log('inserting new asset'))
         //.then(() => console.log('asset created!'))
-        console.log('asset updated', asset);
+        // console.log('asset updated', asset);
         document.querySelector('#newForm').remove();
     }
 
@@ -140,8 +139,9 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
         xhttp.setRequestHeader('Content-Type', 'application/json');
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                console.log('load record complete, now populting fields', this.responseText)
+                // console.log('load record complete, now populting fields', this.responseText)
                 populateEditFields(JSON.parse(this.responseText));
+                hideLoader();
             }
         }
         xhttp.send();
@@ -149,11 +149,11 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
     }
 
     function populateEditFields(data){
-        console.log(data);
-        console.log(data.asset);
+        // console.log(data);
+        // console.log(data.asset);
         for (let i in data.asset) {
             if (data.asset[i]) {
-                console.log(data.asset[i].id)
+                // console.log(data.asset[i].id)
                 modal(data.asset[i])
             }
         }

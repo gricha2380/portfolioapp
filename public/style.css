@@ -3,6 +3,13 @@ h1 {
     margin: 0;
     font-weight: normal;
 }
+.highlight {
+    color: #008000;
+}
+.title {
+    font-size: 2rem;
+    padding: 1rem;
+}
 body {
     background: aliceblue;
     margin:0;
@@ -43,6 +50,10 @@ body {
     font-family: serif;
 }
 
+#assetList th {
+    background: #92aebc;
+}
+
 #assetList th, #assetList td{
     padding: .5rem 1rem;
     border-right: 1px solid #f1f1f1;
@@ -53,6 +64,10 @@ body {
 }
 thead {
     text-align: left;
+}
+.symbol {
+    color: #15c;
+    font-family: sans-serif;
 }
 .addNew {
     text-align: center;
@@ -94,6 +109,7 @@ thead {
 }
 .button:hover{
     cursor: pointer;
+    opacity: .8;
 }
 .modal .inner input {
     margin-left: 1rem;
