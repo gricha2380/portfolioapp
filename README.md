@@ -35,6 +35,13 @@ Route 5: edit asset save
     save & override relevant db record with matching asset id
     respond with okay or error
 
+Route 6: overview stats
+    return list of historical snapshots
+
+
+Route 6: retrieve snapshots
+    return list of historical snapshots
+
 Route 6: Text value
     request contains username, value
     calculate portfolio value for given user

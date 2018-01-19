@@ -64,6 +64,9 @@ thead {
 .textBlack {
     color: black;
 }
+.textBold {
+    font-weight: bold;
+}
 /********************* MODULE *********************/
 .bar {
     padding: 1rem;

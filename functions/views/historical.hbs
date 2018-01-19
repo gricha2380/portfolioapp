@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" type="image/png" href="img/cointoss.png"/>
+    <link rel="stylesheet" href="style.css">
+    <title>Historical Snapshots</title>
+</head>
+<body>
+    <div class="headerBar">
+        <h1 class="center">Historical</h1>
+        <div class="refresh button"></div>
+    </div>
+    <div class="container full">
+        <table id="assetList">
+            <thead>
+                <th>Date</th>
+                <th>Portfolio Value</th>
+                <th>Portfolio Gains</th>
+                <th>Portfolio Growth</th>
+                <th>Crypto Value</th>
+                <th>Crypto Gains</th>
+                <th>Crypto Growth</th>
+                <th>Stock Value</th>
+                <th>Stock Gains</th>
+                <th>Stock Growth</th>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <nav>
+        <a class="button" href="/overview">Overview</a>
+        <a class="button" href="/portfolio">Portfolio</a>
+        <a class="button" href="/stats">Stats</a>
+        <a class="button active" href="/historical">Historical</a>
+    </nav>
+    {{!-- <script src="js/app.js"></script> --}}
+    <script type="text/javascript">
+        let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
+        let row = document.querySelector('#assetList tbody');
+        let assets = {};
+        let id = 0;
+
+        {{#each asset}}
+            row.innerHTML += `<tr>
+                <td class='bold'><a>{{{date}}}</a></td>
+                <td>$${parseFloat({{portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                <td>$${parseFloat({{portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                <td>${parseFloat({{portfolioGrowth}}).toFixed(2)}%</td>
+                <td>$${parseFloat({{cryptoValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                <td>$${parseFloat({{cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                <td>${parseFloat({{cryptoGrowth}}).toFixed(2)-1}%</td>
+                <td>$${parseFloat({{stockValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                <td>$${parseFloat({{stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                <td>${parseFloat({{stockGrowth}}).toFixed(2)}%</td>
+            </tr>`;                
+        {{/each}}
+    </script>
+</body>
+</html>

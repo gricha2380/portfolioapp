@@ -52,6 +52,11 @@ function saveSnapshot() {
     return ref.once('value').then(snap => snap.val());
 }
 
+function getSnapshots() {
+    const ref = firebaseApp.database().ref('users/0/snapshots'); //firebase database
+    return ref.once('value').then(snap => snap.val());
+}
+
 function formatDate() {
     var d = new Date(),
         month = '' + (d.getMonth() + 1),
@@ -342,6 +347,53 @@ app.get('/overview', (request, response) => {
            Promise.all(promises).then(function(results) {
             // response.send(asset);
             response.render('index', { totalValue }); // render index page and send back data in asset var
+        }.bind(this));
+    }).catch(console.error));
+});
+
+/* ROUTE 7: retrieve snapshots*/
+app.get('/historical', (request, response) => {
+    console.log("showing all assets route")
+    let promises = [];
+
+    // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
+    promises.push(getSnapshots().then(asset => {
+        console.log('this is snapshot asset',asset)
+        // // console.log('one or many?', asset)
+        // asset.forEach((a,i) => {
+        // for (let a in asset) {
+        //     if (asset[a].type=='stock') {
+        //         // console.log('current stock content ', a)
+        //         promises.push(stock.getInfo(asset[a].symbol)
+        //         .then((res) => {
+        //             asset[a].exchange = res.exchange;
+        //             asset[a].price = res.price;
+        //             asset[a].priceChange = res.priceChange;
+        //             asset[a].priceChangePercent = res.priceChangePercent;
+        //             // console.log('new stock asset here', a);
+        //             // response.send(asset);
+        //         }).catch(console.error))
+        //     }
+        //     if (asset[a].type=='crypto') {
+        //         // console.log('current crypto content', a)
+        //        //promises.push(coinTicker('gdax','BTC_USD')
+        //         promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
+        //         .then((res) => {    
+        //             /* append data to existing object & return  */
+        //             // console.log('inside asset response build...', res)
+        //             // capture 24h change, 24h gain, current price
+        //             asset[a].price = res.last;
+        //             asset[a].priceChange = 0; //TODO
+        //             asset[a].priceChangePercent = 0; //TODO
+        //             // console.log('new crypto asset', asset);
+        //             console.log('returning new crypto');
+        //         }).catch(console.error))
+            // }
+        // }
+           /* Wait for all promises to resolve. This fixed the big issue */
+           Promise.all(promises).then(function(results) {
+            // response.send(asset);
+            response.render('historical', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });

@@ -27,14 +27,24 @@
                 <th>Today %</th>
                 <th>Gain 24h</th>
             </thead>
-            <script type="text/javascript">
+            <tbody></tbody>
+        </table>
+        <div class="addNew button"><a>Add New</a></div>
+    </div>
+    <nav>
+        <a class="button" href="/overview">Overview</a>
+        <a class="button active" href="/portfolio">Portfolio</a>
+        <a class="button" href="/stats">Stats</a>
+        <a class="button" href="/historical">Historical</a>
+    </nav>
+    <script src="js/app.js"></script>
+    <script type="text/javascript">
                 let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
-                let row = document.querySelector('#assetList');
+                let row = document.querySelector('#assetList tbody');
                 let assets = {};
                 let id = 0;
-            </script>
-            {{#each asset}}
-                <script type="text/javascript">
+
+                {{#each asset}}
                     assets.id = {
                         costBasis : `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`,
                         marketValue : `${parseFloat({{{quantity}}} * {{{price}}})}`,
@@ -57,17 +67,8 @@
                         <td>$${parseFloat(assets.id.todayGain)}</td>
                     </tr>`;
                     id++;
-                </script>
-            {{/each}}
-        </table>
-        <div class="addNew button"><a>Add New</a></div>
-    </div>
-    <nav>
-        <a class="button" href="/overview">Overview</a>
-        <a class="button active" href="/portfolio">Portfolio</a>
-        <a class="button" href="/stats">Stats</a>
-        <a class="button" href="/historical">Historical</a>
-    </nav>
-    <script src="js/app.js"></script>
+                
+                {{/each}}
+            </script>
 </body>
 </html>
