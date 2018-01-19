@@ -69,6 +69,7 @@ app.get('/portfolio', (request, response) => {
     console.log("showing all assets route")
     let promises = [];
 
+    // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
     promises.push(getAssets().then(asset => {
         
         // console.log('one or many?', asset)

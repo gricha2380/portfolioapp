@@ -1,15 +1,4 @@
-/* style for index.hbs */
-h1 {
-    margin: 0;
-    font-weight: normal;
-}
-.highlight {
-    color: #008000;
-}
-.title {
-    font-size: 2rem;
-    padding: 1rem;
-}
+/********************* BASE *********************/
 body {
     background: aliceblue;
     margin:0;
@@ -18,6 +7,69 @@ body {
     flex-direction: column;
     font-family: sans-serif;
 }
+
+h1 {
+    margin: 0;
+    font-weight: normal;
+}
+
+thead {
+    text-align: left;
+}
+.padTop {
+    padding-top: 1rem;
+}
+/********************* LAYOUT *********************/
+.container {
+    padding: 1rem;
+    flex: 1;
+}
+.full {
+    padding: 0;
+}
+.title {
+    font-size: 2.5rem;
+    padding: 1rem;
+}
+.subtitle {
+    font-size: 1.3rem;
+}
+.highlight {
+    color: #008000;
+}
+.minorDark {
+    background: #92AEBC;
+}
+.minorDarkText {
+
+}
+.minorLight {
+    background: #B4C8D2;
+}
+.minorLightText {
+    color: #B4C8D2;
+}
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+.rightText {
+    text-align: right;
+}
+.center {
+    text-align: center;
+}
+.textBlack {
+    color: black;
+}
+/********************* MODULE *********************/
+.bar {
+    padding: 1rem;
+    display: inline-block;
+}
+
 .headerBar {
     background: black;
     color: white;
@@ -34,15 +86,9 @@ body {
     right: 1rem;
     top: .25rem;
 }
-.container {
-    /* padding: 1rem; */
-    flex: 1;
+#percentText {
+    font-size: 1.3rem;
 }
-
-.center {
-    text-align: center;
-}
-
 #assetList {
     width: 100%;
     background: white;
@@ -53,7 +99,6 @@ body {
 #assetList th {
     background: #92aebc;
 }
-
 #assetList th, #assetList td{
     padding: .5rem 1rem;
     border-right: 1px solid #f1f1f1;
@@ -62,9 +107,11 @@ body {
 #assetList tr:nth-of-type(even) {
     background: #f3f3f3;
 }
-thead {
-    text-align: left;
+
+#percentBar {
+    display: flex;
 }
+
 .symbol {
     color: #15c;
     font-family: sans-serif;
@@ -107,10 +154,7 @@ thead {
 .button {
 
 }
-.button:hover{
-    cursor: pointer;
-    opacity: .8;
-}
+
 .modal .inner input {
     margin-left: 1rem;
 }
@@ -175,3 +219,14 @@ nav a.active {
     background-color: rgba(176, 176, 183, 0.47);
     background-image: url(../img/loader.gif);
 }
+
+#assetBreakdown {
+    clear: both;
+}
+/********************* STATE *********************/
+.button:hover{
+    cursor: pointer;
+    opacity: .8;
+}
+/********************* THEME *********************/
+
