@@ -13,6 +13,7 @@ const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
 const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
+const superagent = require ('superagent'); // for performing backend AJAX calls
 
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();
@@ -67,104 +68,66 @@ function formatDate() {
     return [month, day, year].join('/');
 }
 
+let coinAPI = "https://api.coinmarketcap.com/v1/ticker/";
+
 /********************* ROUTES *********************/
 
 /* ROUTE 1: fetch all assets */
 app.get('/portfolio', (request, response) => {
     console.log("showing all assets route")
+    response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
 
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
     promises.push(getAssets().then(asset => {
-        
-        // console.log('one or many?', asset)
-        // asset.forEach((a,i) => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                // console.log('current stock content ', a)
                 promises.push(stock.getInfo(asset[a].symbol)
                 .then((res) => {
                     asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
-                    // console.log('new stock asset here', a);
-                    // response.send(asset);
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                // console.log('current crypto content', a)
-               //promises.push(coinTicker('gdax','BTC_USD')
-                promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
-                .then((res) => {    
-                    /* append data to existing object & return  */
-                    // console.log('inside asset response build...', res)
-                    // capture 24h change, 24h gain, current price
-                    asset[a].price = res.last;
-                    asset[a].priceChange = 0; //TODO
-                    asset[a].priceChangePercent = 0; //TODO
-                    // console.log('new crypto asset', asset);
-                    console.log('returning new crypto');
-                }).catch(console.error))
+                superagent.get(coinAPI+asset[a].name)
+                    .then(res =>  {
+                        asset[a].price = res.body[0].price_usd,
+                        asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                        asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+                    })
+                .catch(console.error)
             }
         }
-           /* Wait for all promises to resolve. This fixed the big issue */
-           Promise.all(promises).then(function(results) {
-            // response.send(asset);
-            response.render('portfolio', { asset }); // render index page and send back data in asset var
+        /* Wait for all promises to resolve. This fixed the big issue */
+        Promise.all(promises).then(function(results) {
+        // response.send(asset);
+        response.render('portfolio', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
 
-/* caching example. Useful for portfolio app */
-// app.get('/all', (request, response) => {
-//     console.log("showing all assets")
-//     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
-//     getAssets().then(asset => {
-//         response.json({assets : asset})
-//     });
-// });
-
 /* ROUTE 2: save snapshot */
 app.get('/save', (request, response) => {
     /* TODO: check cridentials */
-    // compute the following: date, port. value, ,port gains, port growth, crypto value, crypto gains, crypto growth, crypto %, stock value, stock gains, stock growth, stock %
-    // save to firebase
     const db = firebaseApp.database().ref('users/0/snapshots'); //firebase database
 
     let totalValue = {
-        date: formatDate(),
-        unix: Date.now(),
-        portfolioValue: 0,
-        portfolioGrowth: 0,
-        portfolioGains: 0,
-        stockValue: 0,
-        stockGrowth: 0,
-        stockGains: 0,
-        stockCount: 0,
-        cryptoValue: 0,
-        cryptoGrowth: 0,
-        cryptoGains: 0,
-        cryptoCount: 0
+        date: formatDate(),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
     };
     let promises = [];
 
     promises.push(getAssets().then(asset => {
         /* how can I use map, rduce & filter to arrive at the necessary values? */
-        // console.log('all assets in save', asset)
-
         for (let a in asset) {
-            // console.log('this is outer', a)
-            // console.log('this is outer', asset[a])
             if (asset[a].type=='stock') {
-                // console.log('current stock content ', asset[a])
                 promises.push(stock.getInfo(asset[a].symbol)
                 .then((res) => {
-                    // console.log('this is res', res)
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
-                    // console.log('new stock asset here', asset[a]);
+
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
                     totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
@@ -172,35 +135,25 @@ app.get('/save', (request, response) => {
                     totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
                     totalValue.stockCount++;
-                    
-                    // response.send(asset[a]);
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                // console.log('current crypto content', a)
-                promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
-                .then((res) => {    
-                    // console.log('inside crypto asset response build...', res)
-                    // capture 24h change, 24h gain, current price
-                    /* append data to existing object & return */
-                    asset[a].price = res.last;
-                    asset[a].priceChange = 0; //TODO
-                    asset[a].priceChangePercent = 0; //TODO
-                    // console.log('current crypto value quantity', asset[a].quantity);
+                superagent.get(coinAPI+asset[a].name)
+                .then((res) => {
+                    asset[a].price = res.body[0].price_usd,
+                    asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                    asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
                     totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
                     totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                     totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    totalValue.cryptoCount++;
-                    // response.sendFile(asset[a]);
-                }).catch(console.error))
+                    totalValue.cryptoCount++;           
+                }).catch(console.error)
             }
-          //  response.send(asset)
-        }
-        //console.log('this is the asset', asset,'this is totalValue', totalValue)        
-
+        }   
         
         /* Wait for all promises to resolve. This fixed the big issue */
         Promise.all(promises).then(function(results) {
@@ -285,22 +238,10 @@ app.post('/edit/:id', (request, response) => {
 });
 
 /* ROUTE 6: Overview stats */
-// crypto vs stock %
-// total portfolio value, total growth, total gains
-// crypto portfolio value, crypto growth, crypto gains
-// stock portfolio value, stock growth, stock gains
 app.get('/overview', (request, response) => {
     console.log("showing all assets route")
     let totalValue = {
-        portfolioValue: 0,
-        portfolioGrowth: 0,
-        portfolioGains: 0,
-        stockValue: 0,
-        stockGrowth: 0,
-        stockGains: 0,
-        cryptoValue: 0,
-        cryptoGrowth: 0,
-        cryptoGains: 0
+        portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
     };
 
     let promises = [];
@@ -313,8 +254,6 @@ app.get('/overview', (request, response) => {
                 promises.push(stock.getInfo(asset[a].symbol)
                 .then((res) => {
                     asset[a].price = res.price;
-                    // console.log('new stock asset here', a);
-                    // console.log('new stock asset here', asset[a]);
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
                     totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
@@ -324,22 +263,15 @@ app.get('/overview', (request, response) => {
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                // console.log('current crypto content', a)
-               //promises.push(coinTicker('gdax','BTC_USD')
                 promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
                 .then((res) => {    
-                    /* append data to existing object & return  */
-                    // console.log('inside asset response build...', res)
-                    // capture 24h change, 24h gain, current price
                     asset[a].price = res.last;
-                    // console.log('new crypto asset', asset);
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
                     totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
                     totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                     totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    console.log('returning new crypto');
                 }).catch(console.error))
             }
         }
@@ -351,49 +283,53 @@ app.get('/overview', (request, response) => {
     }).catch(console.error));
 });
 
-/* ROUTE 7: retrieve snapshots*/
+/* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
     console.log("showing all assets route")
     let promises = [];
 
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
     promises.push(getSnapshots().then(asset => {
-        console.log('this is snapshot asset',asset)
-        // // console.log('one or many?', asset)
-        // asset.forEach((a,i) => {
-        // for (let a in asset) {
-        //     if (asset[a].type=='stock') {
-        //         // console.log('current stock content ', a)
-        //         promises.push(stock.getInfo(asset[a].symbol)
-        //         .then((res) => {
-        //             asset[a].exchange = res.exchange;
-        //             asset[a].price = res.price;
-        //             asset[a].priceChange = res.priceChange;
-        //             asset[a].priceChangePercent = res.priceChangePercent;
-        //             // console.log('new stock asset here', a);
-        //             // response.send(asset);
-        //         }).catch(console.error))
-        //     }
-        //     if (asset[a].type=='crypto') {
-        //         // console.log('current crypto content', a)
-        //        //promises.push(coinTicker('gdax','BTC_USD')
-        //         promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
-        //         .then((res) => {    
-        //             /* append data to existing object & return  */
-        //             // console.log('inside asset response build...', res)
-        //             // capture 24h change, 24h gain, current price
-        //             asset[a].price = res.last;
-        //             asset[a].priceChange = 0; //TODO
-        //             asset[a].priceChangePercent = 0; //TODO
-        //             // console.log('new crypto asset', asset);
-        //             console.log('returning new crypto');
-        //         }).catch(console.error))
-            // }
-        // }
            /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
             response.render('historical', { asset }); // render index page and send back data in asset var
+        }.bind(this));
+    }).catch(console.error));
+});
+
+/* ROUTE 8: show stats */
+app.get('/stats', (request, response) => {
+    console.log("showing all assets route")
+    response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
+    let promises = [];
+
+    // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
+    promises.push(getAssets().then(asset => {
+        for (let a in asset) {
+            if (asset[a].type=='stock') {
+                promises.push(stock.getInfo(asset[a].symbol)
+                .then((res) => {
+                    asset[a].exchange = res.exchange;
+                    asset[a].price = res.price;
+                    asset[a].priceChange = res.priceChange;
+                    asset[a].priceChangePercent = res.priceChangePercent;
+                }).catch(console.error))
+            }
+            if (asset[a].type=='crypto') {
+                superagent.get(coinAPI+asset[a].name) // searching within questions
+                    .then(res =>  {
+                        asset[a].price = res.body[0].price_usd,
+                        asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                        asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+                    })
+                .catch(console.error)
+            }
+        }
+        /* Wait for all promises to resolve. This fixed the big issue */
+        Promise.all(promises).then(function(results) {
+        // response.send(asset);
+        response.render('stats', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
