@@ -67,6 +67,15 @@ thead {
 .textBold {
     font-weight: bold;
 }
+.grid {
+    display: grid;
+}
+.grid.three {
+    grid-template-columns: 33.3vw 33.3vw 33.3vw;
+}
+.grid.four {
+    grid-template-columns: 25vw 25vw 25vw 25vw;
+}
 /********************* MODULE *********************/
 .bar {
     padding: 1rem;

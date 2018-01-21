@@ -13,7 +13,66 @@
         <h1 class="center">Stats</h1>
         <div class="refresh button"></div>
     </div>
-    <div class="container full">
+    <div class="container">
+        <div id="assetCategories" class="grid three">
+            <div id="portfolioCategory" class="categoryGrid">
+                <div>Portfolio</div>
+                <div id="portfolioTotal"></div>
+                <div id="portfolioChange"></div>
+            </div>
+            <div id="CryptoCategory" class="categoryGrid">
+                <div>Crypto</div>
+                <div id="cryptoTotal"></div>
+                <div id="cryptoChange"></div>
+            </div>
+            <div id="StockCategory" class="categoryGrid">
+                <div>Stock</div>
+                <div id="stockTotal"></div>
+                <div id="stockChange"></div>
+            </div>
+        </div>
+        <div id="winners" class="grid four">
+            <div id="dollarWinners">
+                <div>Winners $</div>
+                <div>
+                    <span class="symbol">ETH:</span>
+                    <span class="value">$500</span>
+                </div>
+            </div>
+            <div id="percentWinners">
+                <div>Winners %</div>
+                <div>
+                    <span class="symbol">ETH:</span>
+                    <span class="value">$500</span>
+                </div>
+            </div>
+            <div id="dollarLosers">
+                <div>Losers $</div>
+                <div>
+                    <span class="symbol">ETH:</span>
+                    <span class="value">$500</span>
+                </div>
+            </div>
+            <div id="percentLosers">
+                <div>Losers $</div>
+                <div>
+                    <span class="symbol">ETH:</span>
+                    <span class="value">$500</span>
+                </div>
+            </div>
+        </div>
+        <div id="allocation">
+            <div id="exchangeHolder">
+                <div class="exchangeRow">
+                    <span class="exchange">Coinbase</span>
+                    <span>$1000</span>
+                    <span>40%</span>
+                </div>
+            </div>
+            <div id="exchangeChart">
+
+            </div>
+        </div>
         <table id="assetList">
             <thead>
                 <th>Symbol</th>
@@ -29,7 +88,6 @@
             </thead>
             <tbody></tbody>
         </table>
-        <div class="addNew button"><a>Add New</a></div>
     </div>
     <nav>
         <a class="button" href="/overview">Overview</a>
@@ -37,36 +95,98 @@
         <a class="button active" href="/stats">Stats</a>
         <a class="button" href="/historical">Historical</a>
     </nav>
-    <script src="js/app.js"></script>
+    {{!-- <script src="js/app.js"></script> --}}
     <script type="text/javascript">
                 let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
                 let row = document.querySelector('#assetList tbody');
-                let assets = {};
-                let id = 0;
+                let assets = [];
+                let i = 0;
+                let holder=[3,2,3]
 
                 {{#each asset}}
-                    assets = {
+                    assets[i] = {
                         costBasis : `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`,
-                        marketValue : `${parseFloat({{{quantity}}} * {{{price}}})}`,
+                        marketValue : `${({{{quantity}}} && {{{price}}}) ? parseFloat({{{quantity}}} * {{{price}}}) : 0}`,
                         todayPercent : `${parseFloat({{{priceChangePercent}}})}`,
-                        todayGain : {{{priceChange}}}
+                        todayGain : `${parseFloat({{{priceChange}}})}`,
+                        type: `{{type}}`,
+                        exchange: `{{exchange}}`
                     };
-                    assets.totalGrowth = `${(assets.marketValue/assets.costBasis)*100}`;
-                    assets.totalGain = `${assets.marketValue - assets.costBasis}`;
+                    assets[i].totalGrowth = `${(assets[i].marketValue/assets[i].costBasis)*100}`;
+                    assets[i].totalGain = `${assets[i].marketValue - assets[i].costBasis}`;
 
                     row.innerHTML += `<tr>
                         <td class='{{{id}}} symbol'><a>{{{symbol}}}</a><span class='edit button'></span></td>
                         <td>$${parseFloat({{price}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
                         <td>${{{purchasePrice}}}</td>
                         <td>{{{quantity}}}</td>
-                        <td>$${parseFloat(assets.costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                        <td>$${parseFloat(assets.marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                        <td>${parseFloat(assets.totalGrowth).toFixed(2)-1}%</td>
-                        <td>$${parseFloat(assets.totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                        <td>${parseFloat(assets.todayPercent)}%</td>
-                        <td>$${parseFloat(assets.todayGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    </tr>`;                
+                        <td>$${parseFloat(assets[i].costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                        <td>$${parseFloat(assets[i].marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                        <td>${parseFloat(assets[i].totalGrowth).toFixed(2)-1}%</td>
+                        <td>$${parseFloat(assets[i].totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                        <td>${parseFloat(assets[i].todayPercent)}%</td>
+                        <td>$${parseFloat(assets[i].todayGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    </tr>`;    
+                    i++;
                 {{/each}}
-            </script>
+
+                let portfolioStats = {
+                    crypto:{
+                        total: 0,
+                        growth:0,
+                        gains:0
+                    },
+                    stock:{
+                        total: 0,
+                        growth:0,
+                        gains:0
+                    },
+                    total:{
+                        total: 0,
+                        growth:0,
+                        gains:0
+                    },
+                    exchanges:{}
+                }
+                let mapPort = assets.map(x => {
+                    console.log(x)
+                    if (x.type == 'crypto') {
+                        portfolioStats.crypto.total += parseFloat(x.marketValue);
+                        portfolioStats.crypto.growth += parseFloat(x.totalGrowth);
+                        portfolioStats.crypto.gains += parseFloat(x.totalGain);
+                    }
+                    else if (x.type == 'stock') {
+                        portfolioStats.stock.total += parseFloat(x.marketValue);
+                        portfolioStats.stock.growth += parseFloat(x.totalGrowth);
+                        portfolioStats.stock.gains += parseFloat(x.totalGain);
+                    }
+                    portfolioStats.total.total += parseFloat(x.marketValue);
+                    portfolioStats.total.growth += parseFloat(x.totalGrowth);
+                    portfolioStats.total.gains += parseFloat(x.totalGain);
+
+                    portfolioStats.exchanges[x.exchange] ? portfolioStats.exchanges[x.exchange] += parseFloat(x.marketValue) : portfolioStats.exchanges[x.exchange] = parseFloat(x.marketValue);
+
+                    console.log('marketvalue', x.marketValue);
+                })
+
+                //portfolio calculations
+                document.querySelector('#portfolioTotal').innerHTML = portfolioStats.total.total;
+                document.querySelector('#portfolioChange').innerHTML = `<span class='textBlack'>(</span>$${parseFloat(portfolioStats.total.gains).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textBlack'>/</span> ${parseFloat(portfolioStats.total.growth).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textBlack'>)</span>`;
+                
+                //stock calculations
+                document.querySelector('#stockTotal').innerHTML = portfolioStats.stock.total;
+                document.querySelector('#stockChange').innerHTML = `<span class='textBlack'>(</span>$${parseFloat(portfolioStats.stock.gains).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textBlack'>/</span> ${parseFloat(portfolioStats.stock.growth).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textBlack'>)</span>`;
+
+                //crypto calculations
+                document.querySelector('#cryptoTotal').innerHTML = portfolioStats.stock.total;
+                document.querySelector('#cryptoChange').innerHTML = `<span class='textBlack'>(</span>$${parseFloat(portfolioStats.crypto.gains).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textBlack'>/</span> ${parseFloat(portfolioStats.crypto.growth).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textBlack'>)</span>`;
+
+                //exchange allocation
+
+                for (let i in portfolioStats.exchanges) {
+                    console.log(portfolioStats.exchanges,'exchange name')
+                    document.querySelector('#exchangeHolder').innerHTML += `<div class="exchangeRow grid three"><span class="exchange">${i}</span><span>${portfolioStats.exchanges[i]}</span><span>42%</span></div>`
+                }
+    </script>
 </body>
 </html>

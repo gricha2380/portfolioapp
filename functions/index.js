@@ -91,13 +91,13 @@ app.get('/portfolio', (request, response) => {
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                superagent.get(coinAPI+asset[a].name)
+                promises.push(superagent.get(coinAPI+asset[a].name)
                     .then(res =>  {
                         asset[a].price = res.body[0].price_usd,
                         asset[a].priceChangePercent = res.body[0].percent_change_24h;
                         asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
                     })
-                .catch(console.error)
+                .catch(console.error))
             }
         }
         /* Wait for all promises to resolve. This fixed the big issue */
