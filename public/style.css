@@ -49,6 +49,9 @@ thead {
 .minorLightText {
     color: #B4C8D2;
 }
+table.alt tr:nth-of-type(even),.alt>div:nth-of-type(even) {
+    background: #f3f3f3;
+}
 .left {
     float: left;
 }
@@ -71,10 +74,10 @@ thead {
     display: grid;
 }
 .grid.three {
-    grid-template-columns: 33.3vw 33.3vw 33.3vw;
+    grid-template-columns: 33.3% 33.3% 33.3%;
 }
 .grid.four {
-    grid-template-columns: 25vw 25vw 25vw 25vw;
+    grid-template-columns: 25% 25% 25% 25%;
 }
 /********************* MODULE *********************/
 .bar {
@@ -116,9 +119,6 @@ thead {
     border-right: 1px solid #f1f1f1;
     border-bottom: 1px solid #f1f1f1;
 }
-#assetList tr:nth-of-type(even) {
-    background: #f3f3f3;
-}
 
 #percentBar {
     display: flex;
@@ -127,6 +127,7 @@ thead {
 .symbol {
     color: #15c;
     font-family: sans-serif;
+    text-transform: uppercase;
 }
 .addNew {
     text-align: center;
@@ -241,4 +242,9 @@ nav a.active {
     opacity: .8;
 }
 /********************* THEME *********************/
-
+.box {
+    background: white;
+    padding: 1rem;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, .5);
+    margin-bottom: 2rem;
+}

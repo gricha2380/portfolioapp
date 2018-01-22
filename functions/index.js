@@ -96,8 +96,7 @@ app.get('/portfolio', (request, response) => {
                         asset[a].price = res.body[0].price_usd,
                         asset[a].priceChangePercent = res.body[0].percent_change_24h;
                         asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                    })
-                .catch(console.error))
+                    }).catch(console.error))
             }
         }
         /* Wait for all promises to resolve. This fixed the big issue */
@@ -138,7 +137,7 @@ app.get('/save', (request, response) => {
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                superagent.get(coinAPI+asset[a].name)
+                promises.push(superagent.get(coinAPI+asset[a].name)
                 .then((res) => {
                     asset[a].price = res.body[0].price_usd,
                     asset[a].priceChangePercent = res.body[0].percent_change_24h;
@@ -151,7 +150,7 @@ app.get('/save', (request, response) => {
                     totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
                     totalValue.cryptoCount++;           
-                }).catch(console.error)
+                }).catch(console.error))
             }
         }   
         
@@ -237,7 +236,7 @@ app.post('/edit/:id', (request, response) => {
     }
 });
 
-/* ROUTE 6: Overview stats */
+/* ROUTE 6: Portfolio Overview */
 app.get('/overview', (request, response) => {
     console.log("showing all assets route")
     let totalValue = {
@@ -263,9 +262,9 @@ app.get('/overview', (request, response) => {
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                promises.push(coinTicker(asset[a].exchange, asset[a].symbol+'_USD')
+                promises.push(superagent.get(coinAPI+asset[a].name)
                 .then((res) => {    
-                    asset[a].price = res.last;
+                    asset[a].price = res.body[0].price_usd,
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
                     totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
@@ -285,7 +284,7 @@ app.get('/overview', (request, response) => {
 
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
-    console.log("showing all assets route")
+    console.log("retrieving snapshot")
     let promises = [];
 
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
@@ -300,7 +299,7 @@ app.get('/historical', (request, response) => {
 
 /* ROUTE 8: show stats */
 app.get('/stats', (request, response) => {
-    console.log("showing all assets route")
+    console.log("showing stats")
     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
 
@@ -317,13 +316,12 @@ app.get('/stats', (request, response) => {
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                superagent.get(coinAPI+asset[a].name) // searching within questions
-                    .then(res =>  {
+                promises.push(superagent.get(coinAPI+asset[a].name)
+                    .then((res) =>  {
                         asset[a].price = res.body[0].price_usd,
                         asset[a].priceChangePercent = res.body[0].percent_change_24h;
                         asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                    })
-                .catch(console.error)
+                    }).catch(console.error))
             }
         }
         /* Wait for all promises to resolve. This fixed the big issue */
