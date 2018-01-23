@@ -47,6 +47,13 @@ function getOneAsset(id) {
     return ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val());      
 }
 
+function checkLogin(info) {
+    const ref = firebaseApp.database().ref(); //firebase database
+    console.log('inside login, username:', info.username);
+    //return ref.orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val());      
+    return ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val());
+}
+
 function saveSnapshot() {
     const ref = firebaseApp.database().ref('users/0/snapshots'); //firebase database
     console.log('inside snapshots');
@@ -277,7 +284,7 @@ app.get('/overview', (request, response) => {
            /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
-            response.render('index', { totalValue }); // render index page and send back data in asset var
+            response.render('overview', { totalValue }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
@@ -333,12 +340,44 @@ app.get('/stats', (request, response) => {
 });
 
 app.get('/', (request, response) => {
+    // do conditional reroute for authentication
     response.redirect('/overview');
 });
 
-app.get('/index', (request, response) => {
-    // response.sendFile('index.html', {root: '../public'});
-    response.redirect('/overview');
+app.get('/login', (request, response) => {
+    response.render('index', { response });
+    // response.redirect('/overview');
+});
+
+app.post('/login', (request, response) => {
+    // response.render('index', { response });
+    // response.redirect('/overview');
+    let promises = [];
+
+    console.log('this is the request body for login', request.body)
+    console.log('username',request.body["username"])
+    let rb = request.body;
+    if (!rb.username || !rb.password) {
+        response.status(400).send(JSON.stringify(request.body));
+    } else {
+        console.log("connecting to login database")
+
+        promises.push(checkLogin(request.body).then((creds) => {
+            console.log('creds yall',creds[1]);
+            // JSON.stringify(creds);
+            // creds[1]= creds;
+            if (creds[1].screenname === request.body.username && creds[1].password === request.body.password) {
+                console.log("it's a match!")
+                response.send(`it matches! ${creds[1].screenname} ${creds[1].password}`)
+            } else {response.send(`NO match... ${creds[1].screenname} ${creds[1].password}`)}
+
+            Promise.all(promises).then(function(results) {
+                // response.send(asset);
+                // response.render('here is the answer', { results }); // render index page and send back data in asset var
+            }.bind(this));
+
+        }).catch(console.error))
+    }
 });
 
 app.get('*', (request, response) => {
