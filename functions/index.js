@@ -355,7 +355,7 @@ app.post('/login', (request, response) => {
     let promises = [];
 
     console.log('this is the request body for login', request.body)
-    console.log('username',request.body["username"])
+    console.log('username',request.body.username)
     let rb = request.body;
     if (!rb.username || !rb.password) {
         response.status(400).send(JSON.stringify(request.body));
@@ -363,13 +363,24 @@ app.post('/login', (request, response) => {
         console.log("connecting to login database")
 
         promises.push(checkLogin(request.body).then((creds) => {
-            console.log('creds yall',creds[1]);
+            if (!creds) response.status(401).send('username not found!!');
+            console.log('creds yall',creds);
             // JSON.stringify(creds);
             // creds[1]= creds;
             if (creds[1].screenname === request.body.username && creds[1].password === request.body.password) {
                 console.log("it's a match!")
-                response.send(`it matches! ${creds[1].screenname} ${creds[1].password}`)
-            } else {response.send(`NO match... ${creds[1].screenname} ${creds[1].password}`)}
+                //response.send(`it matches! ${creds[1].screenname} ${creds[1].password}`)
+                // response.status(242).send('all good');
+                response.status(242).json({'response':'all good'});
+            } else if (creds[1].screenname === request.body.username){
+                console.log('wrong password, boo')
+                // response.send(`wrong password... ${creds[1].screenname} ${creds[1].password}`)
+                response.json({'response':'wrong passsword'})
+            }
+            else {
+                // response.send(`wrong user name... ${creds[1].screenname} ${creds[1].password}`)
+                response.json({'response':'wrong username'})
+            }
 
             Promise.all(promises).then(function(results) {
                 // response.send(asset);
