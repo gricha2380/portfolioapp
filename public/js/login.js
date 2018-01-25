@@ -43,23 +43,26 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
                     mode: 'cors',
                     cache: 'default' };
 
-        fetch(`${__API_URL__}/login`, myInit).then(res => console.log(res.body))
+        fetch(`${__API_URL__}/login`, myInit)
+        .then(response => {
+            if (response.status === 401) {
+                console.log('incorrect password')
+            } else if (response.status === 242) {
+                console.log(`Fully authorized. Saving ${info.username} into localstorage`)
+                window.localStorage.setItem('account', JSON.stringify(info));
+                window.location.replace('/overview');
+            }
+            console.log(response.json());
+
+        })
+        // .then(response => {console.log(response.status,'status is this');response.json()})
         .catch(error => console.error('Error:', error))
         .then(response => console.log('Success:', response));
+        // .then(response => {
+        //     console.log('Success:', response)
+        //     // if (response.status)
+        // });
     }
-
-    async function sendLoginTwo(url) { // (1)
-        console.log('inside send login async')
-        let response = await fetch(__API_URL__/login); // (2)
-      
-        if (response.status == 200) {
-          let json = await response; // (3)
-          console.log('here is whattey told me', json);
-        }
-      
-        throw new Error(response.status);
-      }
-    
     
 
     function clearForm(){

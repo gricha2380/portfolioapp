@@ -18,6 +18,7 @@ const superagent = require ('superagent'); // for performing backend AJAX calls
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();
 const app = express();
+let __USERID__ = null; //login identifier
 
 /********************* TEMPLATING *********************/
 app.engine('hbs', engines.handlebars); // use consolidate to attach handlebars templating
@@ -36,13 +37,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 function getAssets() {
-    const ref = firebaseApp.database().ref('users/0/assets'); //firebase database
+    const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
     console.log('inside getAssets');
     return ref.once('value').then(snap => snap.val());
 }
 
 function getOneAsset(id) {
-    const ref = firebaseApp.database().ref('users/0/assets'); //firebase database
+    const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
     console.log('inside getOneAssset', id);
     return ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val());      
 }
@@ -55,13 +56,13 @@ function checkLogin(info) {
 }
 
 function saveSnapshot() {
-    const ref = firebaseApp.database().ref('users/0/snapshots'); //firebase database
+    const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
     console.log('inside snapshots');
     return ref.once('value').then(snap => snap.val());
 }
 
 function getSnapshots() {
-    const ref = firebaseApp.database().ref('users/0/snapshots'); //firebase database
+    const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
     return ref.once('value').then(snap => snap.val());
 }
 
@@ -117,7 +118,7 @@ app.get('/portfolio', (request, response) => {
 /* ROUTE 2: save snapshot */
 app.get('/save', (request, response) => {
     /* TODO: check cridentials */
-    const db = firebaseApp.database().ref('users/0/snapshots'); //firebase database
+    const db = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
 
     let totalValue = {
         date: formatDate(),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
@@ -182,7 +183,7 @@ app.post('/add', (request, response) => {
         response.status(400).send(JSON.stringify(request.body));
     } else {
         console.log("Making a new asset", request)
-        const db = firebaseApp.database().ref('users/0/assets'); //firebase database
+        const db = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
         // console.log('request...',request);
         // console.log('request body here',request.body);
         //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
@@ -225,7 +226,7 @@ app.post('/edit/:id', (request, response) => {
         response.status(400).send(JSON.stringify(request.body));
     } else {
         console.log("updating asset", request.body)
-        const db = firebaseApp.database().ref(`users/0/assets/${rb.currentID}`); //firebase database
+        const db = firebaseApp.database().ref(`users/${__USERID__}/assets/${rb.currentID}`); //firebase database
         // console.log('request...',request);
         // console.log('request body here',request.body);
         let item = {
@@ -365,23 +366,36 @@ app.post('/login', (request, response) => {
         promises.push(checkLogin(request.body).then((creds) => {
             if (!creds) response.status(401).send('username not found!!');
             console.log('creds yall',creds);
+            console.log('cred first spot',creds[1]);            
             // JSON.stringify(creds);
             // creds[1]= creds;
-            if (creds[1].screenname === request.body.username && creds[1].password === request.body.password) {
-                console.log("it's a match!")
-                //response.send(`it matches! ${creds[1].screenname} ${creds[1].password}`)
-                // response.status(242).send('all good');
-                response.status(242).json({'response':'all good'});
-            } else if (creds[1].screenname === request.body.username){
-                console.log('wrong password, boo')
-                // response.send(`wrong password... ${creds[1].screenname} ${creds[1].password}`)
-                response.json({'response':'wrong passsword'})
-            }
-            else {
-                // response.send(`wrong user name... ${creds[1].screenname} ${creds[1].password}`)
-                response.json({'response':'wrong username'})
-            }
-
+            creds.forEach(e => {
+                console.log('here is e',e)
+                if (e.screenname) {
+                    console.log('inside foreach inner')
+                    if (e.screenname === request.body.username && e.password === request.body.password) {
+                        console.log("it's a match!")
+                        __USERID__ = e.id;
+                        //response.send(`it matches! ${e.screenname} ${e.password}`)
+                        response.status(242).send({'response':'it matches!'});
+                        // response.status(242).send({'response':'all good'});
+                        // response.send(`asset created and matched`)
+                        // response.send('you got it!');
+                    } else if (e.screenname === request.body.username){
+                        console.log('wrong password, boo')
+                        // response.send(`wrong password... ${e.screenname} ${e.password}`)
+                        // response.json({'response':'wrong passsword'})
+                        response.status(401).send({'response':'wrong password, buddy!'});
+                    }
+                    else {
+                        // response.send(`wrong user name... ${e.screenname} ${e.password}`)
+                        response.json({'response':'wrong username'})
+                    }
+                }
+                
+    
+            });
+            
             Promise.all(promises).then(function(results) {
                 // response.send(asset);
                 // response.render('here is the answer', { results }); // render index page and send back data in asset var
