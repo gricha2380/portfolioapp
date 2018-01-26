@@ -9,7 +9,8 @@
     <title>All Assets</title>
 </head>
 <body>
-    <div class="headerBar">
+    <div class="headerBar" id="headerBar">
+        <div class='dropdown menu' id='userMenu'></div>
         <h1 class="center">Portfolio</h1>
         <div class="refresh button"></div>
     </div>
@@ -38,7 +39,10 @@
         <a class="button" href="/historical">Historical</a>
     </nav>
     <script src="js/app.js"></script>
+    <script src="js/portfolio.js"></script>
     <script type="text/javascript">
+            let initUser = (u) => {
+                console.log(u)
                 let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
                 let row = document.querySelector('#assetList tbody');
                 let assets = {};
@@ -68,6 +72,7 @@
                     </tr>`;    
                     i++;            
                 {{/each}}
-            </script>
+            }
+    </script>
 </body>
 </html>

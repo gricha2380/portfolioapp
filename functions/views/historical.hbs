@@ -10,6 +10,7 @@
 </head>
 <body>
     <div class="headerBar">
+        <div class='dropdown menu' id='userMenu'></div>
         <h1 class="center">Historical</h1>
         <div class="refresh button"></div>
     </div>
@@ -36,27 +37,30 @@
         <a class="button" href="/stats">Stats</a>
         <a class="button active" href="/historical">Historical</a>
     </nav>
-    {{!-- <script src="js/app.js"></script> --}}
+    <script src="js/app.js"></script>
     <script type="text/javascript">
-        let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
-        let row = document.querySelector('#assetList tbody');
-        let assets = {};
-        let id = 0;
+        let initUser = (u) => {
+            console.log(u)
+            let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
+            let row = document.querySelector('#assetList tbody');
+            let assets = {};
+            let id = 0;
 
-        {{#each asset}}
-            row.innerHTML += `<tr>
-                <td class='bold'><a>{{{date}}}</a></td>
-                <td>$${parseFloat({{portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                <td>$${parseFloat({{portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                <td>${parseFloat({{portfolioGrowth}}).toFixed(2)}%</td>
-                <td>$${parseFloat({{cryptoValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                <td>$${parseFloat({{cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                <td>${parseFloat({{cryptoGrowth}}).toFixed(2)-1}%</td>
-                <td>$${parseFloat({{stockValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                <td>$${parseFloat({{stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                <td>${parseFloat({{stockGrowth}}).toFixed(2)}%</td>
-            </tr>`;                
-        {{/each}}
+            {{#each asset}}
+                row.innerHTML += `<tr>
+                    <td class='bold'><a>{{{date}}}</a></td>
+                    <td>$${parseFloat({{portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>$${parseFloat({{portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat({{portfolioGrowth}}).toFixed(2)}%</td>
+                    <td>$${parseFloat({{cryptoValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>$${parseFloat({{cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat({{cryptoGrowth}}).toFixed(2)-1}%</td>
+                    <td>$${parseFloat({{stockValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>$${parseFloat({{stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
+                    <td>${parseFloat({{stockGrowth}}).toFixed(2)}%</td>
+                </tr>`;                
+            {{/each}}
+        }
     </script>
 </body>
 </html>
