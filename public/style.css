@@ -79,6 +79,9 @@ table.alt tr:nth-of-type(even),.alt>div:nth-of-type(even) {
 .grid.four {
     grid-template-columns: 25% 25% 25% 25%;
 }
+.grid.ten {
+    grid-template-columns: 10% 10% 10% 10% 10% 10% 10% 10% 10% 10%;
+}
 .show {
     display: block!important;
 }
@@ -95,6 +98,11 @@ table.alt tr:nth-of-type(even),.alt>div:nth-of-type(even) {
 	background: white;
     z-index: 1;
     width: 100%;
+}
+.small {
+    font-size: .9em;
+    opacity: .8;
+    vertical-align: top;
 }
 /********************* MODULE *********************/
 .bar {

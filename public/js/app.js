@@ -44,6 +44,7 @@ function initUserMenu(){
     if (window.localStorage.getItem('account')) {
         loadData(window.localStorage.getItem('account'))
     } else {window.location.replace('/login');}
+
     function loadData(info) {
       console.log('here is loaded info',info);
       // send account info to server via fetch/POST
@@ -77,5 +78,13 @@ function initUserMenu(){
         .catch(error => console.error('Error:', error))
         .then(response => console.log('Success:', response));
     } // end loadData
+
+    let refresh = document.querySelector('.refresh');
+    if (refresh) {
+        refresh.addEventListener('click', e => {
+            // I need to write a real refresh function someday...
+            location.reload();
+        })
+    }
 
 })(app);

@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/png" href="img/cointoss.png"/>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme.css">
     <title>All Assets</title>
 </head>
 <body>
@@ -15,6 +16,168 @@
         <div class="refresh button"></div>
     </div>
     <div class="container full">
+        <div id="asssetListNew" class="grid ten box table">
+            <div id="symbol" class="col">
+                <div class="minorLightText miniTitle">Symbol</div>
+                <div class="cell">
+                    <span class="symbol">ETH:</span>
+                </div>
+                <div class="cell">
+                    <span class="symbol">ETH:</span>
+                </div>
+                <div class="cell">
+                    <span class="symbol">ETH:</span>
+                </div>
+                <div class="cell">
+                    <span class="symbol">ETH:</span>
+                </div>
+                <div class="cell">
+                    <span class="symbol">ETH:</span>
+                </div>
+            </div>
+
+            <div id="price" class="col">
+                <div class="minorLightText miniTitle">Price <span class="small">($)</span></div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+            </div>
+
+            <div id="pricePaid" class="col">
+                <div class="minorLightText miniTitle">Paid<span class="small">($)</span></div>
+                <div class="cell">
+                    <span class="">550</span>
+                </div>
+                <div class="cell">
+                    <span class="">550</span>
+                </div>
+                <div class="cell">
+                    <span class="">550</span>
+                </div>
+                <div class="cell">
+                    <span class="">550</span>
+                </div>
+                <div class="cell">
+                    <span class="">550</span>
+                </div>
+            </div>
+
+            <div id="quantity" class="col">
+                <div class="minorLightText miniTitle">Qnty</div>
+                <div class="cell">
+                    <span class="">12</span>
+                </div>
+                <div class="cell">
+                    <span class="">12</span>
+                </div>
+                <div class="cell">
+                    <span class="">12</span>
+                </div>
+                <div class="cell">
+                    <span class="">12</span>
+                </div>
+                <div class="cell">
+                    <span class="">12</span>
+                </div>
+            </div>
+
+            <div id="cost" class="col">
+                <div class="minorLightText miniTitle">Cost <span class="small">($)</span></div>
+                <div class="cell">
+                    <span class="">4,500</span>
+                </div>
+                <div class="cell">
+                    <span class="">4,500</span>
+                </div>
+                <div class="cell">
+                    <span class="">4,500</span>
+                </div>
+                <div class="cell">
+                    <span class="">4,500</span>
+                </div>
+                <div class="cell">
+                    <span class="">4,500</span>
+                </div>
+            </div>
+
+            <div id="value" class="col">
+                <div class="minorLightText miniTitle">Value <span class="small">($)</span></div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+            </div>
+
+            <div id="growth" class="col">
+                <div class="minorLightText miniTitle">Grth <span class="small">(%)</span></div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+            </div>
+
+            <div id="gain" class="col">
+                <div class="minorLightText miniTitle">Gain <span class="small">($)</span></div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+                <div class="cell">
+                    <span class="">1,000</span>
+                </div>
+            </div>
+
+            <div id="todayPercent" class="col">
+                <div class="minorLightText miniTitle">24hr <span class="small">(%)</span></div>
+            </div>
+
+            <div id="todayDollar" class="col">
+                <div class="minorLightText miniTitle">24hr <span class="small">($)</span></div>
+            </div>
+        </div>
+
         <table id="assetList" class="alt">
             <thead>
                 <th>Symbol</th>
@@ -44,7 +207,8 @@
             let initUser = (u) => {
                 console.log(u)
                 let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
-                let row = document.querySelector('#assetList tbody');
+                let row = document.querySelector('#assetList tbody'); // not needed
+                let d = [`<div class='cell'>`,`</div>`];
                 let assets = {};
                 let i = 0;
 
@@ -69,7 +233,21 @@
                         <td>$${parseFloat(assets[i].totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
                         <td>${parseFloat(assets[i].todayPercent)}%</td>
                         <td>$${parseFloat(assets[i].todayGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    </tr>`;    
+                    </tr>`;  
+
+                    // new school
+                    `<div class='cell'>${{{purchasePrice}}}</div>`
+
+                    document.querySelector('#symbol').innerHTML += `<div class='cell {{{id}}}'><span class='symbol'>{{{symbol}}}</span><span class='edit button'></span></div>`;
+                    document.querySelector('#price').innerHTML += `<div class='cell'>${parseFloat({{price}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}<div>`;
+                    document.querySelector('#pricePaid').innerHTML += `<div class='cell'>${{{purchasePrice}}}</div>`;
+                    document.querySelector('#quantity').innerHTML += `<div class='cell'>{{{quantity}}}</div>`;
+                    document.querySelector('#cost').innerHTML += `<div class='cell'>${parseFloat(assets[i].costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
+                    document.querySelector('#value').innerHTML += `<div class='cell'>${parseFloat(assets[i].marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
+                    document.querySelector('#growth').innerHTML += `<div class='cell'>${parseFloat(assets[i].totalGrowth).toFixed(2)-1}</div>`;
+                    document.querySelector('#gain').innerHTML += `<div class='cell'>${parseFloat(assets[i].totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
+                    document.querySelector('#todayPercent').innerHTML += `<div class='cell'>${parseFloat(assets[i].todayPercent)}</div>`;
+                    document.querySelector('#todayDollar').innerHTML += `<div class='cell'>${parseFloat(assets[i].todayGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
                     i++;            
                 {{/each}}
             }

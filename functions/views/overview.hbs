@@ -63,15 +63,15 @@
 
             // portfolio total
             document.querySelector('#mainTitle').innerHTML = `$${parseFloat({{totalValue.portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`;
-            document.querySelector('#mainSub').innerHTML = `<span class='textBlack'>(</span>$${parseFloat({{totalValue.portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textBlack'>/</span> ${parseFloat({{totalValue.portfolioGrowth}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textBlack'>)</span>`;
+            document.querySelector('#mainSub').innerHTML = `<span class='textNetural'>(</span>$${parseFloat({{totalValue.portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textNetural'>/</span> ${parseFloat({{totalValue.portfolioGrowth}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textNetural'>)</span>`;
 
             // crypto total
             document.querySelector('#cryptoTotal').innerHTML = `$${parseFloat({{totalValue.cryptoValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`;
-            document.querySelector('#cryptoSub').innerHTML = `<span class='textBlack'>(</span>$${parseFloat({{totalValue.cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textBlack'>/</span> ${parseFloat({{totalValue.cryptoGrowth}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textBlack'>)</span>`;
+            document.querySelector('#cryptoSub').innerHTML = `<span class='textNetural'>(</span>$${parseFloat({{totalValue.cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textNetural'>/</span> ${parseFloat({{totalValue.cryptoGrowth}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textNetural'>)</span>`;
 
             // stock total
             document.querySelector('#stockTotal').innerHTML = `$${parseFloat({{totalValue.stockValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`;
-            document.querySelector('#stockSub').innerHTML = `<span class='textBlack'>(</span>$${parseFloat({{totalValue.stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textBlack'>/</span> ${parseFloat({{totalValue.stockGrowth}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textBlack'>)</span>`;
+            document.querySelector('#stockSub').innerHTML = `<span class='textNetural'>(</span>$${parseFloat({{totalValue.stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textNetural'>/</span> ${parseFloat({{totalValue.stockGrowth}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textNetural'>)</span>`;
             document.querySelector('.inner').classList.remove('hide')
         }
     </script>

@@ -92,8 +92,13 @@ table.alt tr:nth-of-type(even), .alt>div:nth-of-type(even) {
     max-width: 3rem;
     font-weight: bold;
     overflow: hidden;
-    display: inline-block;
+    display: block;
     text-overflow: ellipsis;
+}
+.edit {
+    margin-right: 1rem;
+    margin-top: -.1rem;
+    background-image: url(../img/edit-w.svg);
 }
 .exchange {
     text-transform: uppercase;
@@ -141,4 +146,18 @@ nav a.active:before {
     left: -1rem;
     height: 1.2rem;
     top: -.1rem;
+}
+
+#asssetListNew, #asssetList .cell{
+    color: rgba(255, 255, 255, .8);
+}
+
+.addNew {
+    /* border-bottom: rgba(71, 77, 99, .2) solid 1px; */
+    background: none;
+    text-transform: uppercase;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, .5);
+    border-top: #474D63 solid 1px;
+    border-bottom: #474D63 solid 1px;
 }

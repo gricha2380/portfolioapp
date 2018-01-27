@@ -62,6 +62,7 @@ function saveSnapshot() {
 }
 
 function getSnapshots() {
+    console.log('getting snapshots now!')
     const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
     return ref.once('value').then(snap => snap.val());
 }
@@ -308,9 +309,21 @@ app.get('/historical', (request, response) => {
 
 /* ROUTE 8: show stats */
 app.get('/stats', (request, response) => {
+    // let snapshots = fetch(getSnapshots()).then(response => {
+    //         console.log('this was snapshot response...')
+    //         console.log(response);
+    //     })
+    let snapshots = [];
+
     console.log("showing stats")
     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
+
+    promises.push(getSnapshots().then(snap => {
+        snapshots.push(snap)
+        console.log('new snap',snap)
+    }))
+    console.log('total snapshot', snapshots)
 
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
     promises.push(getAssets().then(asset => {
@@ -333,10 +346,20 @@ app.get('/stats', (request, response) => {
                     }).catch(console.error))
             }
         }
+        
+        // promises.push();
+        // let snapshots = 'hello I is snapshot';
+        // let snapshots = JSON.stringify(getSnapshots());
+        
+
+
         /* Wait for all promises to resolve. This fixed the big issue */
         Promise.all(promises).then(function(results) {
         // response.send(asset);
-        response.render('stats', { asset }); // render index page and send back data in asset var
+        // also grab snapshot process. Note: consolidate this with route 8
+        console.log('here are snapshots',snapshots)
+        snapshots = JSON.stringify(snapshots);
+        response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
