@@ -1,0 +1,144 @@
+body {
+    background: #1B1D24;
+    color: white;
+}
+
+h1 {
+    color: #B3C8D3;
+    opacity: .5;
+    text-transform: uppercase;
+    font-size: larger;
+    font-weight: bolder;
+}
+
+.box {
+    background: none;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding:0;
+}
+
+.flush {
+    margin-top: -.5rem;
+}
+
+.miniTitle {
+    text-transform: uppercase;
+    font-size: .7rem;
+}
+
+.minorLightText {
+    color: rgba(255, 255, 255, .5);
+}
+
+.col .miniTitle {
+    padding: .5rem 0;
+    border-top: #474D63 solid 1px;
+    border-bottom: #474D63 solid 1px;
+    margin-bottom: .5rem;
+    padding-left: .5rem;
+}
+
+.cell {
+    padding: .5rem;
+    border-bottom: rgba(71, 77, 99, .2) solid 1px;
+}
+
+#portfolioTotal,#cryptoTotal,#stockTotal {
+    color: white;
+    font-size: 1.5rem;
+}
+
+#assetCategories {
+    margin-bottom: 1rem;
+}
+
+.headerBar .sectionTitle {
+    background: url('img/globe.svg') no-repeat;
+    margin: auto;
+    width: 4rem;
+    padding-left: 2rem;
+    background-size: contain;
+}
+
+.highlight {color: #4C9700;}
+
+.textNetural {color: white}
+#portfolioChange {font-size: 1rem;}
+
+.table {
+    font-size: .7rem;   
+}
+
+.col {
+    /* border-bottom: rgba(71, 77, 99, .2) solid 1px; */
+    margin-bottom: .5rem;
+    padding-bottom: .5rem;
+}
+
+.cell:last-of-type {
+    border-bottom: none;
+}
+
+table.alt tr:nth-of-type(even), .alt>div:nth-of-type(even) {
+    background: inherit;
+}
+.table.alt .col:nth-of-type(even) {
+    background: rgba(255, 255, 255, .03);
+}
+
+.symbol {
+    color: white;
+    max-width: 3rem;
+    font-weight: bold;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+}
+.exchange {
+    text-transform: uppercase;
+}
+
+.table .value {
+    opacity: .5;
+    float: right;
+    padding-right: .5rem;
+}
+
+#userMenu {
+    line-height: normal;
+    color: rgba(179, 200, 211, .5);
+}
+
+#userMenu:hover {
+    color: rgba(179, 200, 211, 1);
+}
+
+.refresh {
+    top: 0;
+    height: 1.5rem;
+    background-repeat: no-repeat;
+    opacity: .5;
+}
+
+nav a {
+    text-transform: uppercase;
+    color: rgba(179, 200, 211, .5);
+    position: relative;
+}
+
+nav a.active {
+    color: white;
+}
+
+nav a.active:before {
+    content: '';
+    position: absolute;
+    background: url(img/globe-w.svg) no-repeat;
+    margin: auto;
+    width: 4rem;
+    background-size: contain;
+    left: -1rem;
+    height: 1.2rem;
+    top: -.1rem;
+}

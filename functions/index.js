@@ -300,6 +300,7 @@ app.get('/historical', (request, response) => {
            /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
+            console.log('here is snapshot',asset)
             response.render('historical', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
