@@ -44,6 +44,14 @@ h1 {
     border-bottom: rgba(71, 77, 99, .2) solid 1px;
 }
 
+.cell.pos {
+    border-right: 2px solid #4F9601
+}
+
+.cell.neg {
+    border-right: 2px solid #A70000;
+}
+
 #portfolioTotal,#cryptoTotal,#stockTotal {
     color: white;
     font-size: 1.5rem;
@@ -55,10 +63,11 @@ h1 {
 
 .headerBar .sectionTitle {
     background: url('img/globe.svg') no-repeat;
-    margin: auto;
-    width: 4rem;
     padding-left: 2rem;
     background-size: contain;
+    display: inline-block;
+    margin-left: -1rem;
+    background-position-x: 1px;
 }
 
 .highlight {color: #4C9700;}
@@ -136,19 +145,23 @@ nav a.active {
     color: white;
 }
 
-nav a.active:before {
+nav a.active div:before {
     content: '';
     position: absolute;
     background: url(img/globe-w.svg) no-repeat;
-    margin: auto;
-    width: 4rem;
+    margin-left: -1.5rem;
+    width: 1rem;
     background-size: contain;
-    left: -1rem;
     height: 1.2rem;
-    top: -.1rem;
+}
+#assetList {
+    width: inherit;
+    background: inherit;
+    font-family: inherit;
+    border-spacing: inherit;
 }
 
-#asssetListNew, #asssetList .cell{
+#assetList .cell{
     color: rgba(255, 255, 255, .8);
 }
 
@@ -160,4 +173,10 @@ nav a.active:before {
     color: rgba(255, 255, 255, .5);
     border-top: #474D63 solid 1px;
     border-bottom: #474D63 solid 1px;
+}
+
+#lowerPanel {
+    background: rgba(255, 255, 255, .03);
+    padding: 1rem;
+    margin-top: 1rem;
 }

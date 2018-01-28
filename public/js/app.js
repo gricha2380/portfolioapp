@@ -12,7 +12,7 @@ function initUserMenu(){
 
     document.querySelector('#userName').addEventListener('click', function(event){
         event.preventDefault(); // stop button standard action
-        console.log('You clicked topic menu',this.id);
+        console.log('You clicked user menu',this.id);
         expandMenu(this.id); //pass id to menu function
     });
 

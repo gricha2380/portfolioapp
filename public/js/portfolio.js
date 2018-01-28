@@ -48,8 +48,8 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
         if (event.target.matches('.edit')) {
             showLoader();
             // console.log('edit was clicked',event);
-            let eventID = event.target.parentElement.className;
-            // console.log('eventID',eventID);
+            let eventID = event.target.parentElement.className.split(' ').reverse();
+            console.log('eventID',eventID[0]);
             loadRecord(eventID);
         }
     })

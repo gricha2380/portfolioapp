@@ -6,59 +6,84 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/png" href="img/cointoss.png"/>
     <link rel="stylesheet" href="style.css">
-    <title>Historical Snapshots</title>
+    <link rel="stylesheet" href="theme.css">
+    <title>Historical Snapshots | Portfolio App</title>
 </head>
 <body>
     <div class="headerBar">
         <div class='dropdown menu' id='userMenu'></div>
-        <h1 class="center">Historical</h1>
+        <h1 class="center sectionTitle">Historical</h1>
         <div class="refresh button"></div>
     </div>
     <div class="container full">
-        <table id="assetList">
-            <thead>
-                <th>Date</th>
-                <th>Portfolio Value</th>
-                <th>Portfolio Gains</th>
-                <th>Portfolio Growth</th>
-                <th>Crypto Value</th>
-                <th>Crypto Gains</th>
-                <th>Crypto Growth</th>
-                <th>Stock Value</th>
-                <th>Stock Gains</th>
-                <th>Stock Growth</th>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div id="assetList" class="grid ten box table">
+            <div id="date" class="col">
+                <div class="minorLightText miniTitle">Date</div>
+            </div>
+
+            <div id="portfolioValue" class="col">
+                <div class="minorLightText miniTitle">Value</div>
+            </div>
+
+            <div id="portfolioGain" class="col">
+                <div class="minorLightText miniTitle">Gain</div>
+            </div>
+
+            <div id="portfolioGrowth" class="col">
+                <div class="minorLightText miniTitle">Grth</div>
+            </div>
+
+            <div id="cryptoValue" class="col">
+                <div class="minorLightText miniTitle">Crypto Val</div>
+            </div>
+
+            <div id="cryptoGain" class="col">
+                <div class="minorLightText miniTitle">Crypto Gain</div>
+            </div>
+
+            <div id="cryptoGrowth" class="col">
+                <div class="minorLightText miniTitle">Crypto Grth</div>
+            </div>
+
+            <div id="stockValue" class="col">
+                <div class="minorLightText miniTitle">Stock Val</div>
+            </div>
+
+            <div id="stockGain" class="col">
+                <div class="minorLightText miniTitle">Stock Gain</div>
+            </div>
+
+            <div id="stockGrowth" class="col">
+                <div class="minorLightText miniTitle">Stock Grth</div>
+            </div>
+        </div>
     </div>
-    <nav>
-        <a class="button" href="/overview">Overview</a>
-        <a class="button" href="/portfolio">Portfolio</a>
-        <a class="button" href="/stats">Stats</a>
-        <a class="button active" href="/historical">Historical</a>
+    <nav class="grid four">
+        <a class="button" href="/overview"><div>Overview</div></a>
+        <a class="button" href="/portfolio"><div>Portfolio</div></a>
+        <a class="button" href="/stats"><div>Stats</div></a>
+        <a class="button active" href="/historical"><div>Historical</div></a>
     </nav>
     <script src="js/app.js"></script>
     <script type="text/javascript">
         let initUser = (u) => {
             console.log(u)
             let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
-            let row = document.querySelector('#assetList tbody');
             let assets = {};
             let id = 0;
 
-            {{#each asset}}
-                row.innerHTML += `<tr>
-                    <td class='bold'><a>{{{date}}}</a></td>
-                    <td>$${parseFloat({{portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>$${parseFloat({{portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>${parseFloat({{portfolioGrowth}}).toFixed(2)}%</td>
-                    <td>$${parseFloat({{cryptoValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>$${parseFloat({{cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>${parseFloat({{cryptoGrowth}}).toFixed(2)-1}%</td>
-                    <td>$${parseFloat({{stockValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>$${parseFloat({{stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>
-                    <td>${parseFloat({{stockGrowth}}).toFixed(2)}%</td>
-                </tr>`;                
+            {{#each asset}}          
+
+                document.querySelector('#date').innerHTML += `<div class='cell'>{{{date}}}</div>`;  
+                document.querySelector('#portfolioValue').innerHTML += `<div class='cell'>$${parseFloat({{portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
+                document.querySelector('#portfolioGain').innerHTML += `<div class='cell'>$${parseFloat({{portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
+                document.querySelector('#portfolioGrowth').innerHTML += `<div class='cell'>${parseFloat({{portfolioGrowth}}).toFixed(2)}%</div>`;  
+                document.querySelector('#cryptoValue').innerHTML += `<div class='cell'>$${parseFloat({{cryptoValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
+                document.querySelector('#cryptoGain').innerHTML += `<div class='cell'>$${parseFloat({{cryptoGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
+                document.querySelector('#cryptoGrowth').innerHTML += `<div class='cell'>${parseFloat({{cryptoGrowth}}).toFixed(2)-1}%</div>`;  
+                document.querySelector('#stockValue').innerHTML += `<div class='cell'>$${parseFloat({{stockValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
+                document.querySelector('#stockGain').innerHTML += `<div class='cell'>$${parseFloat({{stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
+                document.querySelector('#stockGrowth').innerHTML += `<div class='cell'>${parseFloat({{stockGrowth}}).toFixed(2)}%</div>`;  
             {{/each}}
         }
     </script>

@@ -252,7 +252,15 @@ app.get('/overview', (request, response) => {
         portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
     };
 
+    let snapshots = [];
+
     let promises = [];
+
+    promises.push(getSnapshots().then(snap => {
+        snapshots.push(snap)
+        console.log('new snap',snap)
+    }))
+    console.log('total snapshot', snapshots)
 
     promises.push(getAssets().then(asset => {
         
@@ -286,7 +294,8 @@ app.get('/overview', (request, response) => {
            /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
-            response.render('overview', { totalValue }); // render index page and send back data in asset var
+            snapshots = JSON.stringify(snapshots);
+            response.render('overview', { totalValue , snapshots}); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
@@ -346,18 +355,13 @@ app.get('/stats', (request, response) => {
                     }).catch(console.error))
             }
         }
-        
-        // promises.push();
-        // let snapshots = 'hello I is snapshot';
-        // let snapshots = JSON.stringify(getSnapshots());
-        
-
 
         /* Wait for all promises to resolve. This fixed the big issue */
         Promise.all(promises).then(function(results) {
         // response.send(asset);
         // also grab snapshot process. Note: consolidate this with route 8
         console.log('here are snapshots',snapshots)
+
         snapshots = JSON.stringify(snapshots);
         response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
         }.bind(this));

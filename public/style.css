@@ -24,6 +24,16 @@ thead {
     padding: 1rem;
     flex: 1;
 }
+
+.pad0 {
+    padding: 0;
+}
+
+.flushSide {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 .full {
     padding: 0;
 }
@@ -114,6 +124,7 @@ table.alt tr:nth-of-type(even),.alt>div:nth-of-type(even) {
     background: black;
     color: white;
     padding: .5rem;
+    text-align: center;
     /* margin-bottom: 1rem; */
 }
 .refresh {
@@ -239,7 +250,7 @@ nav {
 nav a {
     color: white;
     text-decoration: none;
-    width: 24%;
+    width: 100%;
     display: inline-block;
 }
 

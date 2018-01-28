@@ -7,12 +7,6 @@ ROUTE 1: fetch all assets from firebase datastore called assets
     call function to find current market data
     when data is returned send updated data object as response to client
 
-FUNCTION 1: get current market data (input: asset objects)
-    Check asset type. If stock, (maybe put into stock array) fetch data from https://www.npmjs.com/package/nasdaq-finance
-    If crypto, pass the name (not symbol) to coinmarketcap https://api.coinmarketcap.com/v1/ticker/ethereum
-    for all asset types capture 24h change, 24h gain, current price
-    append data to existing object & return 
-
 ROUTE 2: save snapshot
     calculate the following:
         Portfolio Value, Portfolio Gains, Portfolio Growth, 
@@ -35,20 +29,19 @@ Route 5: edit asset save
     save & override relevant db record with matching asset id
     respond with okay or error
 
-Route 6: overview stats
+Route 6: portfolio overview
     return list of historical snapshots
 
 
-Route 6: retrieve snapshots
+Route 7: retrieve snapshots
     return list of historical snapshots
 
-Route 6: Text value
-    request contains username, value
-    calculate portfolio value for given user
-    repsonse contains value, name, date
+Route 8: show stats
+    server side calculation of asset values
+    returns all snapshot values
 
-CLIENT SIDE WORK
- compute total growth, total gain, portfolio %, market value, cost basis, 
-create charts
+Route 9: Email
+    send daily portfolio snapshot
 
-FUTURE: Allow multiple users
+Route 10: SMS
+    send daily portfolio value
