@@ -19,6 +19,7 @@
     "handlebars": "^4.0.11",
     "nasdaq-finance": "^1.1.4",
     "nodemon": "^1.14.6",
+    "superagent": "^3.8.2",
     "traderjs": "^2.1.3"
   },
   "private": true

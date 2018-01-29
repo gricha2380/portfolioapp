@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/png" href="img/cointoss.png"/>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme.css">
     <title>Login</title>
 </head>
 <body>
@@ -14,31 +15,28 @@
     </div>
     <div class="container">
 
-        <div id="assetBreakdown" class="padTop">
+        <div id="" class="padTop flex flexCenter">
             <form id="login">
                 <div>
-                    <label>
+                    <label class="minorLightText miniTitle">
                         Username
                         <input type="text" placeholder="username" id="username">
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label class="minorLightText miniTitle">
                         Password
                         <input type="password" placeholder="password" id="password">
                     </label>
                 </div>
                 <input type="submit" value="Sign In" id="signin" />
             </form>
-            <div>Test account: demo / demo</div>
         </div>
+        <div class="center minorLightText miniTitle" id="demo">Test account: demo / demo</div>
         
     </div>
     <nav>
-        <a class="button active" href="/overview">Overview</a>
-        <a class="button" href="/portfolio">Portfolio</a>
-        <a class="button" href="/stats">Stats</a>
-        <a class="button" href="/historical">Historical</a>
+        
     </nav>
     <script src="js/login.js"></script>
     <script>

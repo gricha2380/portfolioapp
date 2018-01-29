@@ -4,7 +4,9 @@ var app = {};
 // var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
 var __API_URL__ = 'http://localhost:5000'; // local URL
 
+var chartPoints = [];
 let currentUser = window.localStorage.getItem('account');
+
 function initUserMenu(){
     let header = document.querySelector('#userMenu');
     let userMenu = `<div id='userName' class='menu'>${JSON.parse(currentUser).username}</div><div id='actionList' class='dropdownList menu'><div id='logOut' class='menu'>Log Out</div></div>`
@@ -27,6 +29,9 @@ function initUserMenu(){
         // change CSS visibility for specified menu ID
         document.querySelector('#'+target+'+.dropdownList').classList.toggle('show');
 
+        // astetic background blue
+        if (document.querySelector('.container')) {document.querySelector('.container').classList.add('dim')}
+
         // hide menu if anything other than button is clicked
         document.querySelector('body').addEventListener('click', function(event){
             // if topic menu exists on page...
@@ -34,6 +39,7 @@ function initUserMenu(){
                 // if target isn't a button turn off show CSS class
                 if (!event.target.matches('.menu')) {
                     document.querySelector('#'+target+'+ .dropdownList').classList.remove('show');
+                    if (document.querySelector('.container')) {document.querySelector('.container').classList.remove('dim')}
                 }
             }
         });

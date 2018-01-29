@@ -16,45 +16,47 @@
         <div class="refresh button"></div>
     </div>
     <div class="container full">
-        <div id="assetList" class="grid ten box table">
-            <div id="symbol" class="col">
-                <div class="minorLightText miniTitle">Symbol</div>
-            </div>
+        <div class="inner hide">
+            <div id="assetList" class="grid ten box table">
+                <div id="symbol" class="col">
+                    <div class="minorLightText miniTitle">Symbol</div>
+                </div>
 
-            <div id="price" class="col">
-                <div class="minorLightText miniTitle">Price <span class="small">($)</span></div>
-            </div>
+                <div id="price" class="col">
+                    <div class="minorLightText miniTitle">Price <span class="small">($)</span></div>
+                </div>
 
-            <div id="pricePaid" class="col">
-                <div class="minorLightText miniTitle">Paid<span class="small">($)</span></div>
-            </div>
+                <div id="pricePaid" class="col">
+                    <div class="minorLightText miniTitle">Paid<span class="small">($)</span></div>
+                </div>
 
-            <div id="quantity" class="col">
-                <div class="minorLightText miniTitle">Qnty</div>
-            </div>
+                <div id="quantity" class="col">
+                    <div class="minorLightText miniTitle">Qnty</div>
+                </div>
 
-            <div id="cost" class="col">
-                <div class="minorLightText miniTitle">Cost <span class="small">($)</span></div>
-            </div>
+                <div id="cost" class="col">
+                    <div class="minorLightText miniTitle">Cost <span class="small">($)</span></div>
+                </div>
 
-            <div id="value" class="col">
-                <div class="minorLightText miniTitle">Value <span class="small">($)</span></div>
-            </div>
+                <div id="value" class="col">
+                    <div class="minorLightText miniTitle">Value <span class="small">($)</span></div>
+                </div>
 
-            <div id="growth" class="col">
-                <div class="minorLightText miniTitle">Grth <span class="small">(%)</span></div>
-            </div>
+                <div id="growth" class="col">
+                    <div class="minorLightText miniTitle">Grth <span class="small">(%)</span></div>
+                </div>
 
-            <div id="gain" class="col">
-                <div class="minorLightText miniTitle">Gain <span class="small">($)</span></div>
-            </div>
+                <div id="gain" class="col">
+                    <div class="minorLightText miniTitle">Gain <span class="small">($)</span></div>
+                </div>
 
-            <div id="todayPercent" class="col">
-                <div class="minorLightText miniTitle">24hr <span class="small">(%)</span></div>
-            </div>
+                <div id="todayPercent" class="col">
+                    <div class="minorLightText miniTitle">24hr <span class="small">(%)</span></div>
+                </div>
 
-            <div id="todayDollar" class="col">
-                <div class="minorLightText miniTitle">24hr <span class="small">($)</span></div>
+                <div id="todayDollar" class="col">
+                    <div class="minorLightText miniTitle">24hr <span class="small">($)</span></div>
+                </div>
             </div>
         </div>
         <div class="addNew button"><a>Add New</a></div>
@@ -73,7 +75,6 @@
                 let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
                 let assets = {};
                 let i = 0;
-
                 {{#each asset}}
                     assets[i] = {
                         costBasis : `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`,
@@ -99,9 +100,9 @@
                         :
                         document.querySelector('#todayDollar').innerHTML += `<div class='cell neg'>${parseFloat(assets[i].todayGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`
                     ;
-
                     i++;            
                 {{/each}}
+                document.querySelector('.inner').classList.remove('hide')
             }
     </script>
 </body>

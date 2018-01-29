@@ -47,6 +47,7 @@
                 <div class="minorLightText miniTitle center">Portfolio Value Over Time</div>
                 <div id="chartHolder">
                 </div>
+                <canvas id="valueCanvas"></canvas>
             </div>
         </div>
     </div>
@@ -57,7 +58,8 @@
         <a class="button" href="/historical"><div>Historical</div></a>
     </nav>
     <script src="js/app.js"></script>
-    <script src="js/overview.js"></script>
+    
+    {{!-- <script src="js/Chart.min.js"></script> --}}
     <script>
         let initUser = (u) => {
             console.log(u)
@@ -85,20 +87,21 @@
 
             // chart data
             let snapHolder = JSON.parse(`{{{snapshots}}}`);
-            let chartPoints = [];
-            //let snapHolder = `{{{snapshots}}}`;
+            console.log('I found chartpoints',chartPoints);
             console.log('this should be a snapshot',typeof(snapHolder),snapHolder)
             console.log('snap inside spot 0',snapHolder[0]);
             for (e in snapHolder[0]) {
-                //console.log('e label', snapHolder[0][e])
-                //console.log('e label', snapHolder[0][e].portfolioValue)
-                chartPoints.push([snapHolder[0][e].date,snapHolder[0][e].portfolioValue,snapHolder[0][e].portfolioGrowth])
+                chartPoints.push([snapHolder[0][e].unix,snapHolder[0][e].portfolioValue,snapHolder[0][e].portfolioGrowth])
             }
             console.log('chart data, yall',chartPoints);
             chartPoints.forEach(item => {
                 document.querySelector('#chartHolder').innerHTML += `<div class='row'>${item}</div>`;
             })
+
+            
         }
     </script>
+    <script src="js/Chart.min.js"></script>
+    <script src="js/chart.js"></script>
 </body>
 </html>

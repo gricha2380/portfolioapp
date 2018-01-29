@@ -1,8 +1,8 @@
 'use strict';
 
 var app = {};
-var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
-// var __API_URL__ = 'http://localhost:5000'; // local URL
+// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
+var __API_URL__ = 'http://localhost:5000'; // local URL
 
 (function(module) {
     // generate modal
@@ -14,13 +14,13 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
         modalBox.innerHTML = 
             `
             <div class="inner">
-            <label>Name<input value="" id="name"></label>
-            <label>Symbol<input value="" id="symbol"></label>
-            <label>Type<input value="" id="type"></label>
-            <label>Quantity<input value="" id="quantity"></label>
-            <label>Price Paid<input value="" id="purchasePrice"></label>
-            <label>Exchange<input value="" id="exchange"></label>
-            <input id="currentID">
+            <label>Name<input value="" id="nameModal"></label>
+            <label>Symbol<input value="" id="symbolModal"></label>
+            <label>Type<input value="" id="typeModal"></label>
+            <label>Quantity<input value="" id="quantityModal"></label>
+            <label>Price Paid<input value="" id="purchasePriceModal"></label>
+            <label>Exchange<input value="" id="exchangeModal"></label>
+            <input id="currentIDModal">
             </div>
             `;
         modalBox.querySelector('.inner').innerHTML += 
@@ -30,16 +30,16 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
         // action makes post request to API. Also passes key pulled from env
         document.querySelector("body").append(modalBox);
         if (asset) {
-            // console.log('there is an asset id', asset);
+            console.log('there is an asset id', asset);
             // console.log(asset)
             // console.log('there is an asset id', asset.target.parentElement.className);
-            document.querySelector('#name').value = asset.name;
-            document.querySelector('#symbol').value = asset.symbol;
-            document.querySelector('#type').value = asset.type;
-            document.querySelector('#quantity').value = asset.quantity;
-            document.querySelector('#purchasePrice').value = asset.purchasePrice;
-            document.querySelector('#exchange').value = asset.exchange;
-            document.querySelector('#currentID').value = asset.id;
+            document.querySelector('#nameModal').value = asset.name;
+            document.querySelector('#symbolModal').value = asset.symbol;
+            document.querySelector('#typeModal').value = asset.type;
+            document.querySelector('#quantityModal').value = asset.quantity;
+            document.querySelector('#purchasePriceModal').value = asset.purchasePrice;
+            document.querySelector('#exchangeModal').value = asset.exchange;
+            document.querySelector('#currentIDModal').value = asset.id;
         }
         modalListeners();
     }
@@ -84,13 +84,13 @@ var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
                 event.preventDefault();
 
                 let asset = {
-                    "name": document.querySelector('#name').value,
-                    "symbol": document.querySelector('#symbol').value,
-                    "type": document.querySelector('#type').value,
-                    "quantity": document.querySelector('#quantity').value,
-                    "purchasePrice": document.querySelector('#purchasePrice').value,
-                    "exchange": document.querySelector('#exchange').value,
-                    "currentID": document.querySelector('#currentID').value,
+                    "name": document.querySelector('#nameModal').value,
+                    "symbol": document.querySelector('#symbolModal').value,
+                    "type": document.querySelector('#typeModal').value,
+                    "quantity": document.querySelector('#quantityModal').value,
+                    "purchasePrice": document.querySelector('#purchasePriceModal').value,
+                    "exchange": document.querySelector('#exchangeModal').value,
+                    "currentID": document.querySelector('#currentIDModal').value,
                     "id": document.querySelectorAll('#assetList tr').length
                 };
 

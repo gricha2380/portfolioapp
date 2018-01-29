@@ -16,45 +16,47 @@
         <div class="refresh button"></div>
     </div>
     <div class="container full">
-        <div id="assetList" class="grid ten box table">
-            <div id="date" class="col">
-                <div class="minorLightText miniTitle">Date</div>
-            </div>
+        <div class="inner hide">
+            <div id="assetList" class="grid ten box table">
+                <div id="date" class="col">
+                    <div class="minorLightText miniTitle">Date</div>
+                </div>
 
-            <div id="portfolioValue" class="col">
-                <div class="minorLightText miniTitle">Value</div>
-            </div>
+                <div id="portfolioValue" class="col">
+                    <div class="minorLightText miniTitle">Value</div>
+                </div>
 
-            <div id="portfolioGain" class="col">
-                <div class="minorLightText miniTitle">Gain</div>
-            </div>
+                <div id="portfolioGain" class="col">
+                    <div class="minorLightText miniTitle">Gain</div>
+                </div>
 
-            <div id="portfolioGrowth" class="col">
-                <div class="minorLightText miniTitle">Grth</div>
-            </div>
+                <div id="portfolioGrowth" class="col">
+                    <div class="minorLightText miniTitle">Grth</div>
+                </div>
 
-            <div id="cryptoValue" class="col">
-                <div class="minorLightText miniTitle">Crypto Val</div>
-            </div>
+                <div id="cryptoValue" class="col">
+                    <div class="minorLightText miniTitle">Crypto Val</div>
+                </div>
 
-            <div id="cryptoGain" class="col">
-                <div class="minorLightText miniTitle">Crypto Gain</div>
-            </div>
+                <div id="cryptoGain" class="col">
+                    <div class="minorLightText miniTitle">Crypto Gain</div>
+                </div>
 
-            <div id="cryptoGrowth" class="col">
-                <div class="minorLightText miniTitle">Crypto Grth</div>
-            </div>
+                <div id="cryptoGrowth" class="col">
+                    <div class="minorLightText miniTitle">Crypto Grth</div>
+                </div>
 
-            <div id="stockValue" class="col">
-                <div class="minorLightText miniTitle">Stock Val</div>
-            </div>
+                <div id="stockValue" class="col">
+                    <div class="minorLightText miniTitle">Stock Val</div>
+                </div>
 
-            <div id="stockGain" class="col">
-                <div class="minorLightText miniTitle">Stock Gain</div>
-            </div>
+                <div id="stockGain" class="col">
+                    <div class="minorLightText miniTitle">Stock Gain</div>
+                </div>
 
-            <div id="stockGrowth" class="col">
-                <div class="minorLightText miniTitle">Stock Grth</div>
+                <div id="stockGrowth" class="col">
+                    <div class="minorLightText miniTitle">Stock Grth</div>
+                </div>
             </div>
         </div>
     </div>
@@ -73,7 +75,6 @@
             let id = 0;
 
             {{#each asset}}          
-
                 document.querySelector('#date').innerHTML += `<div class='cell'>{{{date}}}</div>`;  
                 document.querySelector('#portfolioValue').innerHTML += `<div class='cell'>$${parseFloat({{portfolioValue}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
                 document.querySelector('#portfolioGain').innerHTML += `<div class='cell'>$${parseFloat({{portfolioGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
@@ -85,6 +86,7 @@
                 document.querySelector('#stockGain').innerHTML += `<div class='cell'>$${parseFloat({{stockGains}}).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;  
                 document.querySelector('#stockGrowth').innerHTML += `<div class='cell'>${parseFloat({{stockGrowth}}).toFixed(2)}%</div>`;  
             {{/each}}
+            document.querySelector('.inner').classList.remove('hide')
         }
     </script>
 </body>

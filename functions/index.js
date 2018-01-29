@@ -13,7 +13,7 @@ const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
 const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
-const superagent = require ('superagent'); // for performing backend AJAX calls
+const superagent = require('superagent'); // for performing backend AJAX calls
 
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();
