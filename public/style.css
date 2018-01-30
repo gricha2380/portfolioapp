@@ -173,7 +173,9 @@ table.alt tr:nth-of-type(even),.alt>div:nth-of-type(even) {
 #percentBar {
     display: flex;
 }
-
+#symbol.block .symbol {
+    display: block;
+}
 .symbol {
     color: #15c;
     font-family: sans-serif;

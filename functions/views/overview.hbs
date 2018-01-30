@@ -47,7 +47,7 @@
                 <div class="minorLightText miniTitle center">Portfolio Value Over Time</div>
                 <div id="chartHolder">
                 </div>
-                <canvas id="valueCanvas"></canvas>
+                <canvas id="valueCanvas" style="width: 900px;height: 500px;"></canvas>
             </div>
         </div>
     </div>
@@ -91,14 +91,19 @@
             console.log('this should be a snapshot',typeof(snapHolder),snapHolder)
             console.log('snap inside spot 0',snapHolder[0]);
             for (e in snapHolder[0]) {
-                chartPoints.push([snapHolder[0][e].unix,snapHolder[0][e].portfolioValue,snapHolder[0][e].portfolioGrowth])
+                chartPoints.push([snapHolder[0][e].date,snapHolder[0][e].portfolioValue,snapHolder[0][e].portfolioGrowth])
             }
             console.log('chart data, yall',chartPoints);
             chartPoints.forEach(item => {
                 document.querySelector('#chartHolder').innerHTML += `<div class='row'>${item}</div>`;
             })
 
+            let labelData = chartPoints.map(l => l = l[0]);
+            console.log('see labels',labelData)
+
+            // this really needs to beinside chart.js
             
+            runValueCanvas();
         }
     </script>
     <script src="js/Chart.min.js"></script>
