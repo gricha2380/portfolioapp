@@ -178,19 +178,19 @@
                 </div>
             </div>
 
-            <div id="allocation" class="box table flush col">
+            <div id="allocation" class="box table flush col center">
                 <div class="minorLightText miniTitle center">Exchange Marketshare</div>
                 <div id="exchangeHolder">
                 </div>
                 <div id="exchangeChart">
-                    <canvas id="exchangeCanvas"></canvas>
+                    <canvas id="exchangeCanvas" width="500px"></canvas>
                 </div>
             </div>
-            <div id="chart" class="box table flush col">
+            <div id="chart" class="box table col">
                 <div class="minorLightText miniTitle center">Portfolio Value Over Time</div>
-                <div id="chartHolder">
+                <div id="overviewChartHolder">
+                    <canvas id="valueCanvas" width="500px"></canvas>
                 </div>
-                <canvas id="valueCanvas"></canvas>
             </div>
         </div>
     </div>
@@ -228,19 +228,13 @@
 
             let portfolioStats = {
                 crypto:{
-                    total: 0,
-                    growth:0,
-                    gains:0
+                    total: 0, growth:0, gains:0
                 },
                 stock:{
-                    total: 0,
-                    growth:0,
-                    gains:0
+                    total: 0,growth:0,gains:0
                 },
                 total:{
-                    total: 0,
-                    growth:0,
-                    gains:0
+                    total: 0, growth:0, gains:0
                 },
                 exchanges:{},
                 topMovers: {
@@ -321,6 +315,7 @@
             for (let i in portfolioStats.exchanges) {
                 if (portfolioStats.exchanges[i] > 0) {
                     document.querySelector('#exchangeHolder').innerHTML += `<div class='exchangeRow grid three'><span class='exchange'>${i}</span><span class='value'>$${portfolioStats.exchanges[i].toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span><span class='value'>${((portfolioStats.exchanges[i] / portfolioStats.total.total)*100).toFixed(2)}%</span></div>`;
+                    exchangePoints.push([i,portfolioStats.exchanges[i]])
                 }
             }
 
@@ -341,7 +336,7 @@
 
             // chart data
             let snapHolder = JSON.parse(`{{{snapshots}}}`);
-            let chartPoints = [];
+            //let chartPoints = [];
             console.log('this should be a snapshot',typeof(snapHolder),snapHolder)
             console.log('snap inside spot 0',snapHolder[0]);
             for (e in snapHolder[0]) {
@@ -349,8 +344,10 @@
             }
             console.log('chart data, yall',chartPoints);
             chartPoints.forEach(item => {
-                document.querySelector('#chartHolder').innerHTML += `<div class='row'>${item}</div>`;
+                //document.querySelector('#chartHolder').innerHTML += `<div class='row'>${item}</div>`;
             })
+            runValueCanvas();
+            runExchangeCanvas();
 
             document.querySelector('.inner').classList.remove('hide')
         }                

@@ -311,6 +311,29 @@ nav a.active {
     width: 100%;
     margin-bottom: 1rem;
 }
+
+#valueCanvas {
+    margin: auto;
+}
+
+#exchangeChart {
+    width: 350px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#exchangeHolder {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+}
+.exchangeRow {
+    font-size: 1.2rem;
+    margin-bottom: .5rem;
+}
+.exchange {
+    width: 10rem;
+}
 /********************* STATE *********************/
 .button:hover{
     cursor: pointer;
