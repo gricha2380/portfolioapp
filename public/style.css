@@ -334,6 +334,8 @@ nav a.active {
 .exchange {
     width: 10rem;
 }
+
+#mainTitle { padding-bottom: 0;}
 /********************* STATE *********************/
 .button:hover{
     cursor: pointer;

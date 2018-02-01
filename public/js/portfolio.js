@@ -94,9 +94,10 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
                     "id": document.querySelectorAll('#assetList tr').length
                 };
 
+                console.log('currentID',asset.currentID);
                 if (event.target.matches('div.save')) {
                     // console.log('you cllicked save');
-                    // console.log(asset);
+                    
                     asset.currentID ? updateRecord(asset) : insertRecord(asset);
                     // clearForm();
                 }

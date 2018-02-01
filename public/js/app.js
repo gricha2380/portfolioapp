@@ -6,6 +6,8 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
 
 let chartPoints = [];
 let exchangePoints = [];
+let assets = [];
+let none = Number.NEGATIVE_INFINITY;
 
 let currentUser = window.localStorage.getItem('account');
 

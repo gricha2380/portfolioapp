@@ -161,17 +161,65 @@
                         <span class="symbol">ETH:</span>
                         <span class="value">$500</span>
                     </div>
+                    <div id="changePercentWinner2" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentWinner3" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentWinner4" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentWinner5" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
                 </div>
                 <div id="changePercentLosers" class="col">
                     <div class="minorLightText miniTitle">24hr $</div>
-                    <div id="changePercentWinner2" class="cell">
+                    <div id="changePercentLoser1" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentLoser2" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentLoser3" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentLoser4" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changePercentLoser5" class="cell">
                         <span class="symbol">ETH:</span>
                         <span class="value">$500</span>
                     </div>
                 </div>
                 <div id="changeDollarLosers" class="col">
                     <div class="minorLightText miniTitle">24hr $</div>
-                    <div id="changePercentLoser1" class="cell">
+                    <div id="changeDollarLoser1" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changeDollarLoser2" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changeDollarLoser3" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changeDollarLoser4" class="cell">
+                        <span class="symbol">ETH:</span>
+                        <span class="value">$500</span>
+                    </div>
+                    <div id="changeDollarLoser5" class="cell">
                         <span class="symbol">ETH:</span>
                         <span class="value">$500</span>
                     </div>
@@ -201,12 +249,13 @@
         <a class="button" href="/historical"><div>Historical</div></a>
     </nav>
     <script src="js/app.js"></script>
+    <script src="js/stats.js"></script>
     <script type="text/javascript">
         let initUser = (u) => {
             console.log(u)
             let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
             let row = document.querySelector('#assetList tbody');
-            let assets = [];
+            if (!assets) {let assets = [];}
             let i = 0;
             let holder=[3,2,3]
 
@@ -226,114 +275,6 @@
                 i++;
             {{/each}}
 
-            let portfolioStats = {
-                crypto:{
-                    total: 0, growth:0, gains:0
-                },
-                stock:{
-                    total: 0,growth:0,gains:0
-                },
-                total:{
-                    total: 0, growth:0, gains:0
-                },
-                exchanges:{},
-                topMovers: {
-                    today: {
-                        dollarWinners:[{'value':-2000},{'value':-2000},{'value':-2000},{'value':-2000},{'value':-2000}],
-                        dollarLosers:[],
-                        percentWinners:[],
-                        percentLosers:[]
-                    },
-                    total : {
-                        dollarWinners:[],
-                        dollarLosers:[],
-                        percentWinners:[],
-                        percentLosers:[]
-                    }
-                }
-            }
-            let mapPort = assets.map(x => {
-                console.log(x)
-                if (x.type == 'crypto') {
-                    portfolioStats.crypto.total += parseFloat(x.marketValue);
-                    portfolioStats.crypto.growth += parseFloat(x.totalGrowth);
-                    portfolioStats.crypto.gains += parseFloat(x.totalGain);
-                }
-                else if (x.type == 'stock') {
-                    portfolioStats.stock.total += parseFloat(x.marketValue);
-                    portfolioStats.stock.growth += parseFloat(x.totalGrowth);
-                    portfolioStats.stock.gains += parseFloat(x.totalGain);
-                }
-                portfolioStats.total.total += parseFloat(x.marketValue);
-                portfolioStats.total.growth += parseFloat(x.totalGrowth);
-                portfolioStats.total.gains += parseFloat(x.totalGain);
-
-                portfolioStats.exchanges[x.exchange] ? portfolioStats.exchanges[x.exchange] += parseFloat(x.marketValue) : portfolioStats.exchanges[x.exchange] = parseFloat(x.marketValue);
-
-                
-                x.todayGain = parseFloat(x.todayGain);
-                console.log('todayGain value',x.todayGain);
-                console.log('todayGain converted type',typeof x.todayGain);
-
-                if (x.todayGain > portfolioStats.topMovers.today.dollarWinners[0].value) {
-                    console.log('x todatGain is greter',x.todayGain);
-                    portfolioStats.topMovers.today.dollarWinners[0] = {'symbol':x.symbol,'value':x.todayGain}
-                }
-                else if (x.todayGain > portfolioStats.topMovers.today.dollarWinners[1].value) {
-                    console.log('checking second level comparison');
-                    portfolioStats.topMovers.today.dollarWinners[1] = {'symbol':x.symbol,'value':x.todayGain}
-                }
-                else if (x.todayGain > portfolioStats.topMovers.today.dollarWinners[2].value) {
-                    console.log('comparison3 is '+ x.todayGain +' > '+portfolioStats.topMovers.today.dollarWinners[2].value);
-                    portfolioStats.topMovers.today.dollarWinners[2] = {'symbol':x.symbol,'value':x.todayGain}
-                }
-                else if (x.todayGain > portfolioStats.topMovers.today.dollarWinners[3].value) {
-                    portfolioStats.topMovers.today.dollarWinners[3] = {'symbol':x.symbol,'value':x.todayGain}
-                }
-                else if (x.todayGain > portfolioStats.topMovers.today.dollarWinners[4].value) {
-                    portfolioStats.topMovers.today.dollarWinners[4] = {'symbol':x.symbol,'value':x.todayGain}
-                }
-            })
-
-            //portfolio calculations
-            document.querySelector('#portfolioTotal').innerHTML = `$${portfolioStats.total.total.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`;
-            document.querySelector('#portfolioChange').innerHTML = `<span class='textNetural'></span>$${parseFloat(portfolioStats.total.gains).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textNetural'>/</span> ${parseFloat(portfolioStats.total.growth).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textNetural'></span>`;
-            
-            let ofPortfolio = `of portfolio`;
-            //stock calculations
-            document.querySelector('#stockTotal').innerHTML = `$${portfolioStats.stock.total.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`;
-            document.querySelector('#stockChange').innerHTML = `<span class='textNetural'></span>$${parseFloat(portfolioStats.stock.gains).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textNetural'>/</span> ${parseFloat(portfolioStats.stock.growth).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textNetural'></span>`;
-            document.querySelector('#stockPercent').innerHTML = `${Math.round(parseFloat((portfolioStats.stock.total/portfolioStats.total.total)*100))}% ${ofPortfolio}`;
-
-            //crypto calculations
-            document.querySelector('#cryptoTotal').innerHTML = `$${portfolioStats.crypto.total.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}`;
-            document.querySelector('#cryptoChange').innerHTML = `<span class='textNetural'></span>$${parseFloat(portfolioStats.crypto.gains).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')} <span class='textNetural'>/</span> ${parseFloat(portfolioStats.crypto.growth).toFixed(1).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%<span class='textNetural'></span>`;
-            document.querySelector('#cryptoPercent').innerHTML = `${Math.round(parseFloat((portfolioStats.crypto.total/portfolioStats.total.total)*100))}% ${ofPortfolio}`
-
-
-            //exchange allocation
-            for (let i in portfolioStats.exchanges) {
-                if (portfolioStats.exchanges[i] > 0) {
-                    document.querySelector('#exchangeHolder').innerHTML += `<div class='exchangeRow grid three'><span class='exchange'>${i}</span><span class='value'>$${portfolioStats.exchanges[i].toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span><span class='value'>${((portfolioStats.exchanges[i] / portfolioStats.total.total)*100).toFixed(2)}%</span></div>`;
-                    exchangePoints.push([i,portfolioStats.exchanges[i]])
-                }
-            }
-
-            //daily winners
-            for (x in portfolioStats.topMovers) {
-                console.log('processing top movers')
-                for (y in portfolioStats.topMovers[x]) {
-                    console.log('top movers x',portfolioStats.topMovers[x])
-                    console.log('top movers y value:',y)
-                    for (let i=0;i<portfolioStats.topMovers[x][y].length;i++) {
-                        console.log(`top mover finalValue`, portfolioStats.topMovers[x][y][i]);
-                        console.log(`#changeDollarWinner${i+1}`);
-                        document.querySelector(`#changeDollarWinner${i+1}`).innerHTML = 
-                        `<div id="changeDollarWinner${i+1}"><span class="symbol">${portfolioStats.topMovers[x][y][i].symbol}:</span><span class="value"> $${portfolioStats.topMovers[x][y][i].value.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></div>`
-                    }
-                }
-            }
-
             // chart data
             let snapHolder = JSON.parse(`{{{snapshots}}}`);
             //let chartPoints = [];
@@ -346,6 +287,8 @@
             chartPoints.forEach(item => {
                 //document.querySelector('#chartHolder').innerHTML += `<div class='row'>${item}</div>`;
             })
+            
+            runStats();
             runValueCanvas();
             runExchangeCanvas();
 

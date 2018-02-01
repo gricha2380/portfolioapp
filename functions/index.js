@@ -56,7 +56,13 @@ function checkLogin(info) {
 }
 
 function saveSnapshot() {
-    const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
+    //const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database 
+    //const ref = firebaseApp.database().ref(`users/0/snapshots`); //firebase database
+
+    // find number of users in firebase 
+    const ref = firebaseApp.database().ref(`users/`); //firebase database
+    //ref.once('value').then(user => user.)
+    // for loop to itterate through whole list
     console.log('inside snapshots');
     return ref.once('value').then(snap => snap.val());
 }
@@ -119,6 +125,14 @@ app.get('/portfolio', (request, response) => {
 /* ROUTE 2: save snapshot */
 app.get('/save', (request, response) => {
     /* TODO: check cridentials */
+    // save sanpshots for all users
+    // // find number of users in firebase 
+    const ref = firebaseApp.database().ref(`users/`); //firebase database
+    //ref.once('value').then(user => user.)
+    // for loop to itterate through whole list
+
+
+    /// original
     const db = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
 
     let totalValue = {
@@ -230,6 +244,10 @@ app.post('/edit/:id', (request, response) => {
         const db = firebaseApp.database().ref(`users/${__USERID__}/assets/${rb.currentID}`); //firebase database
         // console.log('request...',request);
         // console.log('request body here',request.body);
+        // const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
+        // console.log('inside getOneAssset', id);
+        // return ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val());      
+    
         let item = {
             "name": rb.name,
             "symbol": rb.symbol,
