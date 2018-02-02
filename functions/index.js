@@ -103,6 +103,7 @@ app.get('/portfolio', (request, response) => {
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
+                    console.log('here is price for '+asset[a].symbol,asset[a].price)
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
