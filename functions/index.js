@@ -31,6 +31,14 @@ const firebaseApp = firebase.initializeApp(
     functions.config().firebase // use credentials from configured project
 );
 
+/********************* CRON SCHEDULER *********************/
+exports.hourly_job =
+  functions.pubsub.topic('daily-tick').onPublish((event) => {
+    console.log("Running every day, like clock work...")
+  });
+
+  //gcloud app deploy app.yaml \cron.yaml
+
 /********************* ROUTE HELPERS *********************/
 app.use(cors()); // if cross origin becomes an issue
 app.use(bodyParser.json());
@@ -126,68 +134,75 @@ app.get('/portfolio', (request, response) => {
 /* ROUTE 2: save snapshot */
 app.put('/save', (request, response) => {
     /* TODO: check cridentials */
-    // save sanpshots for all users
-    // // find number of users in firebase 
     const ref = firebaseApp.database().ref(`users/`); //firebase database
-    //ref.once('value').then(user => user.)
-    // for loop to itterate through whole list
+    
+    // itterate through whole list of users
+    ref.once('value').then(user => {
+        user.val().forEach((r)=>{
+            console.log(`processing snapshot for ID ${r.id}`);
+            processSnapshot(r.id)
+        })
+    });
 
+    let processSnapshot = (userID) => {
+        console.log('now starting snapshot function...')
+        /// original
+        const db = firebaseApp.database().ref(`users/${userID}/snapshots`); //firebase database
 
-    /// original
-    const db = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
+        let totalValue = {
+            date: formatDate(),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
+        };
+        let promises = [];
 
-    let totalValue = {
-        date: formatDate(),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
+        promises.push(getAssets().then(asset => {
+            /* how can I use map, rduce & filter to arrive at the necessary values? */
+            for (let a in asset) {
+                if (asset[a].type=='stock') {
+                    promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                    .then((res) => {
+                        asset[a].price = res.price;
+                        asset[a].priceChange = res.priceChange;
+                        asset[a].priceChangePercent = res.priceChangePercent;
+
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.stockValue += (asset[a].quantity * asset[a].price);
+                        totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.stockCount++;
+                    }).catch(console.error))
+                }
+                if (asset[a].type=='crypto') {
+                    promises.push(superagent.get(coinAPI+asset[a].name)
+                    .then((res) => {
+                        asset[a].price = res.body[0].price_usd,
+                        asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                        asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
+                        totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.cryptoCount++;           
+                    }).catch(console.error))
+                }
+            }   
+            
+            /* Wait for all promises to resolve. This fixed the big issue */
+            Promise.all(promises).then(function(results) {
+                totalValue.portfolioGrowth = (totalValue.portfolioGrowth / (totalValue.cryptoCount + totalValue.stockCount)) * 100;
+                totalValue.stockGrowth = (totalValue.stockGrowth / totalValue.stockCount) * 100;
+                totalValue.cryptoGrowth = (totalValue.cryptoGrowth / totalValue.cryptoCount) * 100;
+                db.push(totalValue); // submit items
+                console.log('snapshot saved');
+                response.send(totalValue);
+            }.bind(this));
+        }).catch(console.error));
     };
-    let promises = [];
-
-    promises.push(getAssets().then(asset => {
-        /* how can I use map, rduce & filter to arrive at the necessary values? */
-        for (let a in asset) {
-            if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                .then((res) => {
-                    asset[a].price = res.price;
-                    asset[a].priceChange = res.priceChange;
-                    asset[a].priceChangePercent = res.priceChangePercent;
-
-                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
-                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
-                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    totalValue.stockValue += (asset[a].quantity * asset[a].price);
-                    totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
-                    totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    totalValue.stockCount++;
-                }).catch(console.error))
-            }
-            if (asset[a].type=='crypto') {
-                promises.push(superagent.get(coinAPI+asset[a].name)
-                .then((res) => {
-                    asset[a].price = res.body[0].price_usd,
-                    asset[a].priceChangePercent = res.body[0].percent_change_24h;
-                    asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-
-                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
-                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
-                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
-                    totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
-                    totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    totalValue.cryptoCount++;           
-                }).catch(console.error))
-            }
-        }   
-        
-        /* Wait for all promises to resolve. This fixed the big issue */
-        Promise.all(promises).then(function(results) {
-            totalValue.portfolioGrowth = (totalValue.portfolioGrowth / (totalValue.cryptoCount + totalValue.stockCount)) * 100;
-            totalValue.stockGrowth = (totalValue.stockGrowth / totalValue.stockCount) * 100;
-            totalValue.cryptoGrowth = (totalValue.cryptoGrowth / totalValue.cryptoCount) * 100;
-            db.push(totalValue); // submit items
-            console.log('snapshot saved');
-            response.send(totalValue);
-        }.bind(this));
-    }).catch(console.error));
+    
 
 });
 
@@ -321,6 +336,8 @@ app.get('/overview', (request, response) => {
 
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
+    const ref = firebaseApp.database().ref(`users/`); //firebase database
+    
     console.log("retrieving snapshot")
     let promises = [];
 

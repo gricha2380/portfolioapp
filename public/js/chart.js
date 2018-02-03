@@ -69,9 +69,9 @@ var app = {};
                                     return t.yLabel.toFixed(0) + '%';
                                 } else if (t.datasetIndex === 1) {
                                     if (t.yLabel.toString().length === 9) {
-                                        return Math.round(+t.yLabel.toString().replace(/(\d{3})(.*)/, '$1.$2')) + '%99';
+                                        return Math.round(+t.yLabel.toFixed(2).toString().replace(/(\d{3})(.*)/, '$1.$2')) + '%99';
                                     } 
-                                    else return '$' + t.yLabel.toString().replace(/(\d{2})(.*)/, '$1.$2');
+                                    else return '$' + t.yLabel.toFixed(2).toString().replace(/(\d{2})(.*)/, '$1.$2');
                                 }
                             }
                         }
