@@ -97,7 +97,7 @@ app.get('/portfolio', (request, response) => {
     promises.push(getAssets().then(asset => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol)
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
@@ -124,7 +124,7 @@ app.get('/portfolio', (request, response) => {
 });
 
 /* ROUTE 2: save snapshot */
-app.get('/save', (request, response) => {
+app.put('/save', (request, response) => {
     /* TODO: check cridentials */
     // save sanpshots for all users
     // // find number of users in firebase 
@@ -145,7 +145,7 @@ app.get('/save', (request, response) => {
         /* how can I use map, rduce & filter to arrive at the necessary values? */
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol)
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
@@ -285,8 +285,8 @@ app.get('/overview', (request, response) => {
         
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                // console.log('current stock content ', a)
-                promises.push(stock.getInfo(asset[a].symbol)
+                // console.log('current stock content gagga ', asset[a].symbol,asset[a].symbol.toLowerCase())
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].price = res.price;
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
@@ -357,7 +357,7 @@ app.get('/stats', (request, response) => {
     promises.push(getAssets().then(asset => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol)
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].exchange = res.exchange;
                     asset[a].price = res.price;

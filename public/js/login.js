@@ -33,7 +33,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         // refresh();
     }
 
-    function processLogin(info) {
+    let processLogin = (info) => {
         let myInit = { method: 'POST',
                     body: JSON.stringify(info), 
                     credentials: 'include',
@@ -65,7 +65,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
     }
     
 
-    function clearForm(){
+    let clearForm = () => {
         document.querySelector('#username').value = '';
         document.querySelector('#password').value = '';
     }

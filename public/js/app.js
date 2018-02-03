@@ -28,7 +28,7 @@ function initUserMenu(){
     });
 
      // when button is clicked, toggle visibility of menu items.
-     function expandMenu(target) {
+     let expandMenu = (target) => {
     
         // change CSS visibility for specified menu ID
         document.querySelector('#'+target+'+.dropdownList').classList.toggle('show');
@@ -49,6 +49,7 @@ function initUserMenu(){
         });
     } // end expandMenu
 }
+
 (function(module) {
     // check for login
     if (window.localStorage.getItem('account')) {

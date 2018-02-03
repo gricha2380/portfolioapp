@@ -1,8 +1,6 @@
 'use strict';
 
 var app = {};
-// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
-var __API_URL__ = 'http://localhost:5000'; // local URL
 // var chartPoints = [];
 
 // (function(module) {
@@ -17,7 +15,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
   console.log('here are chartPoints in chart',chartPoints);
   console.log('point zero',chartPoints.length);
 
-    function runValueCanvas() {
+    let runValueCanvas = () => {
         console.log('this is chartPoints in chart',chartPoints);
         let valCan = document.querySelector('#valueCanvas');
         if (valCan) {
@@ -105,7 +103,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         }
     }
 
-    function runExchangeCanvas() {
+    let runExchangeCanvas = () => {
         let exchange = document.querySelector('#exchangeCanvas');
         if (exchange) {
             // exchange.width =  window.innerWidth;

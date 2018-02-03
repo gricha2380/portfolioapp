@@ -1,12 +1,10 @@
 'use strict';
 
 var app = {};
-// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
-var __API_URL__ = 'http://localhost:5000'; // local URL
 
 (function(module) {
     // generate modal
-    function modal(asset){
+    let modal = (asset) =>{
         // programatically build div
         let modalBox = document.createElement('div');
         modalBox.setAttribute("id", "newForm");
@@ -63,7 +61,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         // refresh();
     })
 
-    function refresh(){
+    let refresh = () => {
         let xhttp = new XMLHttpRequest();
         xhttp.open('GET', `${__API_URL__}/all`, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -77,7 +75,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         // console.log('asset created... needs a then')
     }
 
-    function modalListeners() {
+    let modalListeners = () => {
         let newAsset = document.querySelector('#newForm');
         if (newAsset) {
             document.querySelector('#newForm').addEventListener('click',function(event){
@@ -109,7 +107,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         }
     }
     
-    function insertRecord(asset) {
+    let insertRecord = (asset) => {
         // console.log(`this is the url: ${__API_URL__}/add`);
         let xhttp = new XMLHttpRequest();
         xhttp.open('POST', `${__API_URL__}/add`, true);
@@ -122,7 +120,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         // refresh();
     }
 
-    function updateRecord(asset) {
+    let updateRecord = (asset) => {
         // console.log(`this is the url: ${__API_URL__}/edit/${asset.currentID}`);
         let xhttp = new XMLHttpRequest();
         xhttp.open('POST', `${__API_URL__}/edit/${asset.currentID}`, true);
@@ -134,7 +132,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         document.querySelector('#newForm').remove();
     }
 
-    function loadRecord(id) {
+    let loadRecord = (id) => {
         let xhttp = new XMLHttpRequest();
         xhttp.open('GET', `${__API_URL__}/find/${id}`, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -149,7 +147,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         console.log('asset created... needs a then')
     }
 
-    function populateEditFields(data){
+    let populateEditFields = (data) => {
         // console.log(data);
         // console.log(data.asset);
         for (let i in data.asset) {
@@ -161,7 +159,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         // modal(data.asset);
     }
 
-    function showLoader() {
+    let showLoader = () => {
         console.log('showing loader')
         let spinner = document.createElement('div');
         spinner.setAttribute("id", "loader");
@@ -169,11 +167,11 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         document.querySelector("body").append(spinner);
     }
 
-    function hideLoader() {
+    let hideLoader = () => {
         document.querySelector('#loader').remove();
     }
 
-    function clearForm(){
+    let clearForm = () =>{
         document.querySelector('#name').value = '';
         document.querySelector('#symbol').value = '';
         document.querySelector('#type').value = '';
@@ -182,14 +180,14 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         document.querySelector('#exchange').value = '';
     }
 
-    function errorCallback(err) {
+    let errorCallback = (err) => {
         console.error(err);
         module.errorView.initErrorPage(err);
     }
 
-    function feedbackMessage(message) {
+    let feedbackMessage = (message) => {
         document.querySelector('#feedback').innerHTML = message;
-        setTimeout(function() {
+        setTimeout(() => {
         //console.log('delay before hiding');
           document.querySelector('#feedback').innerHTML = '';
         }, 3000);
