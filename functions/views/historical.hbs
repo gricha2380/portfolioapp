@@ -67,12 +67,8 @@
         <a class="button" href="/stats"><div>Stats</div></a>
         <a class="button active" href="/historical"><div>Historical</div></a>
     </nav>
-    <script src="js/app.js"></script>
-    <script src="js/historical.js"></script>
-
     <script type="text/javascript">
         let initUser = (u) => {
-            console.log(u)
             let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
             let assets = {};
             let id = 0;
@@ -92,5 +88,7 @@
             document.querySelector('.inner').classList.remove('hide')
         }
     </script>
+    <script src="js/app.js"></script>
+    <script src="js/historical.js"></script>
 </body>
 </html>

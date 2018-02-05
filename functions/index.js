@@ -14,11 +14,14 @@ const bodyParser = require('body-parser'); // go inside message body
 const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
 const superagent = require('superagent'); // for performing backend AJAX calls
+const nodemailer = require('nodemailer'); // email & text message
+// const request = require('request-promise');
 
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();
 const app = express();
 let __USERID__ = null; //login identifier
+const config = functions.config();
 
 /********************* TEMPLATING *********************/
 app.engine('hbs', engines.handlebars); // use consolidate to attach handlebars templating
@@ -34,7 +37,7 @@ const firebaseApp = firebase.initializeApp(
 /********************* CRON SCHEDULER *********************/
 exports.hourly_job =
   functions.pubsub.topic('daily-tick').onPublish((event) => {
-    console.log("Running every day, like clock work...")
+    // console.log("Running every day, like clock work...")
   });
 
   //gcloud app deploy app.yaml \cron.yaml
@@ -46,19 +49,19 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 function getAssets() {
     const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
-    console.log('inside getAssets');
+    // console.log('inside getAssets');
     return ref.once('value').then(snap => snap.val());
 }
 
 function getOneAsset(id) {
     const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
-    console.log('inside getOneAssset', id);
+    // console.log('inside getOneAssset', id);
     return ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val());      
 }
 
 function checkLogin(info) {
     const ref = firebaseApp.database().ref(); //firebase database
-    console.log('inside login, username:', info.username);
+    // console.log('inside login, username:', info.username);
     //return ref.orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val());      
     return ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val());
 }
@@ -71,24 +74,71 @@ function saveSnapshot() {
     const ref = firebaseApp.database().ref(`users/`); //firebase database
     //ref.once('value').then(user => user.)
     // for loop to itterate through whole list
-    console.log('inside snapshots');
+    // console.log('inside snapshots');
     return ref.once('value').then(snap => snap.val());
 }
 
 function getSnapshots() {
-    console.log('getting snapshots now!')
+    // console.log('getting snapshots now!')
     const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
     return ref.once('value').then(snap => snap.val());
 }
 
-function formatDate() {
-    var d = new Date(),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-    return [month, day, year].join('/');
+function formatDate(style) {
+    if (style == 'slash' || !style) {
+        let d = new Date(),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [month, day, year].join('/');
+    }
+    else if (style == 'word') {
+        let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+        let d = new Date();
+        let dateNow = d.getDate();
+        let monthNow = d.getMonth();
+        let yearNow = d.getFullYear();
+        return months[monthNow] +' '+ dateNow + ', ' + yearNow +' ';
+    }
+}
+
+let sendEmail = (recipient, data) => {
+    // console.log(functions.config().someservice.key)
+    let userEmail = functions.config().email.address;
+    let userPassword = functions.config().email.password;
+    // console.log(`recipent is ${recipient}`)
+    // console.log(`email var`, userEmail)
+    // console.log(`looking for pass`,userPassword)
+    // Generate test SMTP service account from ethereal.email
+    // Only needed if you don't have a real mail account for testing
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: config.email.address,
+          pass: config.email.password
+        }
+      });
+      
+      var mailOptions = {
+        from: '"Portfolio App 👻" <gregor@gregorrichardson.com>',
+        to: recipient,
+        subject: 'Portfolio Update',
+        html: 
+        `<h3>Portfolio Update</h3>
+        <div>${formatDate('word')}</div>
+        <div><b>Portfolio Value: $</b></div>
+        `
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+        //   console.log(error);
+        } else {
+        //   console.log('Email sent: ' + info.response);
+        }
+      });
 }
 
 let coinAPI = "https://api.coinmarketcap.com/v1/ticker/";
@@ -97,7 +147,7 @@ let coinAPI = "https://api.coinmarketcap.com/v1/ticker/";
 
 /* ROUTE 1: fetch all assets */
 app.get('/portfolio', (request, response) => {
-    console.log("showing all assets route")
+    // console.log("showing all assets route")
     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
 
@@ -111,7 +161,7 @@ app.get('/portfolio', (request, response) => {
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
-                    console.log('here is price for '+asset[a].symbol,asset[a].price)
+                    // console.log('here is price for '+asset[a].symbol,asset[a].price)
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
@@ -139,18 +189,18 @@ app.put('/save', (request, response) => {
     // itterate through whole list of users
     ref.once('value').then(user => {
         user.val().forEach((r)=>{
-            console.log(`processing snapshot for ID ${r.id}`);
+            // console.log(`processing snapshot for ID ${r.id}`);
             processSnapshot(r.id)
         })
     });
 
     let processSnapshot = (userID) => {
-        console.log('now starting snapshot function...')
+        // console.log('now starting snapshot function...')
         /// original
         const db = firebaseApp.database().ref(`users/${userID}/snapshots`); //firebase database
 
         let totalValue = {
-            date: formatDate(),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
+            date: formatDate('slash'),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
         };
         let promises = [];
 
@@ -197,7 +247,7 @@ app.put('/save', (request, response) => {
                 totalValue.stockGrowth = (totalValue.stockGrowth / totalValue.stockCount) * 100;
                 totalValue.cryptoGrowth = (totalValue.cryptoGrowth / totalValue.cryptoCount) * 100;
                 db.push(totalValue); // submit items
-                console.log('snapshot saved');
+                // console.log('snapshot saved');
                 response.send(totalValue);
             }.bind(this));
         }).catch(console.error));
@@ -208,12 +258,12 @@ app.put('/save', (request, response) => {
 
 /* ROUTE 3: add asset */
 app.post('/add', (request, response) => {
-    console.log('this is the request body', request.body)
+    // console.log('this is the request body', request.body)
     let rb = request.body;
     if (!rb.name || !rb.symbol || !rb.type || !rb.purchasePrice || !rb.quantity || !rb.exchange) {
         response.status(400).send(JSON.stringify(request.body));
     } else {
-        console.log("Making a new asset", request)
+        // console.log("Making a new asset", request)
         const db = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
         // console.log('request...',request);
         // console.log('request body here',request.body);
@@ -229,14 +279,14 @@ app.post('/add', (request, response) => {
         }
         // db.push(item); // submit items
         db.child(request.body.id).set(item);
-        console.log('new asset created',request.body.name);
+        // console.log('new asset created',request.body.name);
         response.send(`${request.body.name} asset created`)
     }
 });
 
 /* ROUTE 4: edit asset populate */
 app.get('/find/:id', (request, response) => {
-    console.log("lookingforid", request.params.id);
+    // console.log("lookingforid", request.params.id);
     let promises = [];
     // promises.push(getAssets().then(asset => {
     promises.push(getOneAsset(request.params.id).then(asset => {
@@ -251,12 +301,12 @@ app.get('/find/:id', (request, response) => {
 
 /* ROUTE 5: edit asset save */
 app.post('/edit/:id', (request, response) => {
-    console.log('this is the request body', request.body)
+    // console.log('this is the request body', request.body)
     let rb = request.body;
     if (!rb.name || !rb.symbol || !rb.type || !rb.purchasePrice || !rb.quantity || !rb.exchange) {
         response.status(400).send(JSON.stringify(request.body));
     } else {
-        console.log("updating asset", request.body)
+        // console.log("updating asset", request.body)
         const db = firebaseApp.database().ref(`users/${__USERID__}/assets/${rb.currentID}`); //firebase database
         // console.log('request...',request);
         // console.log('request body here',request.body);
@@ -274,14 +324,15 @@ app.post('/edit/:id', (request, response) => {
         }
         // db.push(item); // submit items
         db.update(item);
-        console.log('asset updated',rb.name);
+        // console.log('asset updated',rb.name);
         response.send(`${rb.name} asset updated`)
     }
 });
 
 /* ROUTE 6: Portfolio Overview */
 app.get('/overview', (request, response) => {
-    console.log("showing all assets route")
+    // console.log("showing all assets route")
+    // throw 'this is an intentional error'
     let totalValue = {
         portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
     };
@@ -292,9 +343,9 @@ app.get('/overview', (request, response) => {
 
     promises.push(getSnapshots().then(snap => {
         snapshots.push(snap)
-        console.log('new snap',snap)
+        // console.log('new snap',snap)
     }))
-    console.log('total snapshot', snapshots)
+    // console.log('total snapshot', snapshots)
 
     promises.push(getAssets().then(asset => {
         
@@ -331,14 +382,19 @@ app.get('/overview', (request, response) => {
             snapshots = JSON.stringify(snapshots);
             response.render('overview', { totalValue , snapshots}); // render index page and send back data in asset var
         }.bind(this));
-    }).catch(console.error));
+    })
+    .catch(console.error));
+    // .catch((error) => {
+        //response.render()
+        // exception error
+    // }));
 });
 
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
     const ref = firebaseApp.database().ref(`users/`); //firebase database
     
-    console.log("retrieving snapshot")
+    // console.log("retrieving snapshot")
     let promises = [];
 
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
@@ -346,7 +402,7 @@ app.get('/historical', (request, response) => {
            /* Wait for all promises to resolve. This fixed the big issue */
            Promise.all(promises).then(function(results) {
             // response.send(asset);
-            console.log('here is snapshot',asset)
+            // console.log('here is snapshot',asset)
             response.render('historical', { asset }); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
@@ -360,15 +416,15 @@ app.get('/stats', (request, response) => {
     //     })
     let snapshots = [];
 
-    console.log("showing stats")
+    // console.log("showing stats")
     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
 
     promises.push(getSnapshots().then(snap => {
         snapshots.push(snap)
-        console.log('new snap',snap)
+        // console.log('new snap',snap)
     }))
-    console.log('total snapshot', snapshots)
+    // console.log('total snapshot', snapshots)
 
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
     promises.push(getAssets().then(asset => {
@@ -396,13 +452,34 @@ app.get('/stats', (request, response) => {
         Promise.all(promises).then(function(results) {
         // response.send(asset);
         // also grab snapshot process. Note: consolidate this with route 8
-        console.log('here are snapshots',snapshots)
+        // console.log('here are snapshots',snapshots)
 
         snapshots = JSON.stringify(snapshots);
         response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
         }.bind(this));
     }).catch(console.error));
 });
+
+/* ROUTE 9: Send Email */
+app.post('/email/send', (request, response) => {
+    let promises = [];
+    let recipient = '';
+    const ref = firebaseApp.database().ref(`users/${__USERID__}/email`); //firebase database
+    // console.log('looking for email');
+    ref.once('value').then(snap => {
+        recipient = snap.val();
+        // console.log('email is now', recipient);
+        promises.push(sendEmail(recipient))
+});
+
+    
+    Promise.all(promises).then(function(results) {
+        // response.send(asset);
+        //console.log('here is snapshot',asset)
+        response.status(242).send({'response':'email sent!'});
+    }.bind(this));
+});
+
 
 app.get('/', (request, response) => {
     // do conditional reroute for authentication
@@ -414,31 +491,37 @@ app.get('/login', (request, response) => {
     // response.redirect('/overview');
 });
 
+app.get('/hello', (request, response) => {
+    // throw 'hello to the people'
+    console.log('functions config here',functions.config())
+    response.send('this is environemtn var' + functions.config().email.address);
+});
+
 app.post('/login', (request, response) => {
     // response.render('index', { response });
     // response.redirect('/overview');
     let promises = [];
 
-    console.log('this is the request body for login', request.body)
-    console.log('username',request.body.username)
+    // console.log('this is the request body for login', request.body)
+    // console.log('username',request.body.username)
     let rb = request.body;
     if (!rb.username || !rb.password) {
         response.status(400).send(JSON.stringify(request.body));
     } else {
-        console.log("connecting to login database")
+        // console.log("connecting to login database")
 
         promises.push(checkLogin(request.body).then((creds) => {
             if (!creds) response.status(401).send('username not found!!');
-            console.log('creds yall',creds);
-            console.log('cred first spot',creds[1]);            
+            // console.log('creds yall',creds);
+            // console.log('cred first spot',creds[1]);            
             // JSON.stringify(creds);
             // creds[1]= creds;
             creds.forEach(e => {
-                console.log('here is e',e)
+                // console.log('here is e',e)
                 if (e.screenname) {
-                    console.log('inside foreach inner')
+                    // console.log('inside foreach inner')
                     if (e.screenname === request.body.username && e.password === request.body.password) {
-                        console.log("it's a match!")
+                        // console.log("it's a match!")
                         __USERID__ = e.id;
                         //response.send(`it matches! ${e.screenname} ${e.password}`)
                         response.status(242).send({'response':'it matches!'});
@@ -446,7 +529,7 @@ app.post('/login', (request, response) => {
                         // response.send(`asset created and matched`)
                         // response.send('you got it!');
                     } else if (e.screenname === request.body.username){
-                        console.log('wrong password, boo')
+                        // console.log('wrong password, boo')
                         // response.send(`wrong password... ${e.screenname} ${e.password}`)
                         // response.json({'response':'wrong passsword'})
                         response.status(401).send({'response':'wrong password, buddy!'});
@@ -470,7 +553,7 @@ app.post('/login', (request, response) => {
 });
 
 app.get('*', (request, response) => {
-    console.log('unknown route request');
+    // console.log('unknown route request');
     response.send('Sorry, unknown route.');
 });
 //app.get('*', (req, res) => res.redirect(CLIENT_URL)); // listen for all routes, send to homepage

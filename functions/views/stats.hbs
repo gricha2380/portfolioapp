@@ -248,11 +248,8 @@
         <a class="button active" href="/stats"><div>Stats</div></a>
         <a class="button" href="/historical"><div>Historical</div></a>
     </nav>
-    <script src="js/app.js"></script>
-    <script src="js/stats.js"></script>
     <script type="text/javascript">
         let initUser = (u) => {
-            console.log(u)
             let costBasis, marketValue, totalGrowth, totalGain, todayPercent, todayGain;
             let row = document.querySelector('#assetList tbody');
             if (!assets) {let assets = [];}
@@ -295,6 +292,8 @@
             document.querySelector('.inner').classList.remove('hide')
         }                
     </script>
+    <script src="js/app.js"></script>
+    <script src="js/stats.js"></script>
     <script src="js/Chart.min.js"></script>
     <script src="js/chart.js"></script>
 </body>
