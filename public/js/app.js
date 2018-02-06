@@ -1,8 +1,8 @@
 'use strict';
 
 var app = {};
-// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
-var __API_URL__ = 'http://localhost:5000'; // local URL
+var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
+// var __API_URL__ = 'http://localhost:5000'; // local URL
 
 let chartPoints = [];
 let exchangePoints = [];
@@ -13,7 +13,7 @@ let currentUser = window.localStorage.getItem('account');
 
 function initUserMenu(){
     let header = document.querySelector('#userMenu');
-    let userMenu = `<div id='userName' class='menu'>${JSON.parse(currentUser).username}</div><div id='actionList' class='dropdownList menu'><div id='logOut' class='menu'>Log Out</div></div>`
+    let userMenu = `<div id='userName' class='menu'>${JSON.parse(currentUser).username}</div><div id='actionList' class='dropdownList menu'><div id='sendEmail' class='menu'>Send Email</div><div id='sendText' class='menu'>Send Text Message</div><div id='logOut' class='menu'>Log Out</div></div>`
     header.innerHTML +=userMenu;
 
     document.querySelector('#userName').addEventListener('click', function(event){
@@ -25,6 +25,38 @@ function initUserMenu(){
     document.querySelector('#logOut').addEventListener('click',function(event){
         window.localStorage.removeItem('account');
         window.location.replace('/login'); 
+    });
+
+    document.querySelector('#sendEmail').addEventListener('click',function(event){
+        console.log(this.id,'id here');
+        document.querySelector('.dropdownList.show').classList.remove('show');
+        if (document.querySelector('.container')) {document.querySelector('.container').classList.remove('dim')}
+
+        let myInit = { method: 'POST',
+                    body: '', 
+                    credentials: 'include',
+                    headers: new Headers({'Content-Type': 'application/json'}),
+                    mode: 'cors',
+                    cache: 'default'};
+
+        fetch(`${__API_URL__}/email/send`, myInit)
+        .then(response => {
+            console.log('email response...')
+            if (response.status === 401) {
+                console.log('failure')
+            } else if (response.status === 242) {
+                console.log(`Email sent sucessfully`)
+            }
+            console.log(response.json());
+
+        })
+        // .then(response => {console.log(response.status,'status is this');response.json()})
+        .catch(error => console.error('Error:', error))
+        .then(response => console.log('Success:', response));
+    });
+
+    document.querySelector('#sendText').addEventListener('click',function(event){
+        
     });
 
      // when button is clicked, toggle visibility of menu items.
@@ -57,7 +89,7 @@ function initUserMenu(){
     } else {window.location.replace('/login');}
 
     function loadData(info) {
-      console.log('here is loaded info',info);
+    //   console.log('here is loaded info',info);
       // send account info to server via fetch/POST
       // on server route, look up credentials sameway login works
       // if credientails are valid, run all scripts below
@@ -80,7 +112,7 @@ function initUserMenu(){
                 console.log(`Fully authorized. Loading ${info.username} from localstorage`)
                 // move all overview (or other pages) activity here. encapusulate in function
                 initUserMenu();
-                initUser('bob');
+                initUser();
             }
             console.log(response.json());
 

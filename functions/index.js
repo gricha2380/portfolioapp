@@ -161,7 +161,6 @@ app.get('/portfolio', (request, response) => {
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
-                    // console.log('here is price for '+asset[a].symbol,asset[a].price)
                 }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
@@ -351,7 +350,6 @@ app.get('/overview', (request, response) => {
         
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                // console.log('current stock content gagga ', asset[a].symbol,asset[a].symbol.toLowerCase())
                 promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].price = res.price;
@@ -384,10 +382,6 @@ app.get('/overview', (request, response) => {
         }.bind(this));
     })
     .catch(console.error));
-    // .catch((error) => {
-        //response.render()
-        // exception error
-    // }));
 });
 
 /* ROUTE 7: retrieve snapshots */
@@ -410,12 +404,7 @@ app.get('/historical', (request, response) => {
 
 /* ROUTE 8: show stats */
 app.get('/stats', (request, response) => {
-    // let snapshots = fetch(getSnapshots()).then(response => {
-    //         console.log('this was snapshot response...')
-    //         console.log(response);
-    //     })
     let snapshots = [];
-
     // console.log("showing stats")
     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
@@ -464,18 +453,23 @@ app.get('/stats', (request, response) => {
 app.post('/email/send', (request, response) => {
     let promises = [];
     let recipient = '';
+    let emailData = {};
     const ref = firebaseApp.database().ref(`users/${__USERID__}/email`); //firebase database
     // console.log('looking for email');
     ref.once('value').then(snap => {
         recipient = snap.val();
         // console.log('email is now', recipient);
-        promises.push(sendEmail(recipient))
+        emailCalculations();
 });
 
+    let emailCalculations = () => {
+        emailData.portfolioValue = 3.99;
+    }
     
     Promise.all(promises).then(function(results) {
         // response.send(asset);
         //console.log('here is snapshot',asset)
+        promises.push(sendEmail(recipient, emailData))
         response.status(242).send({'response':'email sent!'});
     }.bind(this));
 });

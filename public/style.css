@@ -296,11 +296,24 @@ nav a.active {
     color: rgba(255, 255, 255, .7);
     min-width: 15rem;
     text-align: left;
+    padding-left: 1rem;
+}
+
+#actionList .menu {
+    padding: .5rem 0;
+}
+
+#actionList .menu:hover {
+    color: white;
 }
 
 #userMenu {
     position: absolute;
     line-height: 2.5rem;
+}
+
+#userName {
+    padding-left: .5rem;
 }
 
 #demo {
