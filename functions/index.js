@@ -15,7 +15,7 @@ const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
 const superagent = require('superagent'); // for performing backend AJAX calls
 const nodemailer = require('nodemailer'); // email & text message
-// const request = require('request-promise');
+// const rp = require('request-promise');
 
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();

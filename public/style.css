@@ -317,12 +317,27 @@ nav a.active {
 }
 
 #demo {
-    margin-top: 4rem;
+    margin-top: 2rem;
+}
+
+#demoCred {
+    text-transform: lowercase;
+    padding-left: .5rem;
 }
 
 #login input{
-    width: 100%;
+    display: block;
     margin-bottom: 1rem;
+    min-width: 200px;
+}
+
+#signin {
+    width: 100%;
+    background: black;
+    color: white;
+    border: none;
+    margin: 0;
+    padding: .5rem;
 }
 
 #valueCanvas {

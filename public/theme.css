@@ -188,10 +188,3 @@ nav a.active div:before {
     margin-top: 1rem;
 }
 
-#signin {
-    background: black;
-    color: white;
-    border: none;
-    margin: 0;
-    padding: .5rem;
-}
