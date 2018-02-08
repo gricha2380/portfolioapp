@@ -15,7 +15,7 @@ const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
 const superagent = require('superagent'); // for performing backend AJAX calls
 const nodemailer = require('nodemailer'); // email & text message
-// const rp = require('request-promise');
+const rp = require('request-promise');
 
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();
@@ -105,38 +105,54 @@ function formatDate(style) {
 }
 
 let sendEmail = (recipient, data) => {
-    // console.log(functions.config().someservice.key)
-    let userEmail = functions.config().email.address;
-    let userPassword = functions.config().email.password;
-    // console.log(`recipent is ${recipient}`)
-    // console.log(`email var`, userEmail)
-    // console.log(`looking for pass`,userPassword)
-    // Generate test SMTP service account from ethereal.email
-    // Only needed if you don't have a real mail account for testing
+
+    let userEmail = process.env.portfolioUserEmail || functions.config().email.address;
+    let userPassword = process.env.portfolioUserPassword || functions.config().email.password;
+    console.log(`survey recipent is ${recipient}`)
+    console.log(`email address ${process.env.portfolioUserEmail}`)
+    console.log('probably data',data.portfolio);
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: config.email.address,
-          pass: config.email.password
+          user: process.env.portfolioUserEmail || config.email.address,
+          pass: process.env.portfolioUserPassword || config.email.password
         }
       });
       
       var mailOptions = {
-        from: '"Portfolio App 👻" <gregor@gregorrichardson.com>',
+        from: '"Portfolio App 2.0" <gregor@gregorrichardson.com>',
         to: recipient,
         subject: 'Portfolio Update',
         html: 
         `<h3>Portfolio Update</h3>
-        <div>${formatDate('word')}</div>
-        <div><b>Portfolio Value: $</b></div>
+        <div>${formatDate('word')} update</div>
+        <div><b>Portfolio Value: $${data.portfolioValue}.</b>($###/###%)</div>
+        <div>View Portfolio</div>
+        <table>
+            <th>
+                <tr>Symbol</tr>
+                <tr>Price</tr>
+                <tr>Price Paid</tr>
+                <tr>Quantity</tr>
+                <tr>Cost</tr>
+                <tr>Value</tr>
+                <tr>Total Growth</tr>
+                <tr>Total Gain</tr>
+                <tr>Gain 24hr</tr>
+            </th>
+            <tbody>
+                <tr></tr>
+            </tbody>
+        </table>
+        one price...${data.portfolio[0].price}
         `
       };
       
       transporter.sendMail(mailOptions, function(error, info){
         if (error) {
-        //   console.log(error);
+          console.log(error);
         } else {
-        //   console.log('Email sent: ' + info.response);
+          console.log('Email sent: ' + info.response);
         }
       });
 }
@@ -458,18 +474,58 @@ app.post('/email/send', (request, response) => {
     // console.log('looking for email');
     ref.once('value').then(snap => {
         recipient = snap.val();
-        // console.log('email is now', recipient);
-        emailCalculations();
+        console.log('email recipient is now', recipient);
+        rp(emailCalculations())
+            .then(function (emailCalc) {
+                console.log('got data',emailCalc);
+            })
+            .catch(function (err) {
+                console.log('error happened',err);
+            });
+        sendEmail(recipient, emailData);
 });
 
     let emailCalculations = () => {
         emailData.portfolioValue = 3.99;
+        promises.push(getAssets().then(asset => {
+            for (let a in asset) {
+                if (asset[a].type=='stock') {
+                    promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                    .then((res) => {
+                        asset[a].exchange = res.exchange;
+                        asset[a].price = res.price;
+                        asset[a].priceChange = res.priceChange;
+                        asset[a].priceChangePercent = res.priceChangePercent;
+                    }).catch(console.error))
+                }
+                if (asset[a].type=='crypto') {
+                    promises.push(superagent.get(coinAPI+asset[a].name)
+                        .then((res) =>  {
+                            asset[a].price = res.body[0].price_usd,
+                            asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                            asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+                        }).catch(console.error))
+                }
+            }
+    
+            /* Wait for all promises to resolve. This fixed the big issue */
+            Promise.all(promises).then(function(results) {
+            // response.send(asset);
+            // also grab snapshot process. Note: consolidate this with route 8
+            // console.log('here are snapshots',snapshots)
+    
+            snapshots = JSON.stringify(snapshots);
+            //response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
+            emailData.portfolio = asset;
+            }.bind(this));
+        }).catch(console.error));
+        
     }
     
     Promise.all(promises).then(function(results) {
         // response.send(asset);
         //console.log('here is snapshot',asset)
-        promises.push(sendEmail(recipient, emailData))
+        //promises.push(sendEmail(recipient, emailData))
         response.status(242).send({'response':'email sent!'});
     }.bind(this));
 });
