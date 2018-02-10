@@ -56,7 +56,31 @@ function initUserMenu(){
     });
 
     document.querySelector('#sendText').addEventListener('click',function(event){
-        
+        console.log(this.id,'id here');
+        document.querySelector('.dropdownList.show').classList.remove('show');
+        if (document.querySelector('.container')) {document.querySelector('.container').classList.remove('dim')}
+
+        let myInit = { method: 'POST',
+                    body: '', 
+                    credentials: 'include',
+                    headers: new Headers({'Content-Type': 'application/json'}),
+                    mode: 'cors',
+                    cache: 'default'};
+
+        fetch(`${__API_URL__}/text/send`, myInit)
+        .then(response => {
+            console.log('text response...')
+            if (response.status === 401) {
+                console.log('failure')
+            } else if (response.status === 242) {
+                console.log(`text sent sucessfully`)
+            }
+            console.log(response.json());
+
+        })
+        // .then(response => {console.log(response.status,'status is this');response.json()})
+        .catch(error => console.error('Error:', error))
+        .then(response => console.log('Success:', response));
     });
 
      // when button is clicked, toggle visibility of menu items.
