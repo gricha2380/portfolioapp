@@ -307,6 +307,8 @@ nav a.active {
     color: white;
 }
 
+#logOut {border-top: 1px solid rgba(255, 255, 255, .2);}
+
 #userMenu {
     position: absolute;
     line-height: 2.5rem;
@@ -364,6 +366,7 @@ nav a.active {
 }
 
 #mainTitle { padding-bottom: 0;}
+
 /********************* STATE *********************/
 .button:hover{
     cursor: pointer;
