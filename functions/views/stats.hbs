@@ -6,14 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" type="image/png" href="img/cointoss.png"/>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="theme.css">
     <title>Stats | Portfolio App</title>
 </head>
 <body>
-    <div class="headerBar">
-        <div class='dropdown menu' id='userMenu'></div>
-        <h1 class="center sectionTitle">Stats</h1>
-        <div class="refresh button"></div>
+    <div class="headerBar" id="headerBar">
+        <div class="maxHolder">
+            <div class='dropdown menu' id='userMenu'></div>
+            <h1 class="center sectionTitle">Stats</h1>
+            <div class="refresh button"></div>
+        </div>
     </div>
     <div class="container">
         <div class="inner hide">
@@ -242,11 +243,13 @@
             </div>
         </div>
     </div>
-    <nav class="grid four">
-        <a class="button" href="/overview"><div>Overview</div></a>
-        <a class="button" href="/portfolio"><div>Portfolio</div></a>
-        <a class="button active" href="/stats"><div>Stats</div></a>
-        <a class="button" href="/historical"><div>Historical</div></a>
+    <nav class="">
+        <div class="grid four maxHolder">
+            <a class="button" href="/overview"><div>Overview</div></a>
+            <a class="button" href="/portfolio"><div>Portfolio</div></a>
+            <a class="button active" href="/stats"><div>Stats</div></a>
+            <a class="button" href="/historical"><div>Historical</div></a>
+        </div>
     </nav>
     <script type="text/javascript">
         let initUser = (u) => {
@@ -296,5 +299,9 @@
     <script src="js/stats.js"></script>
     <script src="js/Chart.min.js"></script>
     <script src="js/chart.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-17373319-21"></script>
+    <script>window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());gtag('config', 'UA-17373319-21');
+    </script>
 </body>
 </html>
