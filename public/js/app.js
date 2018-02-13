@@ -10,7 +10,46 @@ let exchangePoints = [];
 let assets = [];
 let none = {'neg':Number.NEGATIVE_INFINITY,'pos':Number.POSITIVE_INFINITY};
 
+// check for login
+if (window.localStorage.account) {
+    loadData(window.localStorage.account)
+} else {window.location.replace('/login');}
+
 let currentUser = window.localStorage.getItem('account');
+
+function loadData(info) {
+//   console.log('here is loaded info',info);
+  // send account info to server via fetch/POST
+  // on server route, look up credentials sameway login works
+  // if credientails are valid, run all scripts below
+  // if credientials invalid, redirect page
+
+  let myInit = { method: 'POST',
+                body: info, 
+                credentials: 'include',
+                headers: new Headers({'Content-Type': 'application/json'}),
+                mode: 'cors',
+                cache: 'default'};
+
+    fetch(`${__API_URL__}/login`, myInit)
+    .then(response => {
+        console.log('this was response...')
+        if (response.status === 401) {
+            console.log('incorrect password')
+            window.location.replace('/login');
+        } else if (response.status === 242) {
+            console.log(`Fully authorized. Loading ${info.username} from localstorage`)
+            // move all overview (or other pages) activity here. encapusulate in function
+            initUserMenu();
+            initUser();
+        }
+        console.log(response.json());
+    })
+    // .then(response => {console.log(response.status,'status is this');response.json()})
+    .catch(error => console.error('Error:', error))
+    .then(response => console.log('Success:', response));
+} // end loadData
+
 
 function initUserMenu(){
     let header = document.querySelector('#userMenu');
@@ -108,44 +147,6 @@ function initUserMenu(){
 }
 
 (function(module) {
-    // check for login
-    if (window.localStorage.getItem('account')) {
-        loadData(window.localStorage.getItem('account'))
-    } else {window.location.replace('/login');}
-
-    function loadData(info) {
-    //   console.log('here is loaded info',info);
-      // send account info to server via fetch/POST
-      // on server route, look up credentials sameway login works
-      // if credientails are valid, run all scripts below
-      // if credientials invalid, redirect page
-
-      let myInit = { method: 'POST',
-                    body: info, 
-                    credentials: 'include',
-                    headers: new Headers({'Content-Type': 'application/json'}),
-                    mode: 'cors',
-                    cache: 'default'};
-
-        fetch(`${__API_URL__}/login`, myInit)
-        .then(response => {
-            console.log('this was response...')
-            if (response.status === 401) {
-                console.log('incorrect password')
-                window.location.replace('/login');
-            } else if (response.status === 242) {
-                console.log(`Fully authorized. Loading ${info.username} from localstorage`)
-                // move all overview (or other pages) activity here. encapusulate in function
-                initUserMenu();
-                initUser();
-            }
-            console.log(response.json());
-
-        })
-        // .then(response => {console.log(response.status,'status is this');response.json()})
-        .catch(error => console.error('Error:', error))
-        .then(response => console.log('Success:', response));
-    } // end loadData
 
     let refresh = document.querySelector('.refresh');
     if (refresh) {
