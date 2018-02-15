@@ -47,7 +47,7 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
         .then(response => {
             if (response.status === 401) {
                 console.log('incorrect password')
-            } else if (response.status === 242) {
+            } else if (response.status === 200) {
                 console.log(`Fully authorized. Saving ${info.username} into localstorage`)
                 window.localStorage.setItem('account', JSON.stringify(info));
                 window.location.replace('/overview');
