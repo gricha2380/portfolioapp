@@ -45,8 +45,8 @@ var __API_URL__ = 'http://localhost:5000'; // local URL
 
         fetch(`${__API_URL__}/login`, myInit)
         .then(response => {
-            if (response.status === 401) {
-                console.log('incorrect password')
+            if (response.status === 400) {
+                console.log('incorrect username')
             } else if (response.status === 200) {
                 console.log(`Fully authorized. Saving ${info.username} into localstorage`)
                 window.localStorage.setItem('account', JSON.stringify(info));

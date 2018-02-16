@@ -349,21 +349,18 @@ let sendText = (recipient, data) => {
     });
 }
 
-let processStock = async ((symbol, wait)=> {
-    wait = await(stock.getInfo(symbol))
-    return wait;
-})
+let processStock = (symbol) => {
+    return new Promise((resolve, reject) => resolve(stock.getInfo(symbol)))
+}
 
-let processCrypto = async ((symbol, wait) => {
-    wait = await(superagent.get(symbol));
-    return wait;
-})
+let processCrypto = (symbol) => {
+    return new Promise((resolve, reject) => resolve(superagent.get(symbol)))
+}
 
 let coinAPI = "https://api.coinmarketcap.com/v1/ticker/";
 
 const isAuthorized = requestBody => {
-    console.log('inside isAuthorized',requestBody)
-    
+    // console.log('inside isAuthorized',requestBody)
    return new Promise((resolve, reject) => { 
         resolve(checkLogin(requestBody))
     })
@@ -374,29 +371,26 @@ app.post('/login', (request, response) => {
     console.log('login contents',request.body)
     if (!request.body.username || !request.body.password) {
         console.log('incomplete request')
-        return response.status(400).send(('bad'));
+        response.status(400).send(('bad'));
     } else {
         // embrace the future.
         isAuthorized(request.body)
             .then(creds => {
-                console.log('these are current creds', creds)
                 console.log('pocessing results of checkLogin')
-                if (!creds) {console.log('wrong password'); response.status(401).send({'response':'wrong password, buddy!'});};
+                if (!creds) {console.log('wrong username'); response.status(401).send({'response':'wrong username, buddy!'});};
                 creds.forEach(e => { 
                     if (e.screenname) {
                         if (e.screenname === request.body.username && e.password === request.body.password) {
                             __USERID__ = e.id; 
                             console.log('userID is now:',__USERID__)
-                            // return {"status":200}
                             console.log('auth looks alright to me');
-                            response.status(242).send({'response':'user & passwords match!'});
-                        } else if (e.screenname === creds.username){
-                            // return {"status":400}
-                            console.log('bad username');response.status(401).send('username not found!!')
+                            return response.status(200).send({'response':'user & passwords match!'});
+                        } else if (e.screenname !== creds.username){
+                            return console.log('bad username');response.status(400).send('username not found!!')
                         }
                         else {
                             // return {"status":402}
-                            console.log('wrong username');response.json({'response':'wrong username'})
+                            return console.log('wrong username');response.json({'response':'wrong username'})
                         }
                     } 
                 });
