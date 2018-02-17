@@ -34,14 +34,16 @@ function loadData(info) {
     fetch(`${__API_URL__}/login`, myInit)
     .then(response => {
         console.log('this was response...')
-        if (response.status === 401) {
-            console.log('incorrect password')
-            window.location.replace('/login');
-        } else if (response.status === 242) {
-            console.log(`Fully authorized. Loading ${info.username} from localstorage`)
+        if (response.status === 200) {
+            console.log(`Fully authorized. Loading info from localstorage`,JSON.parse(info).username)
             // move all overview (or other pages) activity here. encapusulate in function
+            console.log('ready to innit user')
             initUserMenu();
             initUser();
+        }
+        else {
+            console.log('incorrect password')
+            window.location.replace('/login');
         }
         console.log(response.json());
     })
