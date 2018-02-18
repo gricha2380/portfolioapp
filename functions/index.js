@@ -179,7 +179,8 @@ let saveSnapshot = () => {
 
 let getSnapshots = () => {
     const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
-    return new Promise((resolve, reject) => resolve(ref.orderByChild('date').once('value').then(snap => snap.val())))
+    // return new Promise((resolve, reject) => resolve(ref.orderByChild('date').once('value').then(snap => snap.val())))
+    return ref.orderByChild('date').once('value').then(snap => snap.val());
 }
 
 let formatDate = (style) => {
@@ -212,13 +213,13 @@ let rand = (from, to) => {
     return Math.floor((Math.random() * to) + from);
 }
 
-let sendEmail = (recipient, data) => {
+let sendEmail = (recipient, data, totalValue) => {
     
     let userEmail = process.env.portfolioUserEmail || functions.config().email.address;
     let userPassword = process.env.portfolioUserPassword || functions.config().email.password;
     console.log(`survey recipent is ${recipient}`)
     console.log(`local env email address ${process.env.portfolioUserEmail}`)
-    console.log('probably data', data);
+    // console.log('probably data', data);
     console.log('probably data portfolio', data.portfolio);
     let table = {
         'start':'<table>',
@@ -280,9 +281,23 @@ let sendEmail = (recipient, data) => {
         }
     ]
     table.content = `<table style="border-collapse: collapse; margin: auto"><thead style="background-color: #1b1d25;color: #8d8e91;"><td ${p}>Symbol</td><td ${p}>Price</td><td ${p}>Price Paid</td><td ${p}>Qnty</td><td ${p}>Cost</td><td ${p}>Value</td><td ${p}>Growth</td><td ${p}> Gain</td><td ${p}>Gain 24hr</td></thead><tbody style="background: #efefef;">`;
-    for (let x = 0; x < data.tableTemp.length; x++) {
-        table.content += `<tr><td ${p}><b>${data.tableTemp[x].symbol}</b></td><td ${p}>$${data.tableTemp[x].price}</td><td ${p}>$${data.tableTemp[x].pricePaid}</td><td ${p}>${data.tableTemp[x].quantity}</td><td ${p}>$${data.tableTemp[x].cost}</td><td ${p}>$${data.tableTemp[x].value}</td><td ${p}>${data.tableTemp[x].growth}%</td><td ${p}>$${data.tableTemp[x].gain}</td>`
-        parseFloat(data.tableTemp[x].gain24)>0 ? table.content += `<td ${p}><span style="color:green">$${data.tableTemp[x].gain24}</span></td></tr>` : table.content += `<td ${p}><span style="color:red">$${data.tableTemp[x].gain24}</span></td></tr>`;
+    // for (let x = 0; x < data.tableTemp.length; x++) {
+    //     table.content += `<tr><td ${p}><b>${data.tableTemp[x].symbol}</b></td><td ${p}>$${data.tableTemp[x].price}</td><td ${p}>$${data.tableTemp[x].pricePaid}</td><td ${p}>${data.tableTemp[x].quantity}</td><td ${p}>$${data.tableTemp[x].cost}</td><td ${p}>$${data.tableTemp[x].value}</td><td ${p}>${data.tableTemp[x].growth}%</td><td ${p}>$${data.tableTemp[x].gain}</td>`
+    //     parseFloat(data.tableTemp[x].gain24)>0 ? table.content += `<td ${p}><span style="color:green">$${data.tableTemp[x].gain24}</span></td></tr>` : table.content += `<td ${p}><span style="color:red">$${data.tableTemp[x].gain24}</span></td></tr>`;
+    // }
+    for (let x = 0; x < data.portfolio.length; x++) {
+        let price = parseFloat(data.portfolio[x].price),
+        pricePaid = parseFloat(data.portfolio[x].purchasePrice), 
+        quantity = parseFloat(data.portfolio[x].quantity),
+        marketValue = price * quantity,
+        cost = pricePaid * quantity,
+        value = quantity * price,
+        growth = (marketValue / cost) * 100,
+        gain = (price * quantity) - (pricePaid * quantity),
+        gain24 = parseFloat(data.portfolio[x].priceChange);
+
+        table.content += `<tr><td ${p}><b>${data.portfolio[x].symbol.toUpperCase()}</b></td><td ${p}>$${price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>$${pricePaid.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>${quantity}</td><td ${p}>$${cost.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>$${value.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>${growth.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%</td><td ${p}>$${gain.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>`
+        gain24 > 0 ? table.content += `<td ${p}><span style="color:green">$${gain24.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></td></tr>` : table.content += `<td ${p}><span style="color:red">$${gain24.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></td></tr>`;
     }
     table.content += table.tbodyEnd + table.end;
     
@@ -302,14 +317,19 @@ let sendEmail = (recipient, data) => {
         `<div style="text-align: center; color: black">
         <h3 style="color: black">Portfolio Update</h3>
         <div style="color: black">${formatDate('full')}</div>
-        <div style="color: black"><b>Portfolio Value: $${data.portfolioValue}</b> ${data.portfolio}</div>
-        <div style="color: black">($###/###%)</div>
+        <div style="color: black"><b>Portfolio Value: $${totalValue.portfolioValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</b></div>
+        <div>
+        <span style="color: black">(</span>
+        <span style="color: green">$${totalValue.portfolioGains.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span>
+        <span style="color: black">/</span>
+        <span style="color: green">${totalValue.portfolioGrowth.toFixed(2)}%</span>
+        <span style="color: black">)</span>
+        </div>
         </div>
         
         <div style="margin: 50px auto">
         ${table.content}
         </div>
-        one price ${data.portfolio}
         <div style="text-align:center"><a href="https://portfolioapp2380.firebaseapp.com">View Portfolio</a></div>
         `
     };
@@ -319,11 +339,13 @@ let sendEmail = (recipient, data) => {
             console.log(error);
         } else {
             console.log('Email sent: ' + info.response);
+            // return emailData.portfolio;
+            return response.status(200).send({'response':'email sent!'});
         }
     });
 }
 
-let sendText = (recipient, data) => {
+let sendText = (recipient, data, totalValue) => {
     
     let userEmail = process.env.portfolioUserEmail || functions.config().email.address;
     let userPassword = process.env.portfolioUserPassword || functions.config().email.password;
@@ -341,14 +363,14 @@ let sendText = (recipient, data) => {
         to: recipient,
         subject: 'Portfolio Update',
         text: 
-        `${formatDate('word')}\n\nPortfolio Value: $${data.value}\n(##/##)`
+        `${formatDate('word')}\n\nPortfolio Value: $${totalValue.portfolioValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}\n($${totalValue.portfolioGains.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}/${totalValue.portfolioGrowth.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%)`
     };
      
     transporter.sendMail(mailOptions, function(error, info){
         if (error) {
             console.log(error);
         } else {
-            console.log('Email sent: ' + info.response);
+            console.log(`Success. SMS sent to ${recipient}`, info.response);
         }
     });
 }
@@ -440,70 +462,32 @@ app.post('/login', (request, response) => {
 
 /* ROUTE 1: fetch all assets */
 app.get('/portfolio', (request, response) => {
-    // response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
-    let fullAsset = [];
-    // __USERID__ = 1;
     let promises = [];
-
-    promises.push(getAssets()
-        .then(asset => {
-            console.log('before processing',asset)
-            // /* ATTEMPT: call method &  chained then */
-            // new Promise((resolve, reject) => resolve(processLoop(asset)))
-            promises.push(processLoop(asset))
-            
-
-            // /* ATTEMPT: inline loop & chained then */
-            // for (let a in asset) {
-            //     if (asset[a].type=='stock') {
-            //         processStock(asset[a].symbol.toLowerCase())
-            //         .then((res) => {
-            //             asset[a].exchange = res.exchange;
-            //             asset[a].price = res.price;
-            //             asset[a].priceChange = res.priceChange;
-            //             asset[a].priceChangePercent = res.priceChangePercent;
-            //             // fullAsset.push(asset[a]);
-            //             console.log('getAsset during processing loop',asset[a])
-            //             // console.log('fullAsset',fullAsset)
-            //             return asset[a]
-            //         }).catch(console.error)
-            //     }
-            //     if (asset[a].type=='crypto') {
-            //         processCrypto(coinAPI+asset[a].name)
-            //         .then(res =>  {
-            //             asset[a].price = res.body[0].price_usd,
-            //             asset[a].priceChangePercent = res.body[0].percent_change_24h;
-            //             asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-            //             console.log('getAsset during processing loop',asset[a])
-            //             // fullAsset.push(asset[a])
-            //             // console.log('fullAsset',fullAsset)
-            //             return asset[a]
-            //         }).catch(console.error)
-            //     }
-            // }
-
-            // /* ATTEMPT: pass method in response */
-            // response.render('portfolio', processLoop(asset))
-            // console.log('after processing',asset)
-            
-
-            Promise.all(promises).then((results)=>{
-                console.log('portfolio results is...',results)
-                console.log('after processing',results)
-                response.render('portfolio', { results }); // render index page and send back data in asset varreturn 
-    
-                // return new Promise((resolve, reject) => resolve(totalValue))    
-            })
-
-        }))
-
-        
-
-        // .then(newAsset => {
-        //     console.log('after processing',newAsset)
-        //     response.render('portfolio', { newAsset }); // render index page and send back data in asset var
-        // })
-
+    promises.push(getAssets().then(asset => {
+        for (let a in asset) {
+            if (asset[a].type=='stock') {
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                .then((res) => {
+                    asset[a].exchange = res.exchange;
+                    asset[a].price = res.price;
+                    asset[a].priceChange = res.priceChange;
+                    asset[a].priceChangePercent = res.priceChangePercent;
+                }).catch(console.error))
+            }
+            if (asset[a].type=='crypto') {
+                promises.push(superagent.get(coinAPI+asset[a].name)
+                .then(res =>  {
+                    asset[a].price = res.body[0].price_usd,
+                    asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                    asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+                }).catch(console.error))
+            }
+        }
+        Promise.all(promises).then(function(results) {
+            if (request.body.refresh) response.send(asset);
+            else {response.render('portfolio', { asset })}
+        });
+    }).catch(console.error));
 });
 
 /* ROUTE 2: save snapshot */
@@ -587,35 +571,20 @@ app.post('/edit/:id', (request, response) => {
 
 /* ROUTE 6: Portfolio Overview */
 app.get('/overview', (request, response) => {
-    // console.log("showing all assets route")
-    // throw 'this is an intentional error'
     let totalValue = {
         portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
     };
-    
     let snapshots = [];
+    let promises = [];
     
-    // let promises = [];
+    promises.push(getSnapshots().then(snap => {
+        snapshots.push(snap)
+    }))
     
-
-    
-    new Promise((resolve, reject) => resolve(superagent.get(symbol)))
-
-    //promises.push(getSnapshots()
-    getSnapshots()
-        .then(snap => {
-            snapshots.push(snap)
-            // console.log('new snap',snap)
-    })
-    // console.log('total snapshot', snapshots)
-    
-    getAssets().then(asset => {
-    // promises.push(getAssets().then(asset => {
-        //ffix
+    promises.push(getAssets().then(asset => { 
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                // promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                processStock(asset[a].symbol.toLowerCase())
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].price = res.price;
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
@@ -624,11 +593,10 @@ app.get('/overview', (request, response) => {
                     totalValue.stockValue += (asset[a].quantity * asset[a].price);
                     totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                }).catch(console.error)
+                }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                // promises.push(superagent.get(coinAPI+asset[a].name)
-                processCrypto(coinAPI+asset[a].name)
+                promises.push(superagent.get(coinAPI+asset[a].name)
                 .then((res) => {    
                     asset[a].price = res.body[0].price_usd,
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
@@ -637,87 +605,63 @@ app.get('/overview', (request, response) => {
                     totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                     totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                }).catch(console.error)
+                }).catch(console.error))
             }
         }
-        /* Wait for all promises to resolve. This fixed the big issue */
-        // Promise.all(promises).then(function(results) {
-            // response.send(asset);
+        Promise.all(promises).then(function(results) {
             snapshots = JSON.stringify(snapshots);
-            response.render('overview', { totalValue , snapshots}); // render index page and send back data in asset var
-        // }.bind(this));
+            if (request.body.refresh) response.send(totalValue, snapshots)
+            else {response.render('overview', { totalValue , snapshots})}
+            // response.render('overview', { totalValue , snapshots});
+        });
     })
-    .catch(console.error);
+    .catch(console.error));
 });
 
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
-    // const ref = firebaseApp.database().ref(`users/`); //firebase database
-    
-    // console.log("retrieving snapshot")
-    // let promises = [];
-    
-    // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
-    // promises.push(getSnapshots().then(asset => {
     getSnapshots().then(asset => {
-        /* Wait for all promises to resolve. This fixed the big issue */
-        // Promise.all(promises).then(function(results) {
-            // response.send(asset);
-            // console.log('here is snapshot',asset)
-            response.render('historical', { asset }); // render index page and send back data in asset var
-        // }.bind(this));
+            response.render('historical', { asset });
     }).catch(console.error);
 });
 
 /* ROUTE 8: show stats */
 app.get('/stats', (request, response) => {
     let snapshots = [];
-    // console.log("showing stats")
-    response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
     
-    getSnapshots()
-        .then(snap => {
-            snapshots.push(snap)
-            // console.log('new snap',snap)
-    })
-    // console.log('total snapshot', snapshots)
+    promises.push(getSnapshots().then(snap => {
+        snapshots.push(snap)
+    }))
     
-    // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
-    // promises.push(getAssets().then(asset => {
-    getAssets().then(asset => {
+    promises.push(getAssets().then(asset => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                // promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                processStock(asset[a].symbol.toLowerCase())
+                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
-                }).catch(console.error)
+                }).catch(console.error))
             }
             if (asset[a].type=='crypto') {
-                // promises.push(superagent.get(coinAPI+asset[a].name)
-                processCrypto(coinAPI+asset[a].name)
+                promises.push(superagent.get(coinAPI+asset[a].name)
                 .then((res) =>  {
                     asset[a].price = res.body[0].price_usd,
                     asset[a].priceChangePercent = res.body[0].percent_change_24h;
                     asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                }).catch(console.error)
+                }).catch(console.error))
             }
         }
         
-        /* Wait for all promises to resolve. This fixed the big issue */
-        // Promise.all(promises).then(function(results) {
-            // response.send(asset);
-            // also grab snapshot process. Note: consolidate this with route 8
-            // console.log('here are snapshots',snapshots)
-            
+        Promise.all(promises).then(function(results) {            
             snapshots = JSON.stringify(snapshots);
-            response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
-        // }.bind(this));
-    }).catch(console.error);
+            if (request.body.refresh) {response.send(asset, snapshots)}
+            else {response.render('stats', { asset, snapshots})}
+        });
+
+    }).catch(console.error));
 });
 
 /* ROUTE 9: Send Email */
@@ -726,152 +670,118 @@ app.post('/email/send', (request, response) => {
     let promises = [];
     let recipient = '';
     let emailData = {};
+    let totalValue = {
+        portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
+    };
+
     const ref = firebaseApp.database().ref(`users/${__USERID__}/email`); //firebase database
     ref.once('value').then(snap => {
         recipient = snap.val();
         console.log('email recipient is now', recipient);
-        // let emailPrep = async (() => {
-        //     console.log('inside emailPrep')
-        //     let emailCalc = await (emailCalculations());
-        // });
-        // emailPrep();
-        emailCalculations().then((e)=>{
-            // emailData[e.name] = e;
-            console.log(`this is e value`, e);
-            console.log('this is emailData main right before send', emailData)
-            console.log('this is emailData portfolio right before send', emailData.portfolio)
-            sendEmail(recipient, emailData);
-        })    
-    });
-    
-    let emailCalculations = async( () => {
-        emailData.portfolioValue = 3.99;
-        emailData.portfolio = {};
-        // promises.push(getAssets().then(asset => {
-        getAssets().then(asset => {
+        // email stats
+        promises.push(getAssets().then(asset => {
             for (let a in asset) {
-                console.log('processing an asset for email')
                 if (asset[a].type=='stock') {
-                    // promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                    processStock(asset[a].symbol.toLowerCase())
+                    promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                     .then((res) => {
-                        // console.log('this was returned', res)
-                        console.log(`now have data for ${asset[a].symbol}`)
-                        console.log('this is stock asset price', res.price)
                         asset[a].exchange = res.exchange;
                         asset[a].price = res.price;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
-                    }).catch(console.error)
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.stockValue += (asset[a].quantity * asset[a].price);
+                        totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    }).catch(console.error))
                 }
                 if (asset[a].type=='crypto') {
-                    processCrypto(coinAPI+asset[a].name)
-                    
-                    // promises.push(superagent.get(coinAPI+asset[a].name)
+                    promises.push(superagent.get(coinAPI+asset[a].name)
                     .then((res) =>  {
-                        // console.log('this was returned', res)
-                        console.log(`now have data for ${asset[a].symbol}`)
-                        console.log('this is crypto asset price', res.body[0].price_usd)
                         asset[a].price = res.body[0].price_usd,
                         asset[a].priceChangePercent = res.body[0].percent_change_24h;
                         asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                    }).catch(console.error)
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
+                        totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    }).catch(console.error))
                 }
-                emailData.portfolio[asset[a].symbol] = asset;
-                // console.log('should be asset symbol',emailData.portfolio[asset[a].symbol])
-                // console.log('should be asset object',emailData.portfolio)
-                
             }
             
-            // console.log('asset now processed',emailData.portfolio)
-            
-        })
-        console.log('should be after processing the assets')
-        console.log('this is emailData portfolio right before send yoko', emailData.portfolio)
-        console.log('this still is google portfolio right before send', emailData.portfolio.goog)
-        // .then(results => {
-        //     // snapshots = JSON.stringify(snapshots);
-        
-        // }).then(r =>{
-        //     response.status(242).send({'response':'email sent!'});
-        // })
-        
-        /* Wait for all promises to resolve. This fixed the big issue */
-        // Promise.all(promises).then(function(results) {
-        // response.send(asset);
-        // also grab snapshot process. Note: consolidate this with route 8
-        // console.log('here are snapshots',snapshots)
-        
-        // snapshots = JSON.stringify(snapshots);
-        //response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
-        // emailData.portfolio = asset;
-        // }.bind(this));
-        // }).catch(console.error));
-        
-    })
+            Promise.all(promises).then(function(results) {            
+                emailData.portfolio = asset;
+                console.log('this is emailData portfolio right before send', emailData.portfolio)
+                sendEmail(recipient, emailData, totalValue);
+            });
     
-    // Promise.all(promises).then(function(results) {
-    // response.send(asset);
-    //console.log('here is snapshot',asset)
-    //promises.push(sendEmail(recipient, emailData))
-    // response.status(242).send({'response':'email sent!'});
-    // }.bind(this));
-    return emailData.portfolio;
-    response.status(242).send({'response':'email sent!'});
+        }).catch(console.error));
+    });
+    // return emailData.portfolio;
+    response.status(200).send({'response':'email sent!'});
 });
 
 app.post('/text/send', (request, response) => {
     let snapshots = [];
     let recipient = '';
     let emailData = {};
+    let promises = [];
+    let totalValue = {
+        portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
+    };
     const ref = firebaseApp.database().ref(`users/${__USERID__}/phone`); //firebase database
     ref.once('value').then(snap => {
         recipient = snap.val();
         console.log('email phone is now', recipient);
         recipient= recipient+`@messaging.sprintpcs.com`;
-        emailCalculations().then((e)=>{
-            // emailData[e.name] = e;
-            console.log(`this is e value`, e);
-            console.log('this is emailData main right before send', emailData)
-            // console.log('this is emailData portfolio right before send yoko', emailData.portfolio)
-            // console.log('this still is google portfolio right before send', emailData.portfolio.goog[0])
-            sendText(recipient, emailData);
-        })    
-    });
-    
-    let emailCalculations = async( () => {
-        emailData.portfolioValue = 3.99;
-        emailData.portfolio = {};
-        getAssets().then(asset => {
+        promises.push(getAssets().then(asset => {
             for (let a in asset) {
-                console.log('processing an asset for email')
                 if (asset[a].type=='stock') {
-                    processStock(asset[a].symbol.toLowerCase())
+                    promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                     .then((res) => {
-                        
-                        console.log(`now have data for ${asset[a].symbol}`)
                         asset[a].exchange = res.exchange;
                         asset[a].price = res.price;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
-                    }).catch(console.error)
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.stockValue += (asset[a].quantity * asset[a].price);
+                        totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    }).catch(console.error))
                 }
                 if (asset[a].type=='crypto') {
-                    processCrypto(coinAPI+asset[a].name)
+                    promises.push(superagent.get(coinAPI+asset[a].name)
                     .then((res) =>  {
-                        console.log(`now have data for ${asset[a].symbol}`)
                         asset[a].price = res.body[0].price_usd,
                         asset[a].priceChangePercent = res.body[0].percent_change_24h;
                         asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                    }).catch(console.error)
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
+                        totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    }).catch(console.error))
                 }
-                emailData.portfolio[asset[a].symbol] = asset;   
             }
-        })        
-    })
+            
+            Promise.all(promises).then(function(results) {            
+                emailData.portfolio = asset;
+                console.log('this is emailData portfolio right before send', emailData.portfolio)
+                // sendEmail(recipient, emailData, totalValue);
+                sendText(recipient, emailData, totalValue);
+            });
     
-    return emailData.portfolio;
-    response.status(242).send({'response':'text sent!'});
+        }).catch(console.error));  
+    });
+    
+    // return emailData.portfolio;
+    response.status(200).send({'response':'text sent!'});
 });
 
 

@@ -76,7 +76,6 @@
                 let assets = {};
                 let i = 0;
                 {{#each asset}}
-                    let price =  0;                    
                     assets[i] = {
                         costBasis : `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`,
                         marketValue : `${parseFloat({{{quantity}}} * {{{price}}})}`,

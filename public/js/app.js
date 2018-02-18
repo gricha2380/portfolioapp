@@ -70,7 +70,6 @@ function initUserMenu(){
     });
 
     document.querySelector('#sendEmail').addEventListener('click',function(event){
-        console.log(this.id,'id here');
         document.querySelector('.dropdownList.show').classList.remove('show');
         if (document.querySelector('.container')) {document.querySelector('.container').classList.remove('dim')}
 
