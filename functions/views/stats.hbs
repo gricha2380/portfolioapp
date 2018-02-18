@@ -263,7 +263,7 @@
                 assets[i] = {
                     symbol: `{{symbol}}`,
                     costBasis : `${parseFloat({{{quantity}}} * {{{purchasePrice}}})}`,
-                    marketValue : `${({{{quantity}}} && {{{price}}}) ? parseFloat({{{quantity}}} * {{{price}}}) : 0}`,
+                    marketValue : `${parseFloat({{{quantity}}} * {{{price}}})}`,
                     todayPercent : `${parseFloat({{{priceChangePercent}}})}`,
                     todayGain : `${parseFloat({{{priceChange}}})}`,
                     type: `{{type}}`,

@@ -49,71 +49,83 @@ app.use(cors()); // if cross origin becomes an issue
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-let getAssets = async(()=> {
+let getAssets = () => {
+    let holder = [], value;
+
+    console.log('userID',__USERID__)
     // if (!__USERID__) __USERID__ = 0; // proof of login bug 
     const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
     // console.log('inside getAssets');
-    return ref.once('value').then(snap => snap.val());
-})
+
+    // return ref.once('value').then(snap => {
+    //     console.log('promise snap',snap.val());
+    //     holder.push(snap.val())
+    //     snap.val()
+    // });
+    // return ref.once('value').then(snap => {
+    //     return snap.val();
+    // });
+    
+    // return new Promise((resolve,reject)=>{
+    //     console.log('holder content', holder)
+    //     resolve(holder)
+    // })
+    return new Promise((resolve, reject) => resolve(ref.once('value').then(snap => snap.val())))
+
+    // return new Promise((resolve,reject) => {
+    //     const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
+    //     resolve(ref.once('value').then(snap => {
+    //         console.log('promise snap',snap.val());
+    //         snap.val()
+    //     }))
+    // }) 
+}
 
 let getOneAsset = (id) => {
     const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
     // console.log('inside getOneAssset', id);
-    return ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val());      
+    return new Promise((resolve, reject) => {resolve(ref.orderByChild('id').equalTo(parseInt(id)).once('value').then(snap => snap.val()))});      
 }
 
 let checkLogin = (info) => {
     console.log('inside checkLogin')
     const ref = firebaseApp.database().ref(); //firebase database
-    return new Promise((resolve, reject) => { 
-        resolve(ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val()))
-    })
+    return ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val())
+    // return new Promise((resolve, reject) => { 
+    //     resolve(ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val()))
+    // })
 }
 
-let saveSnapshot = async(() => {
-    //const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database 
-    //const ref = firebaseApp.database().ref(`users/0/snapshots`); //firebase database
-    
-    // find number of users in firebase 
-    // const ref = firebaseApp.database().ref(`users/`); //firebase database
-    //ref.once('value').then(user => user.)
-    // for loop to itterate through whole list
-    // console.log('inside snapshots');
-    // return ref.once('value').then(snap => snap.val());
-    
+let saveSnapshot = () => {
+    console.log('inside saveSnapshot')
     /* TODO: check cridentials */
     const ref = firebaseApp.database().ref(`users/`); //firebase database
     
     // itterate through whole list of users
     ref.once('value').then(user => {
         user.val().forEach((r)=>{
-            // console.log(`processing snapshot for ID ${r.id}`);
+            console.log(`processing snapshot for ID ${r.id}`);
             processSnapshot(r.id)
         })
     });
     
-    let processSnapshot = async((userID) => {
-        // console.log('now starting snapshot function...')
-        /// original
+    let processSnapshot = (userID) => {
+        console.log('now starting snapshot function...')
         const db = firebaseApp.database().ref(`users/${userID}/snapshots`); //firebase database
         
         let totalValue = {
             date: formatDate('slash'),unix: Date.now(),portfolioValue: 0,portfolioGrowth: 0,portfolioGains: 0,stockValue: 0,        stockGrowth: 0,stockGains: 0, stockCount: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0, cryptoCount: 0
         };
-        // let promises = [];
         
-        // promises.push(getAssets().then(asset => {
         getAssets().then(asset => {
-            /* how can I use map, rduce & filter to arrive at the necessary values? */
+            let promises = [];
             for (let a in asset) {
                 if (asset[a].type=='stock') {
-                    // promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                    processStock(asset[a].symbol.toLowerCase())
+                    promises.push(processStock(asset[a].symbol.toLowerCase())
                     .then((res) => {
                         asset[a].price = res.price;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
-                        // console.log('assetPurchaseprrice here...', asset[a].purchasePrice)
                         
                         totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
                         totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
@@ -125,11 +137,10 @@ let saveSnapshot = async(() => {
                         // console.log('math time stock',(asset[a].price / asset[a].purchasePrice) - 1);
                         console.log('while looping, portfolio value is...',totalValue)
                         return totalValue.portfolioValue;
-                    }).catch(console.error)
+                    }).catch(console.error))
                 }
                 if (asset[a].type=='crypto') {
-                    // promises.push(superagent.get(coinAPI+asset[a].name)
-                    processCrypto(coinAPI+asset[a].name)
+                    promises.push(processCrypto(coinAPI+asset[a].name)
                     .then((res) => {
                         asset[a].price = res.body[0].price_usd,
                         asset[a].priceChangePercent = res.body[0].percent_change_24h;
@@ -145,37 +156,30 @@ let saveSnapshot = async(() => {
                         // console.log('math time crypto',(asset[a].price / asset[a].purchasePrice) - 1);
                         console.log('while looping, portfolio value is...',totalValue)
                         return totalValue.portfolioValue;
-                    }).catch(console.error)
+                    }).catch(console.error))
                 }
             }
-            console.log('after looping portfolio value is...',totalValue)
-            return totalValue;
-        }).then(r=>{
-            console.log(r,'r is nothing?')
-            console.log('current totalValuee',totalValue) 
-            totalValue.portfolioGrowth = parseFloat(totalValue.portfolioGrowth / (totalValue.cryptoCount + totalValue.stockCount)) * 100;
-            totalValue.stockGrowth = parseFloat(totalValue.stockGrowth / totalValue.stockCount) * 100;
-            totalValue.cryptoGrowth = parseFloat(totalValue.cryptoGrowth / totalValue.cryptoCount) * 100;
-            console.log('what be totalValue?',totalValue)
-            db.push(totalValue); // submit items
-            // console.log('snapshot saved');
-            // response.send(totalValue);
-            return totalValue;
-        })  
-        
-        /* Wait for all promises to resolve. This fixed the big issue */
-        // Promise.all(promises).then(function(results) {
-        
-        // }.bind(this));
-        // }).catch(console.error));
-    });
+            
+            // return totalValue;
+            Promise.all(promises).then(function(results) {
+                // console.log('after looping portfolio value is...',totalValue)
+                totalValue.portfolioGrowth = parseFloat(totalValue.portfolioGrowth / (totalValue.cryptoCount + totalValue.stockCount)) * 100;
+                totalValue.stockGrowth = parseFloat(totalValue.stockGrowth / totalValue.stockCount) * 100;
+                totalValue.cryptoGrowth = parseFloat(totalValue.cryptoGrowth / totalValue.cryptoCount) * 100;
+                console.log('what be totalValue?',totalValue)
+                db.push(totalValue); // submit items
+                // console.log('snapshot saved in totalValue',totalValue);
+                // return totalValue;
+                return new Promise((resolve, reject) => resolve(totalValue))    
+            })
+        }) // end getassets
+    };
     
-})
+}
 
 let getSnapshots = () => {
-    // console.log('getting snapshots now!')
     const ref = firebaseApp.database().ref(`users/${__USERID__}/snapshots`); //firebase database
-    return ref.orderByChild('date').once('value').then(snap => snap.val());
+    return new Promise((resolve, reject) => resolve(ref.orderByChild('date').once('value').then(snap => snap.val())))
 }
 
 let formatDate = (style) => {
@@ -359,6 +363,42 @@ let processCrypto = (symbol) => {
 
 let coinAPI = "https://api.coinmarketcap.com/v1/ticker/";
 
+let processLoop = (asset) => {
+    let promises = [];
+    // return new Promise((resolve, reject) => {
+        for (let a in asset) {
+            if (asset[a].type=='stock') {
+                promises.push(processStock(asset[a].symbol.toLowerCase())
+                .then((res) => {
+                    asset[a].exchange = res.exchange;
+                    asset[a].price = res.price;
+                    asset[a].priceChange = res.priceChange;
+                    asset[a].priceChangePercent = res.priceChangePercent;
+                    // fullAsset.push(asset[a]);
+                    console.log('getAsset during processing loop',asset[a])
+                    // console.log('fullAsset',fullAsset)
+                    return asset[a]
+                }).catch(console.error))
+            }
+            if (asset[a].type=='crypto') {
+                promises.push(processCrypto(coinAPI+asset[a].name)
+                .then(res =>  {
+                    asset[a].price = res.body[0].price_usd,
+                    asset[a].priceChangePercent = res.body[0].percent_change_24h;
+                    asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+                    console.log('getAsset during processing loop',asset[a])
+                    // fullAsset.push(asset[a])
+                    // console.log('fullAsset',fullAsset)
+                    return asset[a]
+                }).catch(console.error))
+            }
+        }
+        Promise.all(promises).then((results) =>{
+            return new Promise((resolve, reject) => resolve(asset))    
+        })
+    // })
+}
+
 const isAuthorized = requestBody => {
     // console.log('inside isAuthorized',requestBody)
    return new Promise((resolve, reject) => { 
@@ -398,46 +438,80 @@ app.post('/login', (request, response) => {
     }
 });
 
-
-
 /* ROUTE 1: fetch all assets */
 app.get('/portfolio', (request, response) => {
-    // console.log("showing all assets route")
     // response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
+    let fullAsset = [];
+    // __USERID__ = 1;
     let promises = [];
+
+    promises.push(getAssets()
+        .then(asset => {
+            console.log('before processing',asset)
+            // /* ATTEMPT: call method &  chained then */
+            // new Promise((resolve, reject) => resolve(processLoop(asset)))
+            promises.push(processLoop(asset))
+            
+
+            // /* ATTEMPT: inline loop & chained then */
+            // for (let a in asset) {
+            //     if (asset[a].type=='stock') {
+            //         processStock(asset[a].symbol.toLowerCase())
+            //         .then((res) => {
+            //             asset[a].exchange = res.exchange;
+            //             asset[a].price = res.price;
+            //             asset[a].priceChange = res.priceChange;
+            //             asset[a].priceChangePercent = res.priceChangePercent;
+            //             // fullAsset.push(asset[a]);
+            //             console.log('getAsset during processing loop',asset[a])
+            //             // console.log('fullAsset',fullAsset)
+            //             return asset[a]
+            //         }).catch(console.error)
+            //     }
+            //     if (asset[a].type=='crypto') {
+            //         processCrypto(coinAPI+asset[a].name)
+            //         .then(res =>  {
+            //             asset[a].price = res.body[0].price_usd,
+            //             asset[a].priceChangePercent = res.body[0].percent_change_24h;
+            //             asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
+            //             console.log('getAsset during processing loop',asset[a])
+            //             // fullAsset.push(asset[a])
+            //             // console.log('fullAsset',fullAsset)
+            //             return asset[a]
+            //         }).catch(console.error)
+            //     }
+            // }
+
+            // /* ATTEMPT: pass method in response */
+            // response.render('portfolio', processLoop(asset))
+            // console.log('after processing',asset)
+            
+
+            Promise.all(promises).then((results)=>{
+                console.log('portfolio results is...',results)
+                console.log('after processing',results)
+                response.render('portfolio', { results }); // render index page and send back data in asset varreturn 
     
-    // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
-    promises.push(getAssets().then(asset => {
-        for (let a in asset) {
-            if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                .then((res) => {
-                    asset[a].exchange = res.exchange;
-                    asset[a].price = res.price;
-                    asset[a].priceChange = res.priceChange;
-                    asset[a].priceChangePercent = res.priceChangePercent;
-                }).catch(console.error))
-            }
-            if (asset[a].type=='crypto') {
-                promises.push(superagent.get(coinAPI+asset[a].name)
-                .then(res =>  {
-                    asset[a].price = res.body[0].price_usd,
-                    asset[a].priceChangePercent = res.body[0].percent_change_24h;
-                    asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                }).catch(console.error))
-            }
-        }
-        /* Wait for all promises to resolve. This fixed the big issue */
-        Promise.all(promises).then(function(results) {
-            // response.send(asset);
-            response.render('portfolio', { asset }); // render index page and send back data in asset var
-        }.bind(this));
-    }).catch(console.error));
+                // return new Promise((resolve, reject) => resolve(totalValue))    
+            })
+
+        }))
+
+        
+
+        // .then(newAsset => {
+        //     console.log('after processing',newAsset)
+        //     response.render('portfolio', { newAsset }); // render index page and send back data in asset var
+        // })
+
 });
 
 /* ROUTE 2: save snapshot */
 app.put('/save', (request, response) => {
-    saveSnapshot().then(e=>{
+    console.log('save route entered')
+    new Promise((resolve, reject) => resolve(saveSnapshot()))
+    .then(e=>{
+        console.log('ready with snapshot response', e)
         response.send(e);
     })
 });
@@ -451,7 +525,6 @@ app.post('/add', (request, response) => {
     } else {
         // console.log("Making a new asset", request)
         const db = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
-        // console.log('request...',request);
         // console.log('request body here',request.body);
         //let {name, symbol, type, purchasePrice, quantity, exchange} = request.body;
         let item = {
@@ -463,7 +536,6 @@ app.post('/add', (request, response) => {
             "exchange" : request.body.exchange,
             "id" : request.body.id
         }
-        // db.push(item); // submit items
         db.child(request.body.id).set(item);
         // console.log('new asset created',request.body.name);
         response.send(`${request.body.name} asset created`)
@@ -474,7 +546,6 @@ app.post('/add', (request, response) => {
 app.get('/find/:id', (request, response) => {
     // console.log("lookingforid", request.params.id);
     let promises = [];
-    // promises.push(getAssets().then(asset => {
     promises.push(getOneAsset(request.params.id).then(asset => {
         
         /* Wait for all promises to resolve. This fixed the big issue */
@@ -508,7 +579,6 @@ app.post('/edit/:id', (request, response) => {
             "quantity": rb.quantity,
             "exchange" : rb.exchange
         }
-        // db.push(item); // submit items
         db.update(item);
         // console.log('asset updated',rb.name);
         response.send(`${rb.name} asset updated`)
@@ -525,19 +595,27 @@ app.get('/overview', (request, response) => {
     
     let snapshots = [];
     
-    let promises = [];
+    // let promises = [];
     
-    promises.push(getSnapshots().then(snap => {
-        snapshots.push(snap)
-        // console.log('new snap',snap)
-    }))
+
+    
+    new Promise((resolve, reject) => resolve(superagent.get(symbol)))
+
+    //promises.push(getSnapshots()
+    getSnapshots()
+        .then(snap => {
+            snapshots.push(snap)
+            // console.log('new snap',snap)
+    })
     // console.log('total snapshot', snapshots)
     
-    promises.push(getAssets().then(asset => {
-        
+    getAssets().then(asset => {
+    // promises.push(getAssets().then(asset => {
+        //ffix
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                // promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                processStock(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].price = res.price;
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
@@ -546,10 +624,11 @@ app.get('/overview', (request, response) => {
                     totalValue.stockValue += (asset[a].quantity * asset[a].price);
                     totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                }).catch(console.error))
+                }).catch(console.error)
             }
             if (asset[a].type=='crypto') {
-                promises.push(superagent.get(coinAPI+asset[a].name)
+                // promises.push(superagent.get(coinAPI+asset[a].name)
+                processCrypto(coinAPI+asset[a].name)
                 .then((res) => {    
                     asset[a].price = res.body[0].price_usd,
                     totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
@@ -558,35 +637,36 @@ app.get('/overview', (request, response) => {
                     totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                     totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                     totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                }).catch(console.error))
+                }).catch(console.error)
             }
         }
         /* Wait for all promises to resolve. This fixed the big issue */
-        Promise.all(promises).then(function(results) {
+        // Promise.all(promises).then(function(results) {
             // response.send(asset);
             snapshots = JSON.stringify(snapshots);
             response.render('overview', { totalValue , snapshots}); // render index page and send back data in asset var
-        }.bind(this));
+        // }.bind(this));
     })
-    .catch(console.error));
+    .catch(console.error);
 });
 
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
-    const ref = firebaseApp.database().ref(`users/`); //firebase database
+    // const ref = firebaseApp.database().ref(`users/`); //firebase database
     
     // console.log("retrieving snapshot")
-    let promises = [];
+    // let promises = [];
     
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
-    promises.push(getSnapshots().then(asset => {
+    // promises.push(getSnapshots().then(asset => {
+    getSnapshots().then(asset => {
         /* Wait for all promises to resolve. This fixed the big issue */
-        Promise.all(promises).then(function(results) {
+        // Promise.all(promises).then(function(results) {
             // response.send(asset);
             // console.log('here is snapshot',asset)
             response.render('historical', { asset }); // render index page and send back data in asset var
-        }.bind(this));
-    }).catch(console.error));
+        // }.bind(this));
+    }).catch(console.error);
 });
 
 /* ROUTE 8: show stats */
@@ -596,44 +676,48 @@ app.get('/stats', (request, response) => {
     response.set('Cache-Control', 'public, max-age=300, s-maxage=600'); //enable firebase caching. Max-age in seconds
     let promises = [];
     
-    promises.push(getSnapshots().then(snap => {
-        snapshots.push(snap)
-        // console.log('new snap',snap)
-    }))
+    getSnapshots()
+        .then(snap => {
+            snapshots.push(snap)
+            // console.log('new snap',snap)
+    })
     // console.log('total snapshot', snapshots)
     
     // LEARN: do await and async keywords. Are those avaiable in the version of node I'm using?
-    promises.push(getAssets().then(asset => {
+    // promises.push(getAssets().then(asset => {
+    getAssets().then(asset => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                // promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
+                processStock(asset[a].symbol.toLowerCase())
                 .then((res) => {
                     asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
-                }).catch(console.error))
+                }).catch(console.error)
             }
             if (asset[a].type=='crypto') {
-                promises.push(superagent.get(coinAPI+asset[a].name)
+                // promises.push(superagent.get(coinAPI+asset[a].name)
+                processCrypto(coinAPI+asset[a].name)
                 .then((res) =>  {
                     asset[a].price = res.body[0].price_usd,
                     asset[a].priceChangePercent = res.body[0].percent_change_24h;
                     asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                }).catch(console.error))
+                }).catch(console.error)
             }
         }
         
         /* Wait for all promises to resolve. This fixed the big issue */
-        Promise.all(promises).then(function(results) {
+        // Promise.all(promises).then(function(results) {
             // response.send(asset);
             // also grab snapshot process. Note: consolidate this with route 8
             // console.log('here are snapshots',snapshots)
             
             snapshots = JSON.stringify(snapshots);
             response.render('stats', { asset, snapshots}); // render index page and send back data in asset var
-        }.bind(this));
-    }).catch(console.error));
+        // }.bind(this));
+    }).catch(console.error);
 });
 
 /* ROUTE 9: Send Email */
@@ -738,7 +822,6 @@ app.post('/email/send', (request, response) => {
 
 app.post('/text/send', (request, response) => {
     let snapshots = [];
-    let promises = [];
     let recipient = '';
     let emailData = {};
     const ref = firebaseApp.database().ref(`users/${__USERID__}/phone`); //firebase database
