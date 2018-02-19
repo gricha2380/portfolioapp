@@ -49,36 +49,17 @@ app.use(cors()); // if cross origin becomes an issue
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-let getAssets = () => {
+let getAssets = (userDeliver) => {
     let holder = [], value;
 
     console.log('userID',__USERID__)
+    console.log('userDeliver',userDeliver)
     // if (!__USERID__) __USERID__ = 0; // proof of login bug 
-    const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
-    // console.log('inside getAssets');
+    let ref = '';
+    if (userDeliver) {ref = firebaseApp.database().ref(`users/${userDeliver}/assets`)}
+    else {ref = firebaseApp.database().ref(`users/${__USERID__}/assets`)}
 
-    // return ref.once('value').then(snap => {
-    //     console.log('promise snap',snap.val());
-    //     holder.push(snap.val())
-    //     snap.val()
-    // });
-    // return ref.once('value').then(snap => {
-    //     return snap.val();
-    // });
-    
-    // return new Promise((resolve,reject)=>{
-    //     console.log('holder content', holder)
-    //     resolve(holder)
-    // })
     return new Promise((resolve, reject) => resolve(ref.once('value').then(snap => snap.val())))
-
-    // return new Promise((resolve,reject) => {
-    //     const ref = firebaseApp.database().ref(`users/${__USERID__}/assets`); //firebase database
-    //     resolve(ref.once('value').then(snap => {
-    //         console.log('promise snap',snap.val());
-    //         snap.val()
-    //     }))
-    // }) 
 }
 
 let getOneAsset = (id) => {
@@ -213,14 +194,14 @@ let rand = (from, to) => {
     return Math.floor((Math.random() * to) + from);
 }
 
-let sendEmail = (recipient, data, totalValue) => {
+let sendEmail = (recipient, data, totalValue, userDeliver) => {
     
     let userEmail = process.env.portfolioUserEmail || functions.config().email.address;
     let userPassword = process.env.portfolioUserPassword || functions.config().email.password;
     console.log(`survey recipent is ${recipient}`)
     console.log(`local env email address ${process.env.portfolioUserEmail}`)
     // console.log('probably data', data);
-    console.log('probably data portfolio', data.portfolio);
+    // console.log('probably data portfolio', data.portfolio);
     let table = {
         'start':'<table>',
         'end':'</table>',
@@ -621,7 +602,8 @@ app.get('/overview', (request, response) => {
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
     getSnapshots().then(asset => {
-            response.render('historical', { asset });
+            if (request.body.refresh) response.send(asset);
+            else {response.render('historical', { asset })}
     }).catch(console.error);
 });
 
@@ -673,15 +655,22 @@ app.post('/email/send', (request, response) => {
     let totalValue = {
         portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
     };
+    let ref;
+    let userDeliver;
 
-    const ref = firebaseApp.database().ref(`users/${__USERID__}/email`); //firebase database
+    if (request.body.userTrigger) 
+        {ref = firebaseApp.database().ref(`users/${request.body.userTrigger}/email`); console.log(`Checking param. user number from params:`,request.body.userTrigger); userDeliver = request.body.userTrigger}
+    else 
+        {ref = firebaseApp.database().ref(`users/${__USERID__}/email`);console.log(`Checking param. no param. Using __USERID__ instead`,__USERID__)}
+
     ref.once('value').then(snap => {
         recipient = snap.val();
         console.log('email recipient is now', recipient);
         // email stats
-        promises.push(getAssets().then(asset => {
+        promises.push(getAssets(userDeliver).then(asset => {
             for (let a in asset) {
                 if (asset[a].type=='stock') {
+                    // console.log(`one stock`)
                     promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                     .then((res) => {
                         asset[a].exchange = res.exchange;
@@ -697,6 +686,7 @@ app.post('/email/send', (request, response) => {
                     }).catch(console.error))
                 }
                 if (asset[a].type=='crypto') {
+                    // console.log(`one crypto`)
                     promises.push(superagent.get(coinAPI+asset[a].name)
                     .then((res) =>  {
                         asset[a].price = res.body[0].price_usd,
@@ -708,14 +698,15 @@ app.post('/email/send', (request, response) => {
                         totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                         totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                         totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        console.log(`crypto price ${asset[a].price} for ${asset[a].name}`)
                     }).catch(console.error))
                 }
             }
             
             Promise.all(promises).then(function(results) {            
                 emailData.portfolio = asset;
-                console.log('this is emailData portfolio right before send', emailData.portfolio)
-                sendEmail(recipient, emailData, totalValue);
+                // console.log('this is emailData portfolio right before send', emailData.portfolio)
+                sendEmail(recipient, emailData, totalValue, userDeliver);
             });
     
         }).catch(console.error));
@@ -732,11 +723,18 @@ app.post('/text/send', (request, response) => {
     let totalValue = {
         portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
     };
-    const ref = firebaseApp.database().ref(`users/${__USERID__}/phone`); //firebase database
+    let ref;
+    let userDeliver;
+
+    if (request.body.userTrigger) 
+        {ref = firebaseApp.database().ref(`users/${request.body.userTrigger}/phone`); console.log(`Checking param. user number from params:`,request.body.userTrigger); userDeliver = request.body.userTrigger}
+    else 
+        {ref = firebaseApp.database().ref(`users/${__USERID__}/phone`);console.log(`Checking param. no param. Using __USERID__ instead`,__USERID__)}
+
     ref.once('value').then(snap => {
         recipient = snap.val();
         console.log('email phone is now', recipient);
-        recipient= recipient+`@messaging.sprintpcs.com`;
+        recipient= recipient+'@messaging.sprintpcs.com';
         promises.push(getAssets().then(asset => {
             for (let a in asset) {
                 if (asset[a].type=='stock') {
@@ -766,6 +764,7 @@ app.post('/text/send', (request, response) => {
                         totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                         totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                         totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        console.log(`crypto price ${asset[a].price} for ${asset[a].name}`)
                     }).catch(console.error))
                 }
             }
@@ -774,7 +773,7 @@ app.post('/text/send', (request, response) => {
                 emailData.portfolio = asset;
                 console.log('this is emailData portfolio right before send', emailData.portfolio)
                 // sendEmail(recipient, emailData, totalValue);
-                sendText(recipient, emailData, totalValue);
+                sendText(recipient, emailData, totalValue, userDeliver);
             });
     
         }).catch(console.error));  

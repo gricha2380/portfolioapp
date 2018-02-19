@@ -1,9 +1,9 @@
 'use strict';
 
 var app = {};
-// var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
+var __API_URL__ = 'https://portfolioapp2380.firebaseapp.com'; // deployed URL
 // var __API_URL__ = process.env.portfolioAppURL || 'https://portfolioapp2380.firebaseapp.com' // allow localhost:5000 URL
-var __API_URL__ = 'http://localhost:5000'; // local URL
+// var __API_URL__ = 'http://localhost:5000'; // local URL
 
 let chartPoints = [];
 let exchangePoints = [];
@@ -36,7 +36,6 @@ function loadData(info) {
         console.log('this was response...')
         if (response.status === 200) {
             console.log(`Fully authorized. Loading info from localstorage`,JSON.parse(info).username)
-            // move all overview (or other pages) activity here. encapusulate in function
             console.log('ready to innit user')
             initUserMenu();
             initUser();
@@ -85,7 +84,7 @@ function initUserMenu(){
             console.log('email response...')
             if (response.status === 401) {
                 console.log('failure')
-            } else if (response.status === 242) {
+            } else if (response.status === 200) {
                 console.log(`Email sent sucessfully`)
             }
             console.log(response.json());
