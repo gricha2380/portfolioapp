@@ -237,8 +237,12 @@ table.alt tr:nth-of-type(even),.alt>div:nth-of-type(even) {
 
 }
 
-.modal .inner input {
+.modal .inner input,.modal .inner select {
     margin-left: 1rem;
+}
+
+.modal .inner select {
+    min-width: 133px;
 }
 
 .modal .inner .buttonHolder .secondary{
@@ -375,7 +379,8 @@ nav a.active {
     text-align: left;
 }
 .exchangeRow {
-    font-size: 1.2rem;
+    grid-template-columns: 40% 30% 30%;
+    font-size: 1.1rem;
     margin-bottom: .5rem;
 }
 .exchange {
@@ -559,6 +564,9 @@ nav a.active div:before {
     margin-top: 1rem;
 }
 
+#todayDollar .cell {
+    margin-right: 2px;
+}
 
 /********************* MOBILE *********************/
 @media (max-width: 600px) {
@@ -582,5 +590,13 @@ nav a.active div:before {
     }
     .grid.three {
         grid-template-columns: 50% 50%;
+    }
+
+    #actionList {
+        min-width: 95vw;
+        margin-top: .5rem;
+    }
+    #actionList .menu {
+        padding: 1rem 0;
     }
 }

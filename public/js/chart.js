@@ -1,17 +1,6 @@
 'use strict';
 
 var app = {};
-// var chartPoints = [];
-
-// (function(module) {
-  // Create the chart
-//   chartPoints.forEach(function(data) {
-//     Highcharts.stockChart('chartHolder', {
-//       rangeSelector: {selected: 1},
-//       series: [{name: 'Portfolio Value', data: data, type: 'spline', tooltip: {valueDecimals: 2}}]
-//     });
-//   });
-
   console.log('here are chartPoints in chart',chartPoints);
   console.log('point zero',chartPoints.length);
 
@@ -19,7 +8,6 @@ var app = {};
         console.log('this is chartPoints in chart',chartPoints);
         let valCan = document.querySelector('#valueCanvas');
         if (valCan) {
-            console.log('valCan is real!')
             // valCan.width =  window.innerWidth;
             valCan.width =  window.innerWidth - 40;
             // valCan.width =  document.querySelector('#overviewChartHolder').offsetWidth;
@@ -110,7 +98,7 @@ var app = {};
             // exchange.height = window.innerHeight;
             exchange.height = 300;
             exchange.width = 300;
-            console.log('exhcnage width & height', exchange.width, exchange.height)
+            console.log('exchange width & height', exchange.width, exchange.height)
             let labelData = exchangePoints.map(l => l = l[0]);
             let valueData = exchangePoints.map(v => v = v[1]);
             console.log('labelData', labelData)
@@ -136,6 +124,3 @@ var app = {};
             });
         }
     }
-// })(app);
-//data: [chartPoints[0][2], chartPoints[1][2], chartPoints[2][2], chartPoints[3][2], chartPoints[4][2]],
-// data: [chartPoints[0][1], chartPoints[1][1], chartPoints[2][1], chartPoints[3][1], chartPoints[4][1]],

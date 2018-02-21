@@ -15,8 +15,7 @@ const nf = require('nasdaq-finance'); // stock API
 const coinTicker = require('coin-ticker'); // crypto API
 const superagent = require('superagent'); // for performing backend AJAX calls
 const nodemailer = require('nodemailer'); // email & text message
-const async = require('asyncawait/async');
-const await = require('asyncawait/await');
+const session = require('express-session'); // session tracking
 
 /* INSTANTIATING APP FUNCTIONS */
 const stock = new nf.default();
@@ -36,11 +35,11 @@ const firebaseApp = firebase.initializeApp(
 );
 
 /********************* CRON SCHEDULER *********************/
-exports.hourly_job =
-functions.pubsub.topic('daily-tick').onPublish((event) => {
-    console.log("Running every day, like clock work...")
-    saveSnapshot();
-});
+// exports.hourly_job =
+// functions.pubsub.topic('daily-tick').onPublish((event) => {
+//     console.log("Running every day, like clock work...")
+//     saveSnapshot();
+// });
 
 //gcloud app deploy app.yaml \cron.yaml
 
@@ -49,10 +48,17 @@ app.use(cors()); // if cross origin becomes an issue
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+// use sessions for tracking logins
+app.use(session({
+    secret: 'work hard',
+    resave: true,
+    saveUninitialized: false
+  }));
+
 let getAssets = (userDeliver) => {
     let holder = [], value;
 
-    console.log('userID',__USERID__)
+    console.log('userID check',__USERID__)
     console.log('userDeliver',userDeliver)
     // if (!__USERID__) __USERID__ = 0; // proof of login bug 
     let ref = '';
@@ -74,7 +80,7 @@ let checkLogin = (info) => {
     return ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val())
     // return new Promise((resolve, reject) => { 
     //     resolve(ref.child('users').orderByChild('screenname').equalTo(info.username).once('value').then(snap => snap.val()))
-    // })
+    // }) 
 }
 
 let saveSnapshot = () => {
@@ -82,7 +88,6 @@ let saveSnapshot = () => {
     /* TODO: check cridentials */
     const ref = firebaseApp.database().ref(`users/`); //firebase database
     
-    // itterate through whole list of users
     ref.once('value').then(user => {
         user.val().forEach((r)=>{
             console.log(`processing snapshot for ID ${r.id}`);
@@ -266,19 +271,22 @@ let sendEmail = (recipient, data, totalValue, userDeliver) => {
     //     table.content += `<tr><td ${p}><b>${data.tableTemp[x].symbol}</b></td><td ${p}>$${data.tableTemp[x].price}</td><td ${p}>$${data.tableTemp[x].pricePaid}</td><td ${p}>${data.tableTemp[x].quantity}</td><td ${p}>$${data.tableTemp[x].cost}</td><td ${p}>$${data.tableTemp[x].value}</td><td ${p}>${data.tableTemp[x].growth}%</td><td ${p}>$${data.tableTemp[x].gain}</td>`
     //     parseFloat(data.tableTemp[x].gain24)>0 ? table.content += `<td ${p}><span style="color:green">$${data.tableTemp[x].gain24}</span></td></tr>` : table.content += `<td ${p}><span style="color:red">$${data.tableTemp[x].gain24}</span></td></tr>`;
     // }
+    // console.log('whole data portfolio in email',data.portfolio.length+" long", data.portfolio)
     for (let x = 0; x < data.portfolio.length; x++) {
-        let price = parseFloat(data.portfolio[x].price),
-        pricePaid = parseFloat(data.portfolio[x].purchasePrice), 
-        quantity = parseFloat(data.portfolio[x].quantity),
-        marketValue = price * quantity,
-        cost = pricePaid * quantity,
-        value = quantity * price,
-        growth = (marketValue / cost) * 100,
-        gain = (price * quantity) - (pricePaid * quantity),
-        gain24 = parseFloat(data.portfolio[x].priceChange);
-
-        table.content += `<tr><td ${p}><b>${data.portfolio[x].symbol.toUpperCase()}</b></td><td ${p}>$${price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>$${pricePaid.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>${quantity}</td><td ${p}>$${cost.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>$${value.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>${growth.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%</td><td ${p}>$${gain.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>`
-        gain24 > 0 ? table.content += `<td ${p}><span style="color:green">$${gain24.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></td></tr>` : table.content += `<td ${p}><span style="color:red">$${gain24.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></td></tr>`;
+        if (data.portfolio[x]) {
+            let price = parseFloat(data.portfolio[x].price);
+            let pricePaid = parseFloat(data.portfolio[x].purchasePrice); 
+            let quantity = parseFloat(data.portfolio[x].quantity);
+            let marketValue = price * quantity;
+            let cost = pricePaid * quantity;
+            let value = quantity * price;
+            let growth = (marketValue / cost) * 100;
+            let gain = (price * quantity) - (pricePaid * quantity);
+            let gain24 = parseFloat(data.portfolio[x].priceChange);
+        
+            table.content += `<tr><td ${p}><b>${data.portfolio[x].symbol.toUpperCase()}</b></td><td ${p}>$${price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>$${pricePaid.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>${quantity}</td><td ${p}>$${cost.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>$${value.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td><td ${p}>${growth.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}%</td><td ${p}>$${gain.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</td>`
+            gain24 > 0 ? table.content += `<td ${p}><span style="color:green">$${gain24.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></td></tr>` : table.content += `<td ${p}><span style="color:red">$${gain24.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span></td></tr>`;
+        }
     }
     table.content += table.tbodyEnd + table.end;
     
@@ -373,7 +381,7 @@ let processLoop = (asset) => {
             if (asset[a].type=='stock') {
                 promises.push(processStock(asset[a].symbol.toLowerCase())
                 .then((res) => {
-                    asset[a].exchange = res.exchange;
+                    // asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
@@ -411,7 +419,7 @@ const isAuthorized = requestBody => {
 
 /********************* ROUTES *********************/
 app.post('/login', (request, response) => {
-    console.log('login contents',request.body)
+    console.log('login username from body',request.body.username)
     if (!request.body.username || !request.body.password) {
         console.log('incomplete request')
         response.status(400).send(('bad'));
@@ -449,7 +457,8 @@ app.get('/portfolio', (request, response) => {
             if (asset[a].type=='stock') {
                 promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
-                    asset[a].exchange = res.exchange;
+                    // console.log('stock exchange:', res.exchange)
+                    // asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
@@ -621,7 +630,7 @@ app.get('/stats', (request, response) => {
             if (asset[a].type=='stock') {
                 promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                 .then((res) => {
-                    asset[a].exchange = res.exchange;
+                    // asset[a].exchange = res.exchange;
                     asset[a].price = res.price;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
@@ -648,15 +657,15 @@ app.get('/stats', (request, response) => {
 
 /* ROUTE 9: Send Email */
 app.post('/email/send', (request, response) => {
-    let snapshots = [];
-    let promises = [];
-    let recipient = '';
-    let emailData = {};
-    let totalValue = {
+    let snapshots = [],
+    promises = [],
+    recipient = '',
+    emailData = {},
+    totalValue = {
         portfolioValue: 0, portfolioGrowth: 0, portfolioGains: 0, stockValue: 0, stockGrowth: 0, stockGains: 0, cryptoValue: 0, cryptoGrowth: 0, cryptoGains: 0
-    };
-    let ref;
-    let userDeliver;
+    },
+    ref,
+    userDeliver;
 
     if (request.body.userTrigger) 
         {ref = firebaseApp.database().ref(`users/${request.body.userTrigger}/email`); console.log(`Checking param. user number from params:`,request.body.userTrigger); userDeliver = request.body.userTrigger}
@@ -668,12 +677,13 @@ app.post('/email/send', (request, response) => {
         console.log('email recipient is now', recipient);
         // email stats
         promises.push(getAssets(userDeliver).then(asset => {
+            console.log(`showing all ${asset.length} assets`, asset)
             for (let a in asset) {
                 if (asset[a].type=='stock') {
                     // console.log(`one stock`)
                     promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                     .then((res) => {
-                        asset[a].exchange = res.exchange;
+                        // asset[a].exchange = res.exchange;
                         asset[a].price = res.price;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
@@ -683,6 +693,7 @@ app.post('/email/send', (request, response) => {
                         totalValue.stockValue += (asset[a].quantity * asset[a].price);
                         totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                         totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        // console.log(`stock price ${asset[a].price} for ${asset[a].name}`)
                     }).catch(console.error))
                 }
                 if (asset[a].type=='crypto') {
@@ -698,7 +709,7 @@ app.post('/email/send', (request, response) => {
                         totalValue.cryptoValue += (asset[a].quantity * asset[a].price);
                         totalValue.cryptoGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
                         totalValue.cryptoGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                        console.log(`crypto price ${asset[a].price} for ${asset[a].name}`)
+                        // console.log(`crypto price ${asset[a].price} for ${asset[a].name}`)
                     }).catch(console.error))
                 }
             }
@@ -740,7 +751,7 @@ app.post('/text/send', (request, response) => {
                 if (asset[a].type=='stock') {
                     promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
                     .then((res) => {
-                        asset[a].exchange = res.exchange;
+                        // asset[a].exchange = res.exchange;
                         asset[a].price = res.price;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
@@ -792,12 +803,6 @@ app.get('/', (request, response) => {
 app.get('/login', (request, response) => {
     response.render('index', { response });
     // response.redirect('/overview');
-});
-
-app.get('/hello', (request, response) => {
-    // throw 'hello to the people'
-    console.log('functions config here',functions.config())
-    response.send('this is environemtn var' + functions.config().email.address);
 });
 
 app.get('*', (request, response) => {

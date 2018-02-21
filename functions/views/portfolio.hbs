@@ -82,8 +82,9 @@
                         todayPercent : `${parseFloat({{{priceChangePercent}}})}`,
                         todayGain : `${parseFloat({{{priceChange}}})}`
                     }
-                    assets[i].totalGrowth = `${(assets[i].marketValue/assets[i].costBasis)*100}`;
+                    assets[i].totalGrowth = `${((assets[i].marketValue/assets[i].costBasis)-1)*100}`;
                     assets[i].totalGain = `${assets[i].marketValue - assets[i].costBasis}`;
+                    console.log('while asset',assets[i])
 
                     // new school
                     document.querySelector('#symbol').innerHTML += `<div class='cell {{{id}}}'><span class='edit button'></span><span class='symbol'>{{{symbol}}}</span></div>`;
@@ -92,7 +93,7 @@
                     document.querySelector('#quantity').innerHTML += `<div class='cell'>{{{quantity}}}</div>`;
                     document.querySelector('#cost').innerHTML += `<div class='cell'>${parseFloat(assets[i].costBasis).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
                     document.querySelector('#value').innerHTML += `<div class='cell'>${parseFloat(assets[i].marketValue).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
-                    document.querySelector('#growth').innerHTML += `<div class='cell'>${parseFloat(assets[i].totalGrowth).toFixed(2)-1}</div>`;
+                    document.querySelector('#growth').innerHTML += `<div class='cell'>${(parseFloat(assets[i].totalGrowth)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
                     document.querySelector('#gain').innerHTML += `<div class='cell'>${parseFloat(assets[i].totalGain).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</div>`;
                     document.querySelector('#todayPercent').innerHTML += `<div class='cell'>${parseFloat(assets[i].todayPercent)}</div>`;
                     (parseFloat(assets[i].todayGain)>0) ?

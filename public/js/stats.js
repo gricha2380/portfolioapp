@@ -237,7 +237,7 @@ let runStats = () =>{
     //exchange allocation
     for (let i in portfolioStats.exchanges) {
         if (portfolioStats.exchanges[i] > 0) {
-            document.querySelector('#exchangeHolder').innerHTML += `<div class='exchangeRow grid three'><span class='exchange'>${i}</span><span class='value'>$${portfolioStats.exchanges[i].toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span><span class='value'>${((portfolioStats.exchanges[i] / portfolioStats.total.total)*100).toFixed(2)}%</span></div>`;
+            document.querySelector('#exchangeHolder').innerHTML += `<div class='exchangeRow grid'><span class='exchange'>${i}</span><span class='value'>$${portfolioStats.exchanges[i].toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')}</span><span class='value'>${((portfolioStats.exchanges[i] / portfolioStats.total.total)*100).toFixed(2)}%</span></div>`;
             exchangePoints.push([i,portfolioStats.exchanges[i]])
         }
     }

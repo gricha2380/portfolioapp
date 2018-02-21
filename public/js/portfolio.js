@@ -5,7 +5,7 @@ var app = {};
 (function(module) {
     // generate modal
     let modal = (asset) =>{
-        // programatically build div
+        // programmatically build div
         let modalBox = document.createElement('div');
         modalBox.setAttribute("id", "newForm");
         modalBox.setAttribute("class", "modal");
@@ -14,7 +14,7 @@ var app = {};
             <div class="inner">
             <label>Name<input value="" id="nameModal"></label>
             <label>Symbol<input value="" id="symbolModal"></label>
-            <label>Type<input value="" id="typeModal"></label>
+            <label>Type<select id="typeModal"><option value="stock">Stock</option><option value="crypto">Crypto</option></select></label>
             <label>Quantity<input value="" id="quantityModal"></label>
             <label>Price Paid<input value="" id="purchasePriceModal"></label>
             <label>Exchange<input value="" id="exchangeModal"></label>
@@ -38,6 +38,8 @@ var app = {};
             document.querySelector('#purchasePriceModal').value = asset.purchasePrice;
             document.querySelector('#exchangeModal').value = asset.exchange;
             document.querySelector('#currentIDModal').value = asset.id;
+        } else {
+            document.querySelector('#currentIDModal').value = document.querySelectorAll('#assetList #symbol .cell').length+1;
         }
         modalListeners();
     }
@@ -89,7 +91,7 @@ var app = {};
                     "purchasePrice": document.querySelector('#purchasePriceModal').value,
                     "exchange": document.querySelector('#exchangeModal').value,
                     "currentID": document.querySelector('#currentIDModal').value,
-                    "id": document.querySelectorAll('#assetList tr').length
+                    "id": document.querySelectorAll('#assetList #symbol .cell').length+1
                 };
 
                 console.log('currentID',asset.currentID);

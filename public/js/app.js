@@ -130,7 +130,7 @@ function initUserMenu(){
         document.querySelector('#'+target+'+.dropdownList').classList.toggle('show');
 
         // astetic background blue
-        if (document.querySelector('.container')) {document.querySelector('.container').classList.add('dim')}
+        if (document.querySelector('.container')) {document.querySelector('.container').classList.toggle('dim')}
 
         // hide menu if anything other than button is clicked
         document.querySelector('body').addEventListener('click', function(event){
