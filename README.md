@@ -1,4 +1,4 @@
-# Portfolio App 2.0
+# Portfolio App 2 v0.5
 Financial portfolio tracking system, built for personal use and for practice with full stack Javascript development.
   
 ## Features  
@@ -11,7 +11,7 @@ Financial portfolio tracking system, built for personal use and for practice wit
 ## Tech Stack  
 **Frontend:**  
 * Handlebars  
-* Vanilla ES6  
+* ECMAScript 6
  
 **Backend:**   
 * Node.js & Express.js  
