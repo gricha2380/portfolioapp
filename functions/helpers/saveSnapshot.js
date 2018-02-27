@@ -1,5 +1,7 @@
 const firebaseApp = require('../helpers/db').firebaseApp;
 let __USERID__ = require('../helpers/user').USERID; //log
+// // const processCrypto = require('../helpers/processAssets').processCrypto;
+// // const processCrypto = require('../helpers/processAssets').processCrypto;
 
 let saveSnapshot = () => {
     console.log('inside saveSnapshot')

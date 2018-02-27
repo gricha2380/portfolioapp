@@ -45,6 +45,11 @@ const getSnapshots = require('./helpers/getSnapshots').getSnapshots;
 const formatDate = require('./helpers/formatDate').formatDate;
 const sendEmail = require('./helpers/sendEmail').sendEmail;
 const sendText = require('./helpers/sendText').sendText;
+const isAuthorized = require('./helpers/user').isAuthorized;
+const coinAPI = require('./helpers/processAssets').coinAPI;
+// const processStock = require('./helpers/processAssets').processStock;
+// const processCrypto = require('./helpers/processAssets').processCrypto;
+// const processLoop = require('./helpers/processAssets').processLoop;
 
 /********************* CRON SCHEDULER *********************/
 // exports.hourly_job =
@@ -71,58 +76,13 @@ let rand = (from, to) => {
     return Math.floor((Math.random() * to) + from);
 }
 
-let processStock = (symbol) => {
-    return new Promise((resolve, reject) => resolve(stock.getInfo(symbol)))
-}
+process.on('unhandledRejection',error => {
+    console.log('process on error', error.message)
+})
 
-let processCrypto = (symbol) => {
-    return new Promise((resolve, reject) => resolve(superagent.get(symbol)))
-}
-
-let coinAPI = "https://api.coinmarketcap.com/v1/ticker/";
-
-let processLoop = (asset) => {
-    let promises = [];
-    // return new Promise((resolve, reject) => {
-        for (let a in asset) {
-            if (asset[a].type=='stock') {
-                promises.push(processStock(asset[a].symbol.toLowerCase())
-                .then((res) => {
-                    // asset[a].exchange = res.exchange;
-                    asset[a].price = res.price;
-                    asset[a].priceChange = res.priceChange;
-                    asset[a].priceChangePercent = res.priceChangePercent;
-                    // fullAsset.push(asset[a]);
-                    console.log('getAsset during processing loop',asset[a])
-                    // console.log('fullAsset',fullAsset)
-                    return asset[a]
-                }).catch(console.error))
-            }
-            if (asset[a].type=='crypto') {
-                promises.push(processCrypto(coinAPI+asset[a].name)
-                .then(res =>  {
-                    asset[a].price = res.body[0].price_usd,
-                    asset[a].priceChangePercent = res.body[0].percent_change_24h;
-                    asset[a].priceChange = parseFloat(asset[a].priceChangePercent * (asset[a].price * .01));
-                    console.log('getAsset during processing loop',asset[a])
-                    // fullAsset.push(asset[a])
-                    // console.log('fullAsset',fullAsset)
-                    return asset[a]
-                }).catch(console.error))
-            }
-        }
-        Promise.all(promises).then((results) =>{
-            return new Promise((resolve, reject) => resolve(asset))    
-        })
-    // })
-}
-
-const isAuthorized = requestBody => {
-    // console.log('inside isAuthorized',requestBody)
-   return new Promise((resolve, reject) => { 
-        resolve(checkLogin(requestBody))
-    })
-}
+process.on('uncaughtException',error => {
+    console.log('process on exception', error.message)
+})
 
 /********************* ROUTES *********************/
 // const loginRoute = require('routes/login')
@@ -318,9 +278,13 @@ app.get('/overview', (request, response) => {
 
 /* ROUTE 7: retrieve snapshots */
 app.get('/historical', (request, response) => {
+    // console.log('historical route',request)
     getSnapshots().then(asset => {
             if (request.body.refresh) response.send(asset);
-            else {response.render('historical', { asset })}
+            else {
+                console.log('this is returned from getSnapshots.js',asset)
+                response.render('historical', { asset })
+            }
     }).catch(console.error);
 });
 
