@@ -3,3 +3,4 @@ node_modules
 firebase-debug.log
 appengine/lib
 functions/indexReal.js
+cloud-functions-emulator.log
