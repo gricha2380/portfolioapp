@@ -353,6 +353,10 @@ nav a.active {
     margin-bottom: 1rem;
     min-width: 200px;
 }
+#signin:hover{
+    cursor: pointer;
+    color: rgba(179, 200, 211, 1);
+}
 
 #signin {
     width: 100%;
@@ -361,6 +365,7 @@ nav a.active {
     border: none;
     margin: 0;
     padding: .5rem;
+    transition: 1s;
 }
 
 #valueCanvas {

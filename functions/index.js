@@ -11,14 +11,11 @@ const express = require('express'); // load express from node_modules
 const engines = require('consolidate'); // allows popular templating libaries to work with Express
 const cors = require('cors'); // avoid cross browser scripting errors
 const bodyParser = require('body-parser'); // go inside message body
-const nf = require('nasdaq-finance'); // stock API
-const coinTicker = require('coin-ticker'); // crypto API
 const superagent = require('superagent'); // for performing backend AJAX calls
-// const nodemailer = require('nodemailer'); // email & text message
 const session = require('express-session'); // session tracking
 
 /* INSTANTIATING APP FUNCTIONS */
-const stock = new nf.default();
+// const stock = new nf.default();
 const app = express();
 
 const config = functions.config();
@@ -50,6 +47,12 @@ const coinAPI = require('./helpers/processAssets').coinAPI;
 // const processStock = require('./helpers/processAssets').processStock;
 // const processCrypto = require('./helpers/processAssets').processCrypto;
 // const processLoop = require('./helpers/processAssets').processLoop;
+
+let stockAPI = {
+    "start": "https://api.iextrading.com/1.0/stock/",
+    "end": "/delayed-quote"
+} // e.g.: https://api.iextrading.com/1.0/stock/aapl/delayed-quote
+
 
 /********************* CRON SCHEDULER *********************/
 // exports.hourly_job =
@@ -123,11 +126,8 @@ app.get('/portfolio', (request, response) => {
     promises.push(getAssets().then(asset => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                .then((res) => {
-                    // console.log('stock exchange:', res.exchange)
-                    // asset[a].exchange = res.exchange;
-                    asset[a].price = res.price;
+                promises.push(superagent.get(stockAPI.start+asset[a].symbol.toLowerCase()+stockAPI.end).then((res) => {    
+                    asset[a].price = res.body.delayedPrice;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
                 }).catch(console.error))
@@ -242,17 +242,16 @@ app.get('/overview', (request, response) => {
     promises.push(getAssets().then(asset => { 
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                .then((res) => {
-                    asset[a].price = res.price;
-                    totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
-                    totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
-                    totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                    totalValue.stockValue += (asset[a].quantity * asset[a].price);
-                    totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
-                    totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
-                }).catch(console.error))
-            }
+                    promises.push(superagent.get(stockAPI.start+asset[a].symbol.toLowerCase()+stockAPI.end).then((res) => {    
+                        asset[a].price = res.body.delayedPrice;
+                        totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
+                        totalValue.portfolioGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.portfolioGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                        totalValue.stockValue += (asset[a].quantity * asset[a].price);
+                        totalValue.stockGrowth += (asset[a].price / asset[a].purchasePrice) - 1;
+                        totalValue.stockGains += (asset[a].price - asset[a].purchasePrice) * asset[a].quantity;
+                    }).catch(console.error))
+                }
             if (asset[a].type=='crypto') {
                 promises.push(superagent.get(coinAPI+asset[a].name)
                 .then((res) => {    
@@ -266,6 +265,7 @@ app.get('/overview', (request, response) => {
                 }).catch(console.error))
             }
         }
+
         Promise.all(promises).then(function(results) {
             snapshots = JSON.stringify(snapshots);
             if (request.body.refresh) response.send(totalValue, snapshots)
@@ -300,10 +300,9 @@ app.get('/stats', (request, response) => {
     promises.push(getAssets().then(asset => {
         for (let a in asset) {
             if (asset[a].type=='stock') {
-                promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                .then((res) => {
-                    // asset[a].exchange = res.exchange;
-                    asset[a].price = res.price;
+                promises.push(superagent.get(stockAPI.start+asset[a].symbol.toLowerCase()+stockAPI.end)
+                .then((res) => {    
+                    asset[a].price = res.body.delayedPrice;
                     asset[a].priceChange = res.priceChange;
                     asset[a].priceChangePercent = res.priceChangePercent;
                 }).catch(console.error))
@@ -352,11 +351,9 @@ app.post('/email/send', (request, response) => {
             console.log(`showing all ${asset.length} assets`, asset)
             for (let a in asset) {
                 if (asset[a].type=='stock') {
-                    // console.log(`one stock`)
-                    promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                    .then((res) => {
-                        // asset[a].exchange = res.exchange;
-                        asset[a].price = res.price;
+                    promises.push(superagent.get(stockAPI.start+asset[a].symbol.toLowerCase()+stockAPI.end)
+                    .then((res) => {    
+                        asset[a].price = res.body.delayedPrice;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
                         totalValue.portfolioValue += (asset[a].quantity * asset[a].price);
@@ -421,10 +418,9 @@ app.post('/text/send', (request, response) => {
         promises.push(getAssets().then(asset => {
             for (let a in asset) {
                 if (asset[a].type=='stock') {
-                    promises.push(stock.getInfo(asset[a].symbol.toLowerCase())
-                    .then((res) => {
-                        // asset[a].exchange = res.exchange;
-                        asset[a].price = res.price;
+                    promises.push(superagent.get(stockAPI.start+asset[a].symbol.toLowerCase()+stockAPI.end)
+                    .then((res) => {    
+                        asset[a].price = res.body.delayedPrice;
                         asset[a].priceChange = res.priceChange;
                         asset[a].priceChangePercent = res.priceChangePercent;
                         totalValue.portfolioValue += (asset[a].quantity * asset[a].price);

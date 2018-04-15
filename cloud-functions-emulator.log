@@ -1,0 +1,403 @@
+2018-04-15T22:41:40.145Z - info: User function triggered, starting execution
+2018-04-15T22:41:40.161Z - info: Execution took 19 ms, user function completed successfully
+2018-04-15T22:41:40.286Z - info: User function triggered, starting execution
+2018-04-15T22:41:40.503Z - info: currnent userid 0
+2018-04-15T22:41:40.510Z - info: userID check 0
+2018-04-15T22:41:40.511Z - info: userDeliver undefined
+2018-04-15T22:42:40.283Z - info: Execution took 60004 ms, finished with status: 'timeout'
+2018-04-15T22:42:42.412Z - info: User function triggered, starting execution
+2018-04-15T22:42:42.425Z - info: Execution took 13 ms, user function completed successfully
+2018-04-15T22:56:10.857Z - info: User function triggered, starting execution
+2018-04-15T22:56:11.010Z - info: currnent userid 0
+2018-04-15T22:56:11.015Z - info: userID check 0
+2018-04-15T22:56:11.015Z - info: userDeliver undefined
+2018-04-15T22:56:12.313Z - info: Execution took 1456 ms, user function completed successfully
+2018-04-15T22:56:15.360Z - info: User function triggered, starting execution
+2018-04-15T22:56:15.362Z - info: currnent userid 0
+2018-04-15T22:56:15.368Z - info: userID check 0
+2018-04-15T22:56:15.369Z - info: userDeliver undefined
+2018-04-15T22:56:15.716Z - info: Execution took 355 ms, user function completed successfully
+2018-04-15T22:58:24.977Z - info: User function triggered, starting execution
+2018-04-15T22:58:24.989Z - info: currnent userid 0
+2018-04-15T22:58:24.989Z - info: userID check 0
+userDeliver undefined
+2018-04-15T22:58:25.314Z - info: Execution took 335 ms, user function completed successfully
+2018-04-15T22:58:26.092Z - info: User function triggered, starting execution
+2018-04-15T22:58:26.093Z - info: login username from body gricha2380
+2018-04-15T22:58:26.093Z - info: inside checkLogin
+2018-04-15T22:58:26.154Z - info: pocessing results of checkLogin
+2018-04-15T22:58:26.154Z - info: userID is now: 0
+auth looks alright to me
+2018-04-15T22:58:26.156Z - info: Execution took 63 ms, user function completed successfully
+2018-04-15T23:01:25.778Z - info: User function triggered, starting execution
+2018-04-15T23:01:25.779Z - info: userID check 0
+2018-04-15T23:01:25.779Z - info: userDeliver undefined
+2018-04-15T23:01:26.148Z - info: Execution took 368 ms, user function completed successfully
+2018-04-15T23:01:26.483Z - info: User function triggered, starting execution
+2018-04-15T23:01:26.484Z - info: login username from body gricha2380
+2018-04-15T23:01:26.484Z - info: inside checkLogin
+2018-04-15T23:01:26.550Z - info: pocessing results of checkLogin
+2018-04-15T23:01:26.551Z - info: userID is now: 0
+auth looks alright to me
+2018-04-15T23:01:26.555Z - info: Execution took 68 ms, user function completed successfully
+2018-04-15T23:01:34.157Z - info: User function triggered, starting execution
+2018-04-15T23:01:34.218Z - error: [2018-04-15T23:01:34.216Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "id" at /users/0/assets to your security rules for better performance. 
+2018-04-15T23:01:34.220Z - info: Execution took 63 ms, user function completed successfully
+2018-04-15T23:01:37.558Z - info: User function triggered, starting execution
+2018-04-15T23:01:37.568Z - info: Execution took 10 ms, user function completed successfully
+2018-04-15T23:01:48.301Z - info: Worker for app closed due to file changes.
+2018-04-15T23:01:48.326Z - error: Function worker killed by signal: SIGTERM
+2018-04-15T23:03:07.795Z - error: /Users/gregorrichardson/Sites/portfolioapp/functions/index.js:18
+const stock = new nf.default();
+                  ^
+
+ReferenceError: nf is not defined
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/index.js:18:19)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+    at tryModuleLoad (module.js:446:12)
+    at Function.Module._load (module.js:438:3)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at process.on.e (/Users/gregorrichardson/.nvm/versions/node/v6.11.5/lib/node_modules/firebase-tools/node_modules/@google-cloud/functions-emulator/src/supervisor/worker.js:76:28)
+    at emitTwo (events.js:106:13)
+    at process.emit (events.js:191:7)
+    at process.nextTick (internal/child_process.js:787:12)
+    at _combinedTickCallback (internal/process/next_tick.js:73:7)
+    at process._tickCallback (internal/process/next_tick.js:104:9)
+2018-04-15T23:03:07.808Z - error: Function worker crashed with exit code: 1
+2018-04-15T23:05:46.359Z - error: /Users/gregorrichardson/Sites/portfolioapp/functions/index.js:18
+const stock = new nf.default();
+                  ^
+
+ReferenceError: nf is not defined
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/index.js:18:19)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+    at tryModuleLoad (module.js:446:12)
+    at Function.Module._load (module.js:438:3)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at process.on.e (/Users/gregorrichardson/.nvm/versions/node/v6.11.5/lib/node_modules/firebase-tools/node_modules/@google-cloud/functions-emulator/src/supervisor/worker.js:76:28)
+    at emitTwo (events.js:106:13)
+    at process.emit (events.js:191:7)
+    at process.nextTick (internal/child_process.js:787:12)
+    at _combinedTickCallback (internal/process/next_tick.js:73:7)
+    at process._tickCallback (internal/process/next_tick.js:104:9)
+2018-04-15T23:05:46.422Z - error: Function worker crashed with exit code: 1
+2018-04-15T23:05:48.245Z - error: /Users/gregorrichardson/Sites/portfolioapp/functions/index.js:18
+const stock = new nf.default();
+                  ^
+
+ReferenceError: nf is not defined
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/index.js:18:19)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+    at tryModuleLoad (module.js:446:12)
+    at Function.Module._load (module.js:438:3)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at process.on.e (/Users/gregorrichardson/.nvm/versions/node/v6.11.5/lib/node_modules/firebase-tools/node_modules/@google-cloud/functions-emulator/src/supervisor/worker.js:76:28)
+    at emitTwo (events.js:106:13)
+    at process.emit (events.js:191:7)
+    at process.nextTick (internal/child_process.js:787:12)
+    at _combinedTickCallback (internal/process/next_tick.js:73:7)
+    at process._tickCallback (internal/process/next_tick.js:104:9)
+2018-04-15T23:05:48.484Z - error: Function worker crashed with exit code: 1
+2018-04-15T23:06:11.777Z - info: User function triggered, starting execution
+2018-04-15T23:06:11.783Z - info: userID check 0
+2018-04-15T23:06:11.783Z - info: userDeliver undefined
+2018-04-15T23:06:12.844Z - info: Execution took 1067 ms, user function completed successfully
+2018-04-15T23:06:13.164Z - info: User function triggered, starting execution
+2018-04-15T23:06:13.165Z - info: login username from body gricha2380
+2018-04-15T23:06:13.165Z - info: inside checkLogin
+2018-04-15T23:06:13.233Z - info: pocessing results of checkLogin
+2018-04-15T23:06:13.234Z - info: userID is now: 0
+auth looks alright to me
+2018-04-15T23:06:13.237Z - info: Execution took 70 ms, user function completed successfully
+2018-04-15T23:06:34.336Z - info: User function triggered, starting execution
+2018-04-15T23:06:34.395Z - error: [2018-04-15T23:06:34.395Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "id" at /users/0/assets to your security rules for better performance. 
+2018-04-15T23:06:34.397Z - info: Execution took 61 ms, user function completed successfully
+2018-04-15T23:06:37.971Z - info: User function triggered, starting execution
+2018-04-15T23:06:37.979Z - info: Execution took 7 ms, user function completed successfully
+2018-04-15T23:06:38.078Z - info: User function triggered, starting execution
+2018-04-15T23:06:38.079Z - info: userID check 0
+2018-04-15T23:06:38.079Z - info: userDeliver undefined
+2018-04-15T23:06:38.416Z - info: Execution took 337 ms, user function completed successfully
+2018-04-15T23:06:38.739Z - info: User function triggered, starting execution
+2018-04-15T23:06:38.741Z - info: login username from body gricha2380
+2018-04-15T23:06:38.742Z - info: inside checkLogin
+2018-04-15T23:06:38.827Z - info: pocessing results of checkLogin
+2018-04-15T23:06:38.828Z - info: userID is now: 0
+auth looks alright to me
+2018-04-15T23:06:38.829Z - info: Execution took 89 ms, user function completed successfully
+2018-04-15T23:06:51.425Z - info: User function triggered, starting execution
+2018-04-15T23:06:51.426Z - info: Checking param. no param. Using __USERID__ instead 0
+2018-04-15T23:06:51.428Z - info: Execution took 3 ms, user function completed successfully
+2018-04-15T23:06:51.475Z - info: email phone is now 3059895420
+2018-04-15T23:06:51.476Z - info: userID check 0
+userDeliver undefined
+2018-04-15T23:06:51.814Z - info: crypto price 69.94 for neo
+2018-04-15T23:06:51.818Z - info: crypto price 8319.28 for bitcoin
+2018-04-15T23:06:51.821Z - info: this is emailData portfolio right before send [ { exchange: 'Merill Edge',
+    id: 6,
+    name: 'HDV',
+    purchasePrice: '82.98',
+    quantity: '31.04',
+    symbol: 'HDV',
+    type: 'stock',
+    price: 84.2,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { '0': 1,
+    exchange: 'Etrade',
+    id: 1,
+    name: 'Google',
+    purchasePrice: '24.22',
+    quantity: '6',
+    symbol: 'GOOG',
+    type: 'stock',
+    price: 1008.98,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { exchange: 'etrade',
+    id: 2,
+    name: 'Microsoft',
+    purchasePrice: '25',
+    quantity: '5',
+    symbol: 'msft',
+    type: 'stock',
+    price: 90.39,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { '0': 0,
+    exchange: 'bittrex',
+    id: 3,
+    name: 'neo',
+    purchasePrice: '6.50',
+    quantity: '10',
+    symbol: 'NEO',
+    type: 'crypto',
+    price: '69.94',
+    priceChangePercent: '8.46',
+    priceChange: 5.916924000000001 },
+  { exchange: 'coinbase',
+    id: 4,
+    name: 'bitcoin',
+    purchasePrice: '1500',
+    quantity: '1',
+    symbol: 'btc',
+    type: 'crypto',
+    price: '8319.28',
+    priceChangePercent: '3.61',
+    priceChange: 300.326008 },
+  { exchange: 'etrade',
+    id: 5,
+    name: 'Amazon',
+    purchasePrice: '750',
+    quantity: '8',
+    symbol: 'AMZN',
+    type: 'stock',
+    price: 1417.52,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  ,
+  { exchange: 'Merill Edge',
+    id: 7,
+    name: 'Facebook',
+    purchasePrice: '152.45',
+    quantity: '7',
+    symbol: 'FB',
+    type: 'stock',
+    price: 158.77,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { exchange: 'etrade',
+    name: 'IBM',
+    purchasePrice: '50.50',
+    quantity: '3',
+    symbol: 'IBM',
+    type: 'stock',
+    price: 156.87,
+    priceChange: undefined,
+    priceChangePercent: undefined } ]
+2018-04-15T23:06:51.825Z - info: process on error formatDate is not defined
+2018-04-15T23:09:47.515Z - error: Function worker killed by signal: SIGTERM
+2018-04-15T23:10:08.265Z - error: module.js:471
+    throw err;
+    ^
+
+Error: Cannot find module './helpers/formatDate'
+    at Function.Module._resolveFilename (module.js:469:15)
+    at Function.Module._load (module.js:417:25)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/helpers/sendEmail.js:3:51)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+    at tryModuleLoad (module.js:446:12)
+    at Function.Module._load (module.js:438:3)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/index.js:43:49)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+2018-04-15T23:10:08.278Z - error: Function worker crashed with exit code: 1
+2018-04-15T23:10:09.901Z - error: module.js:471
+    throw err;
+    ^
+
+Error: Cannot find module './helpers/formatDate'
+    at Function.Module._resolveFilename (module.js:469:15)
+    at Function.Module._load (module.js:417:25)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/helpers/sendEmail.js:3:51)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+    at tryModuleLoad (module.js:446:12)
+    at Function.Module._load (module.js:438:3)
+    at Module.require (module.js:497:17)
+    at require (internal/module.js:20:19)
+    at Object.<anonymous> (/Users/gregorrichardson/Sites/portfolioapp/functions/index.js:43:49)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+2018-04-15T23:10:09.915Z - error: Function worker crashed with exit code: 1
+2018-04-15T23:11:01.727Z - info: User function triggered, starting execution
+2018-04-15T23:11:01.733Z - info: userID check 0
+2018-04-15T23:11:01.734Z - info: userDeliver undefined
+2018-04-15T23:11:02.883Z - info: Execution took 1156 ms, user function completed successfully
+2018-04-15T23:11:03.137Z - info: User function triggered, starting execution
+2018-04-15T23:11:03.138Z - info: login username from body gricha2380
+2018-04-15T23:11:03.139Z - info: inside checkLogin
+2018-04-15T23:11:03.229Z - info: pocessing results of checkLogin
+2018-04-15T23:11:03.229Z - info: userID is now: 0
+auth looks alright to me
+2018-04-15T23:11:03.230Z - info: Execution took 93 ms, user function completed successfully
+2018-04-15T23:11:08.773Z - info: User function triggered, starting execution
+2018-04-15T23:11:08.774Z - info: Checking param. no param. Using __USERID__ instead 0
+2018-04-15T23:11:08.775Z - info: Execution took 2 ms, user function completed successfully
+2018-04-15T23:11:08.823Z - info: email phone is now 3059895420
+2018-04-15T23:11:08.823Z - info: userID check 0
+userDeliver undefined
+2018-04-15T23:11:09.132Z - info: crypto price 8322.27 for bitcoin
+2018-04-15T23:11:09.256Z - info: crypto price 70.0297 for neo
+2018-04-15T23:11:09.260Z - info: this is emailData portfolio right before send [ { exchange: 'Merill Edge',
+    id: 6,
+    name: 'HDV',
+    purchasePrice: '82.98',
+    quantity: '31.04',
+    symbol: 'HDV',
+    type: 'stock',
+    price: 84.2,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { '0': 1,
+    exchange: 'Etrade',
+    id: 1,
+    name: 'Google',
+    purchasePrice: '24.22',
+    quantity: '6',
+    symbol: 'GOOG',
+    type: 'stock',
+    price: 1008.98,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { exchange: 'etrade',
+    id: 2,
+    name: 'Microsoft',
+    purchasePrice: '25',
+    quantity: '5',
+    symbol: 'msft',
+    type: 'stock',
+    price: 90.39,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { '0': 0,
+    exchange: 'bittrex',
+    id: 3,
+    name: 'neo',
+    purchasePrice: '6.50',
+    quantity: '10',
+    symbol: 'NEO',
+    type: 'crypto',
+    price: '70.0297',
+    priceChangePercent: '8.59',
+    priceChange: 6.015551230000001 },
+  { exchange: 'coinbase',
+    id: 4,
+    name: 'bitcoin',
+    purchasePrice: '1500',
+    quantity: '1',
+    symbol: 'btc',
+    type: 'crypto',
+    price: '8322.27',
+    priceChangePercent: '3.65',
+    priceChange: 303.762855 },
+  { exchange: 'etrade',
+    id: 5,
+    name: 'Amazon',
+    purchasePrice: '750',
+    quantity: '8',
+    symbol: 'AMZN',
+    type: 'stock',
+    price: 1417.52,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  ,
+  { exchange: 'Merill Edge',
+    id: 7,
+    name: 'Facebook',
+    purchasePrice: '152.45',
+    quantity: '7',
+    symbol: 'FB',
+    type: 'stock',
+    price: 158.77,
+    priceChange: undefined,
+    priceChangePercent: undefined },
+  { exchange: 'etrade',
+    name: 'IBM',
+    purchasePrice: '50.50',
+    quantity: '3',
+    symbol: 'IBM',
+    type: 'stock',
+    price: 156.87,
+    priceChange: undefined,
+    priceChangePercent: undefined } ]
+2018-04-15T23:11:10.854Z - info: Success. SMS sent to 3059895420@messaging.sprintpcs.com 250 2.0.0 OK 1523833870 p73sm22829265pfa.43 - gsmtp
+2018-04-15T23:11:30.414Z - info: User function triggered, starting execution
+2018-04-15T23:11:30.418Z - info: Execution took 3 ms, user function completed successfully
+2018-04-15T23:13:30.787Z - info: User function triggered, starting execution
+2018-04-15T23:13:30.791Z - info: Execution took 3 ms, user function completed successfully
+2018-04-15T23:14:12.944Z - info: User function triggered, starting execution
+2018-04-15T23:14:12.946Z - info: Execution took 2 ms, user function completed successfully
+2018-04-15T23:14:47.319Z - info: User function triggered, starting execution
+2018-04-15T23:14:47.321Z - info: Execution took 1 ms, user function completed successfully
+2018-04-15T23:15:03.691Z - info: User function triggered, starting execution
+2018-04-15T23:15:03.693Z - info: Execution took 2 ms, user function completed successfully
+2018-04-15T23:15:15.144Z - info: User function triggered, starting execution
+2018-04-15T23:15:15.145Z - info: login username from body demo
+2018-04-15T23:15:15.145Z - info: inside checkLogin
+2018-04-15T23:15:15.204Z - info: pocessing results of checkLogin
+2018-04-15T23:15:15.205Z - info: userID is now: 1
+auth looks alright to me
+Execution took 60 ms, user function completed successfully
+2018-04-15T23:15:15.344Z - info: User function triggered, starting execution
+2018-04-15T23:15:15.344Z - info: currnent userid 0
+2018-04-15T23:15:15.345Z - info: userID check 0
+2018-04-15T23:15:15.346Z - info: userDeliver undefined
+2018-04-15T23:15:15.701Z - info: Execution took 357 ms, user function completed successfully
+2018-04-15T23:15:16.018Z - info: User function triggered, starting execution
+2018-04-15T23:15:16.024Z - info: login username from body demo
+inside checkLogin
+2018-04-15T23:15:16.080Z - info: pocessing results of checkLogin
+2018-04-15T23:15:16.081Z - info: userID is now: 1
+2018-04-15T23:15:16.082Z - info: auth looks alright to me
+Execution took 65 ms, user function completed successfully

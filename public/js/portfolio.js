@@ -64,16 +64,17 @@ var app = {};
     })
 
     let refresh = () => {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open('GET', `${__API_URL__}/all`, true);
-        xhttp.setRequestHeader('Content-Type', 'application/json');
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                // console.log('load all records complete, now refreshing page', this.responseText)
-                document.querySelector('html').innerHTML = this.responseText;
-            }
-        }
-        xhttp.send();
+        location.reload();
+        // let xhttp = new XMLHttpRequest();
+        // xhttp.open('GET', `${__API_URL__}/all`, true);
+        // xhttp.setRequestHeader('Content-Type', 'application/json');
+        // xhttp.onreadystatechange = function() {
+        //     if (this.readyState == 4 && this.status == 200) {
+        //         // console.log('load all records complete, now refreshing page', this.responseText)
+        //         document.querySelector('html').innerHTML = this.responseText;
+        //     }
+        // }
+        // xhttp.send();
         // console.log('asset created... needs a then')
     }
 
@@ -119,7 +120,7 @@ var app = {};
         //.then(() => console.log('asset created!'))
         // console.log('asset created... needs a then')
         document.querySelector('#newForm').remove();
-        // refresh();
+        refresh();
     }
 
     let updateRecord = (asset) => {
@@ -132,6 +133,7 @@ var app = {};
         //.then(() => console.log('asset created!'))
         // console.log('asset updated', asset);
         document.querySelector('#newForm').remove();
+        refresh();
     }
 
     let loadRecord = (id) => {

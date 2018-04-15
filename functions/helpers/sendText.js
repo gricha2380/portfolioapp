@@ -1,5 +1,6 @@
 const functions = require('firebase-functions'); //for firebase storage
 const nodemailer = require('nodemailer'); // email & text message
+const formatDate = require('../helpers/formatDate').formatDate;
 
 let sendText = (recipient, data, totalValue) => {
     
